@@ -1,0 +1,221 @@
+<?php
+/**
+ * Template Name: Trang Doanh nghiệp
+ * 
+ * Template for displaying the business directory page
+ */
+
+get_header();
+?>
+
+<main class="main-content">
+    <!-- Left Sidebar -->
+    <div class="sidebar-column">
+        <div class="column-header mobile-toggle collapsed">Về Cộng đồng DNTTVN</div>
+        <div class="column-content mobile-collapsed">
+            <ul class="about-list">
+                <li><a href="#">Điều lệ tổ chức hoạt động</a></li>
+                <li><a href="#">Danh sách thành viên sáng lập</a></li>
+                <li><a href="#">Cấu trúc Cộng đồng</a></li>
+                <li><a href="#">Danh sách Lãnh đạo điều hành</a></li>
+                <li class="highlight-item">
+                    <a href="#">Tìm hiểu trở thành thành viên mới</a>
+                </li>
+                <li><a href="#">Giá trị nhận được của thành viên</a></li>
+                <li><a href="#">Quy trình gia nhập Cộng đồng</a></li>
+                <li><a href="#">Hỏi đáp về Cộng đồng</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Center Content -->
+    <div class="main-center">
+        <!-- Top Search Section -->
+        <div class="top-search-section">
+            <h3>Tìm kiếm Doanh nghiệp</h3>
+            <form method="get" action="<?php echo esc_url(get_permalink()); ?>">
+                <div class="search-form-row">
+                    <div class="form-group">
+                        <label>* Tên Doanh nghiệp</label>
+                        <input type="text" name="ten_doanh_nghiep" placeholder="Nhập tên doanh nghiệp" value="<?php echo isset($_GET['ten_doanh_nghiep']) ? esc_attr($_GET['ten_doanh_nghiep']) : ''; ?>">
+                    </div>
+                    <div class="form-group">
+                        <label>* Khu vực</label>
+                        <select name="khu_vuc">
+                            <option value="">Chọn khu vực</option>
+                            <?php
+                            $khu_vuc_terms = get_terms(array(
+                                'taxonomy'   => 'khu_vuc',
+                                'hide_empty' => false,
+                            ));
+                            foreach ($khu_vuc_terms as $term) {
+                                $selected = (isset($_GET['khu_vuc']) && $_GET['khu_vuc'] == $term->slug) ? 'selected' : '';
+                                echo '<option value="' . esc_attr($term->slug) . '" ' . $selected . '>' . esc_html($term->name) . '</option>';
+                            }
+                            ?>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>* Ngành hàng</label>
+                        <select name="nganh_hang">
+                            <option value="">Chọn ngành hàng</option>
+                            <?php
+                            $nganh_hang_terms = get_terms(array(
+                                'taxonomy'   => 'nganh_hang',
+                                'hide_empty' => false,
+                            ));
+                            foreach ($nganh_hang_terms as $term) {
+                                $selected = (isset($_GET['nganh_hang']) && $_GET['nganh_hang'] == $term->slug) ? 'selected' : '';
+                                echo '<option value="' . esc_attr($term->slug) . '" ' . $selected . '>' . esc_html($term->name) . '</option>';
+                            }
+                            ?>
+                        </select>
+                    </div>
+                    <button type="submit" class="search-button">Tìm kiếm</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Business Cards Grid -->
+        <div class="content-columns">
+            <?php
+            $args = array(
+                'post_type'      => 'doanh_nghiep',
+                'posts_per_page' => 6,
+                'post_status'    => 'publish',
+                'orderby'        => 'date',
+                'order'          => 'DESC',
+            );
+
+            // Filter by search
+            if (isset($_GET['ten_doanh_nghiep']) && !empty($_GET['ten_doanh_nghiep'])) {
+                $args['s'] = sanitize_text_field($_GET['ten_doanh_nghiep']);
+            }
+
+            // Filter by taxonomy
+            $tax_query = array();
+            if (isset($_GET['khu_vuc']) && !empty($_GET['khu_vuc'])) {
+                $tax_query[] = array(
+                    'taxonomy' => 'khu_vuc',
+                    'field'    => 'slug',
+                    'terms'    => sanitize_text_field($_GET['khu_vuc']),
+                );
+            }
+            if (isset($_GET['nganh_hang']) && !empty($_GET['nganh_hang'])) {
+                $tax_query[] = array(
+                    'taxonomy' => 'nganh_hang',
+                    'field'    => 'slug',
+                    'terms'    => sanitize_text_field($_GET['nganh_hang']),
+                );
+            }
+            if (!empty($tax_query)) {
+                $args['tax_query'] = $tax_query;
+            }
+
+            $doanh_nghiep_query = new WP_Query($args);
+
+            if ($doanh_nghiep_query->have_posts()) :
+                while ($doanh_nghiep_query->have_posts()) : $doanh_nghiep_query->the_post();
+                    $nganh_hang = get_post_meta(get_the_ID(), '_nganh_hang', true);
+                    $khu_vuc = get_post_meta(get_the_ID(), '_khu_vuc', true);
+                    $hinh_anh_phu = get_post_meta(get_the_ID(), '_hinh_anh_phu', true);
+                    ?>
+                    <div class="business-card">
+                        <div class="business-card-left">
+                            <div class="business-card-image">
+                                <?php if (has_post_thumbnail()) : ?>
+                                    <?php the_post_thumbnail('medium'); ?>
+                                <?php else : ?>
+                                    <img src="https://via.placeholder.com/200x200/667eea/ffffff?text=<?php echo esc_attr(get_the_title()); ?>" alt="<?php the_title(); ?>">
+                                <?php endif; ?>
+                            </div>
+                            <div class="business-card-info-section">
+                                <h4><?php the_title(); ?></h4>
+                                <?php if ($nganh_hang) : ?>
+                                    <div class="business-card-info">
+                                        <svg class="business-card-info-icon" viewBox="0 0 24 24">
+                                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                                        </svg>
+                                        <p><strong>Ngành hàng:</strong> <?php echo esc_html($nganh_hang); ?></p>
+                                    </div>
+                                <?php endif; ?>
+                                <?php if ($khu_vuc) : ?>
+                                    <div class="business-card-info">
+                                        <svg class="business-card-info-icon" viewBox="0 0 24 24">
+                                            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                                        </svg>
+                                        <p><strong>Khu vực:</strong> <?php echo esc_html($khu_vuc); ?></p>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                        <div class="business-card-content">
+                            <?php if ($hinh_anh_phu) : ?>
+                                <div class="business-card-small-image">
+                                    <?php
+                                    $image_id = is_numeric($hinh_anh_phu) ? $hinh_anh_phu : attachment_url_to_postid($hinh_anh_phu);
+                                    if ($image_id) {
+                                        echo wp_get_attachment_image($image_id, 'medium');
+                                    } else {
+                                        echo '<img src="' . esc_url($hinh_anh_phu) . '" alt="Hình ảnh phụ">';
+                                    }
+                                    ?>
+                                </div>
+                            <?php endif; ?>
+                            <div class="business-card-description">
+                                <?php if (has_excerpt()) : ?>
+                                    <?php the_excerpt(); ?>
+                                <?php else : ?>
+                                    <p><strong>Mô tả:</strong> <?php echo wp_trim_words(get_the_content(), 50); ?></p>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    </div>
+                    <?php
+                endwhile;
+                wp_reset_postdata();
+            else :
+                ?>
+                <div class="business-card">
+                    <p>Không tìm thấy doanh nghiệp nào. Vui lòng thêm doanh nghiệp từ trang quản trị WordPress.</p>
+                </div>
+                <?php
+            endif;
+            ?>
+        </div>
+    </div>
+
+    <!-- Right Sidebar -->
+    <div class="sidebar-column">
+        <div class="column-header mobile-toggle collapsed">Theo ngành hàng</div>
+        <div class="column-content mobile-collapsed">
+            <div class="ad-section">
+                <!-- VVIP Ad Block -->
+                <div class="ad-block vvip">
+                    <h4>Video quảng cáo hoặc banner: VVIP</h4>
+                    <div class="ad-type">VVIP</div>
+                    <div class="ad-description">Blog 15 giây, tối đa 5 doanh nghiệp</div>
+                    <div class="ad-placeholder">Banner/Video VVIP</div>
+                </div>
+
+                <!-- VIP Ad Block -->
+                <div class="ad-block vip">
+                    <h4>Video quảng cáo hoặc banner: VIP</h4>
+                    <div class="ad-type">VIP</div>
+                    <div class="ad-description">Blog 15 giây, tối đa 5 doanh nghiệp</div>
+                    <div class="ad-placeholder">Banner/Video VIP</div>
+                </div>
+
+                <!-- Standard Ad Block -->
+                <div class="ad-block standard">
+                    <h4>Video quảng cáo hoặc banner: Standard</h4>
+                    <div class="ad-type">Standard</div>
+                    <div class="ad-description">Blog 15 giây, tối đa 5 doanh nghiệp</div>
+                    <div class="ad-placeholder">Banner/Video Standard</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<?php get_footer(); ?>

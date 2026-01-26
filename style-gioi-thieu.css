@@ -999,6 +999,12 @@ body {
         padding: 20px 15px;
     }
 
+    /* Content column trong main-center: responsive */
+    .main-center .content-column {
+        width: 100%;
+        margin-bottom: 20px;
+    }
+
     /* Ad blocks mobile: hiển thị */
     .ad-block-mobile {
         display: block;

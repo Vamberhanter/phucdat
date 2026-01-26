@@ -8,6 +8,15 @@
 ## Các bước cài đặt
 
 ### 1. Upload Theme
+
+**Cách 1: Upload qua WordPress Admin (Khuyến nghị)**
+1. Nén toàn bộ thư mục `wordpress-theme` thành file ZIP
+2. Đăng nhập WordPress Admin > **Appearance > Themes**
+3. Click **Add New** > **Upload Theme**
+4. Chọn file ZIP và click **Install Now**
+5. Click **Activate** sau khi cài đặt
+
+**Cách 2: Upload qua FTP/cPanel**
 - Copy toàn bộ thư mục `wordpress-theme` vào `wp-content/themes/` của WordPress
 - Đổi tên thư mục thành tên bạn muốn (ví dụ: `dnttvn-theme`)
 

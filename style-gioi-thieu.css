@@ -34,21 +34,27 @@ body {
 .header-top {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-start;
     margin-bottom: 15px;
     gap: 20px;
 }
 
-.header-top .site-title {
+.title-section {
     flex: 1;
-    text-align: left;
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.header-top .site-title {
     margin: 0;
+    text-align: right;
 }
 
 .header-top .site-domain {
-    flex: 1;
-    text-align: left;
     margin: 0;
+    text-align: right;
 }
 
 .site-title {
@@ -780,7 +786,13 @@ body {
 
     .header-top {
         flex-direction: column;
-        align-items: flex-start;
+        align-items: center;
+    }
+
+    .title-section {
+        text-align: center;
+        align-items: center;
+        width: 100%;
     }
 
     .header-top .site-title,
@@ -793,7 +805,7 @@ body {
         width: 100%;
         max-width: 100%;
         text-align: center;
-        margin-top: 10px;
+        margin-bottom: 10px;
     }
 
     .social-links-menu {

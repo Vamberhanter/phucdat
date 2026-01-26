@@ -1000,10 +1000,14 @@ body {
     .sidebar-column:first-child .column-header {
         text-align: left;
         padding: 12px 0 12px 40px;
-        font-size: 18px; /* Hiển thị tên */
+        font-size: 18px !important; /* Luôn hiển thị tên, không ẩn */
         min-height: 45px;
         display: flex;
         align-items: center;
+    }
+
+    .sidebar-column:first-child .column-header.mobile-toggle {
+        font-size: 18px !important; /* Đảm bảo tên luôn hiển thị khi collapsed */
     }
 
     .sidebar-column:first-child .column-header.mobile-toggle::before {

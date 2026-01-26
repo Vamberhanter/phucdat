@@ -265,3 +265,24 @@ function dnttvn_theme_setup() {
     ));
 }
 add_action('after_setup_theme', 'dnttvn_theme_setup');
+
+// Default menu fallback
+function dnttvn_default_menu() {
+    echo '<ul class="menu" id="mainMenu">';
+    echo '<li><a href="' . esc_url(home_url()) . '">Trang chủ</a></li>';
+    $tin_tuc_link = get_post_type_archive_link('tin_tuc');
+    if ($tin_tuc_link) {
+        echo '<li><a href="' . esc_url($tin_tuc_link) . '">Tin tức</a></li>';
+    }
+    $doanh_nghiep_link = get_post_type_archive_link('doanh_nghiep');
+    if ($doanh_nghiep_link) {
+        echo '<li><a href="' . esc_url($doanh_nghiep_link) . '">Doanh nghiệp</a></li>';
+    }
+    $page_doanh_nghiep = get_page_by_path('page-doanh-nghiep');
+    if ($page_doanh_nghiep) {
+        echo '<li><a href="' . esc_url(get_permalink($page_doanh_nghiep->ID)) . '">Danh sách Doanh nghiệp</a></li>';
+    }
+    echo '<li><a href="#">Giới thiệu</a></li>';
+    echo '<li><a href="#">Liên hệ</a></li>';
+    echo '</ul>';
+}

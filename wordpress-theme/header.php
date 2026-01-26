@@ -86,17 +86,3 @@
             ?>
         </div>
     </nav>
-
-<?php
-// Default menu fallback
-function dnttvn_default_menu() {
-    echo '<ul class="menu" id="mainMenu">';
-    echo '<li><a href="' . home_url() . '">Trang chủ</a></li>';
-    echo '<li><a href="' . get_post_type_archive_link('tin_tuc') . '">Tin tức</a></li>';
-    echo '<li><a href="' . get_post_type_archive_link('doanh_nghiep') . '">Doanh nghiệp</a></li>';
-    echo '<li><a href="' . home_url('/page-doanh-nghiep') . '">Danh sách Doanh nghiệp</a></li>';
-    echo '<li><a href="#">Giới thiệu</a></li>';
-    echo '<li><a href="#">Liên hệ</a></li>';
-    echo '</ul>';
-}
-?>

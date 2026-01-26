@@ -256,11 +256,11 @@ body {
 }
 
 .sidebar-column:first-child {
-    width: 303px; /* Tăng thêm 10% từ 275px lên 303px */
+    width: 333px; /* Tăng thêm 10% từ 303px lên 333px */
 }
 
 .sidebar-column:last-child {
-    width: 363px; /* Tăng thêm 10% từ 330px lên 363px */
+    width: 399px; /* Tăng thêm 10% từ 363px lên 399px */
     box-shadow: -2px 0 10px rgba(0,0,0,0.1);
 }
 

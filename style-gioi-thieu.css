@@ -892,21 +892,53 @@ body {
         width: 100%;
     }
 
-    /* Left sidebar: chỉ hiện mũi tên, ẩn nội dung tiêu đề khi thu nhỏ */
+    /* Left sidebar: hiện cả tên và mũi tên */
     .sidebar-column:first-child .column-header {
         text-align: left;
-        padding: 10px 0 10px 30px;
-        font-size: 0; /* Ẩn chữ "Về Cộng đồng DNTTVN" ở mobile */
+        padding: 10px 0 10px 40px;
+        font-size: 18px; /* Hiển thị tên */
     }
 
     .sidebar-column:first-child .column-header.mobile-toggle::before {
         display: block;
-        left: 10px; /* Mũi tên sát mép trái */
+        left: 15px; /* Mũi tên bên trái */
         font-size: 18px;
     }
 
-    /* Ẩn hoàn toàn cột phải, dùng block mobile chèn giữa thẻ */
+    /* Right sidebar: hiện cả tên và mũi tên, có thể toggle */
     .sidebar-column:last-child {
+        display: block;
+        width: 100%;
+        margin-bottom: 10px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .sidebar-column:last-child .column-header {
+        text-align: left;
+        padding: 12px 0 12px 40px;
+        font-size: 18px; /* Hiển thị tên */
+        min-height: 45px;
+        display: flex;
+        align-items: center;
+    }
+
+    .sidebar-column:last-child .column-header.mobile-toggle {
+        cursor: pointer;
+        user-select: none;
+    }
+
+    .sidebar-column:last-child .column-header.mobile-toggle::before {
+        display: block;
+        left: 15px;
+        font-size: 20px;
+        color: white;
+    }
+
+    .sidebar-column:last-child .column-content {
+        padding: 0;
+    }
+
+    .sidebar-column:last-child .column-content.mobile-collapsed {
         display: none;
     }
 
@@ -958,7 +990,7 @@ body {
         color: #ff9800;
     }
 
-    /* Sidebar trái: chỉ hiện mũi tên, ẩn nội dung */
+    /* Sidebar trái: hiện cả tên và mũi tên */
     .sidebar-column:first-child {
         width: 100%;
         margin-bottom: 10px;
@@ -968,7 +1000,7 @@ body {
     .sidebar-column:first-child .column-header {
         text-align: left;
         padding: 12px 0 12px 40px;
-        font-size: 0; /* Ẩn chữ "Về Cộng đồng DNTTVN" */
+        font-size: 18px; /* Hiển thị tên */
         min-height: 45px;
         display: flex;
         align-items: center;
@@ -989,8 +1021,40 @@ body {
         display: none;
     }
 
-    /* Sidebar phải: ẩn hoàn toàn */
+    /* Sidebar phải: hiện cả tên và mũi tên, có thể toggle */
     .sidebar-column:last-child {
+        display: block;
+        width: 100%;
+        margin-bottom: 10px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .sidebar-column:last-child .column-header {
+        text-align: left;
+        padding: 12px 0 12px 40px;
+        font-size: 18px; /* Hiển thị tên */
+        min-height: 45px;
+        display: flex;
+        align-items: center;
+    }
+
+    .sidebar-column:last-child .column-header.mobile-toggle {
+        cursor: pointer;
+        user-select: none;
+    }
+
+    .sidebar-column:last-child .column-header.mobile-toggle::before {
+        display: block;
+        left: 15px;
+        font-size: 20px;
+        color: white;
+    }
+
+    .sidebar-column:last-child .column-content {
+        padding: 0;
+    }
+
+    .sidebar-column:last-child .column-content.mobile-collapsed {
         display: none;
     }
 

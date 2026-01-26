@@ -197,6 +197,18 @@
                 // Auto-play every 5 seconds
                 setInterval(nextSlide, 5000);
             }
+
+            // Mobile sidebar toggle
+            const mobileToggle = document.querySelector('.sidebar-column:first-child .column-header.mobile-toggle');
+            if (mobileToggle) {
+                mobileToggle.addEventListener('click', function() {
+                    this.classList.toggle('collapsed');
+                    const content = this.nextElementSibling;
+                    if (content) {
+                        content.classList.toggle('mobile-collapsed');
+                    }
+                });
+            }
         });
     </script>
 </body>

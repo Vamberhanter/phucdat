@@ -9,16 +9,34 @@
 
 ### 1. Upload Theme
 
-**Cách 1: Upload qua WordPress Admin (Khuyến nghị)**
+**⚠️ QUAN TRỌNG**: Nếu WordPress Admin yêu cầu "Upgrade to Personal plan" để upload theme, hãy sử dụng **FTP** hoặc **cPanel File Manager** (xem file `UPLOAD_GUIDE.md` để biết chi tiết).
+
+**Các phương pháp upload (xem `UPLOAD_GUIDE.md` để biết chi tiết):**
+
+**Cách 1: Upload qua FTP/SFTP** (Khuyên dùng - KHÔNG CẦN upgrade)
+- Sử dụng FileZilla hoặc phần mềm FTP khác
+- Upload vào `wp-content/themes/`
+- Xem hướng dẫn chi tiết trong `UPLOAD_GUIDE.md`
+
+**Cách 2: Upload qua cPanel File Manager** (Dễ dàng - KHÔNG CẦN upgrade)
+- Đăng nhập cPanel
+- Sử dụng File Manager để upload
+- Xem hướng dẫn chi tiết trong `UPLOAD_GUIDE.md`
+
+**Cách 3: Upload qua WordPress Admin** (Chỉ nếu hosting cho phép)
 1. Nén toàn bộ thư mục `wordpress-theme` thành file ZIP
 2. Đăng nhập WordPress Admin > **Appearance > Themes**
 3. Click **Add New** > **Upload Theme**
 4. Chọn file ZIP và click **Install Now**
 5. Click **Activate** sau khi cài đặt
 
-**Cách 2: Upload qua FTP/cPanel**
-- Copy toàn bộ thư mục `wordpress-theme` vào `wp-content/themes/` của WordPress
-- Đổi tên thư mục thành tên bạn muốn (ví dụ: `dnttvn-theme`)
+**Cách 4: Upload qua SSH/Command Line** (Cho người dùng nâng cao)
+- Sử dụng SCP hoặc command line
+- Xem hướng dẫn chi tiết trong `UPLOAD_GUIDE.md`
+
+**Sau khi upload:**
+- Đảm bảo toàn bộ thư mục `wordpress-theme` nằm trong `wp-content/themes/`
+- Có thể đổi tên thư mục thành tên bạn muốn (ví dụ: `dnttvn-theme`)
 
 ### 2. Kích hoạt Theme
 1. Đăng nhập vào WordPress Admin

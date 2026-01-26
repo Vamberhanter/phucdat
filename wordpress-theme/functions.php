@@ -510,28 +510,31 @@ function dnttvn_add_bulk_edit_fields() {
 add_action('bulk_edit_custom_box', 'dnttvn_add_bulk_edit_fields', 10, 2);
 
 // Save Bulk Edit Data
-function dnttvn_save_bulk_edit_data() {
-    $post_ids = (isset($_POST['post_ids']) && !empty($_POST['post_ids'])) ? $_POST['post_ids'] : array();
-    
-    if (empty($post_ids) || !is_array($post_ids)) {
+function dnttvn_save_bulk_edit_data($post_id) {
+    if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
         return;
     }
     
-    foreach ($post_ids as $post_id) {
-        if (!current_user_can('edit_post', $post_id)) {
-            continue;
+    if (!current_user_can('edit_post', $post_id)) {
+        return;
+    }
+    
+    if (get_post_type($post_id) != 'doanh_nghiep') {
+        return;
+    }
+    
+    // Check if this is bulk edit
+    if (isset($_REQUEST['_inline_edit']) || isset($_REQUEST['bulk_edit'])) {
+        if (isset($_REQUEST['_nganh_hang']) && $_REQUEST['_nganh_hang'] != '') {
+            update_post_meta($post_id, '_nganh_hang', sanitize_text_field($_REQUEST['_nganh_hang']));
         }
         
-        if (isset($_POST['_nganh_hang'])) {
-            update_post_meta($post_id, '_nganh_hang', sanitize_text_field($_POST['_nganh_hang']));
-        }
-        
-        if (isset($_POST['_khu_vuc'])) {
-            update_post_meta($post_id, '_khu_vuc', sanitize_text_field($_POST['_khu_vuc']));
+        if (isset($_REQUEST['_khu_vuc']) && $_REQUEST['_khu_vuc'] != '') {
+            update_post_meta($post_id, '_khu_vuc', sanitize_text_field($_REQUEST['_khu_vuc']));
         }
     }
 }
-add_action('wp_ajax_save_bulk_edit_doanh_nghiep', 'dnttvn_save_bulk_edit_data');
+add_action('save_post', 'dnttvn_save_bulk_edit_data');
 
 // Enqueue Admin Scripts for Media Uploader
 function dnttvn_enqueue_admin_scripts($hook) {
@@ -561,8 +564,15 @@ function dnttvn_dashboard_stats_widget() {
     $tin_tuc_count = wp_count_posts('tin_tuc');
     $doanh_nghiep_count = wp_count_posts('doanh_nghiep');
     
-    $nganh_hang_count = wp_count_terms(array('taxonomy' => 'nganh_hang'));
-    $khu_vuc_count = wp_count_terms(array('taxonomy' => 'khu_vuc'));
+    $nganh_hang_count = wp_count_terms(array('taxonomy' => 'nganh_hang', 'hide_empty' => false));
+    $khu_vuc_count = wp_count_terms(array('taxonomy' => 'khu_vuc', 'hide_empty' => false));
+    
+    if (is_wp_error($nganh_hang_count)) {
+        $nganh_hang_count = 0;
+    }
+    if (is_wp_error($khu_vuc_count)) {
+        $khu_vuc_count = 0;
+    }
     
     ?>
     <div style="padding: 10px;">

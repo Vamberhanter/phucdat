@@ -35,37 +35,23 @@ jQuery(document).ready(function($) {
         $inlineEditor.find('input[name="khu_vuc"]').val(khu_vuc);
     });
     
-    // Bulk Edit Save
-    $bulkEditor.on('click', '#doaction, #doaction2', function(e) {
-        var action = $(this).prev('select').val();
-        
-        if (action == 'edit') {
-            e.preventDefault();
-            
-            var postIds = [];
-            $('tbody th.check-column input[type="checkbox"]:checked').each(function() {
-                postIds.push($(this).val());
-            });
-            
-            if (postIds.length > 0) {
-                var nganh_hang = $bulkEditor.find('input[name="_nganh_hang"]').val();
-                var khu_vuc = $bulkEditor.find('input[name="_khu_vuc"]').val();
-                
-                $.ajax({
-                    url: ajaxurl,
-                    type: 'POST',
-                    data: {
-                        action: 'save_bulk_edit_doanh_nghiep',
-                        post_ids: postIds,
-                        _nganh_hang: nganh_hang,
-                        _khu_vuc: khu_vuc,
-                        _wpnonce: $('#_wpnonce').val()
-                    },
-                    success: function(response) {
-                        location.reload();
-                    }
-                });
-            }
-        }
-    });
+    // Bulk Edit - Add fields to form
+    if ($bulkEditor.length) {
+        $bulkEditor.find('.inline-edit-col-right').prepend(
+            '<div class="inline-edit-col">' +
+            '<div class="inline-edit-group wp-clearfix">' +
+            '<label class="inline-edit-status alignleft">' +
+            '<span class="title">Ngành hàng</span>' +
+            '<input type="text" name="_nganh_hang" value="" />' +
+            '</label>' +
+            '</div>' +
+            '<div class="inline-edit-group wp-clearfix">' +
+            '<label class="inline-edit-status alignleft">' +
+            '<span class="title">Khu vực</span>' +
+            '<input type="text" name="_khu_vuc" value="" />' +
+            '</label>' +
+            '</div>' +
+            '</div>'
+        );
+    }
 });

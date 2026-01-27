@@ -669,7 +669,7 @@ function dnttvn_custom_pagination($query = null) {
     // Get current page
     $current_page = max(1, get_query_var('paged'));
     
-    // Build query string to preserve search and filter parameters
+    // Build query string to preserve search, filter, and sort parameters
     $query_args = array();
     if (isset($_GET['ten_doanh_nghiep']) && !empty($_GET['ten_doanh_nghiep'])) {
         $query_args['ten_doanh_nghiep'] = sanitize_text_field($_GET['ten_doanh_nghiep']);
@@ -679,6 +679,9 @@ function dnttvn_custom_pagination($query = null) {
     }
     if (isset($_GET['nganh_hang']) && !empty($_GET['nganh_hang'])) {
         $query_args['nganh_hang'] = sanitize_text_field($_GET['nganh_hang']);
+    }
+    if (isset($_GET['sort_by']) && !empty($_GET['sort_by'])) {
+        $query_args['sort_by'] = sanitize_text_field($_GET['sort_by']);
     }
     
     $base = str_replace($big, '%#%', esc_url(get_pagenum_link($big)));

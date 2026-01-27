@@ -557,6 +557,74 @@ body {
     margin-bottom: 30px;
 }
 
+/* Sort Section */
+.sort-section {
+    background: #f8f9fa;
+    padding: 15px 20px;
+    border-radius: 8px;
+    margin-bottom: 25px;
+    border: 1px solid #e0e0e0;
+}
+
+.sort-controls {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.sort-controls label {
+    font-weight: 600;
+    color: #06202e;
+    font-size: 14px;
+    margin: 0;
+}
+
+.sort-controls select {
+    padding: 8px 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    color: #333;
+    background: white;
+    cursor: pointer;
+    min-width: 180px;
+    transition: border-color 0.3s;
+}
+
+.sort-controls select:hover {
+    border-color: #06202e;
+}
+
+.sort-controls select:focus {
+    outline: none;
+    border-color: #06202e;
+    box-shadow: 0 0 0 2px rgba(6, 32, 46, 0.1);
+}
+
+/* Mobile Sort Section */
+@media (max-width: 768px) {
+    .sort-section {
+        padding: 12px 15px;
+        margin-bottom: 20px;
+    }
+    
+    .sort-controls {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+    
+    .sort-controls label {
+        font-size: 13px;
+    }
+    
+    .sort-controls select {
+        width: 100%;
+        min-width: auto;
+    }
+}
+
 .search-block {
     background: #f8f9fa;
     padding: 20px;

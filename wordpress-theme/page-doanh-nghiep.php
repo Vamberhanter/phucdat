@@ -76,20 +76,81 @@ get_header();
             </form>
         </div>
 
+        <!-- Sort Section -->
+        <div class="sort-section">
+            <form method="get" action="<?php echo esc_url(get_permalink()); ?>" id="sort-form">
+                <?php
+                // Preserve search and filter parameters
+                if (isset($_GET['ten_doanh_nghiep']) && !empty($_GET['ten_doanh_nghiep'])) {
+                    echo '<input type="hidden" name="ten_doanh_nghiep" value="' . esc_attr($_GET['ten_doanh_nghiep']) . '">';
+                }
+                if (isset($_GET['khu_vuc']) && !empty($_GET['khu_vuc'])) {
+                    echo '<input type="hidden" name="khu_vuc" value="' . esc_attr($_GET['khu_vuc']) . '">';
+                }
+                if (isset($_GET['nganh_hang']) && !empty($_GET['nganh_hang'])) {
+                    echo '<input type="hidden" name="nganh_hang" value="' . esc_attr($_GET['nganh_hang']) . '">';
+                }
+                ?>
+                <div class="sort-controls">
+                    <label for="sort_by">Sắp xếp theo:</label>
+                    <select name="sort_by" id="sort_by" onchange="document.getElementById('sort-form').submit();">
+                        <option value="date_desc" <?php echo (isset($_GET['sort_by']) && $_GET['sort_by'] == 'date_desc') || !isset($_GET['sort_by']) ? 'selected' : ''; ?>>Mới nhất</option>
+                        <option value="date_asc" <?php echo isset($_GET['sort_by']) && $_GET['sort_by'] == 'date_asc' ? 'selected' : ''; ?>>Cũ nhất</option>
+                        <option value="title_asc" <?php echo isset($_GET['sort_by']) && $_GET['sort_by'] == 'title_asc' ? 'selected' : ''; ?>>Tên A-Z</option>
+                        <option value="title_desc" <?php echo isset($_GET['sort_by']) && $_GET['sort_by'] == 'title_desc' ? 'selected' : ''; ?>>Tên Z-A</option>
+                        <option value="nganh_hang" <?php echo isset($_GET['sort_by']) && $_GET['sort_by'] == 'nganh_hang' ? 'selected' : ''; ?>>Ngành hàng</option>
+                        <option value="khu_vuc" <?php echo isset($_GET['sort_by']) && $_GET['sort_by'] == 'khu_vuc' ? 'selected' : ''; ?>>Khu vực</option>
+                    </select>
+                </div>
+            </form>
+        </div>
+
         <!-- Business Cards Grid -->
         <div class="content-columns">
             <?php
             // Get current page number
             $paged = (get_query_var('paged')) ? get_query_var('paged') : 1;
             
+            // Get sort parameter
+            $sort_by = isset($_GET['sort_by']) ? sanitize_text_field($_GET['sort_by']) : 'date_desc';
+            
             $args = array(
                 'post_type'      => 'doanh_nghiep',
                 'posts_per_page' => 6,
                 'post_status'    => 'publish',
-                'orderby'        => 'date',
-                'order'          => 'DESC',
                 'paged'          => $paged,
             );
+            
+            // Handle sorting
+            switch ($sort_by) {
+                case 'date_asc':
+                    $args['orderby'] = 'date';
+                    $args['order'] = 'ASC';
+                    break;
+                case 'title_asc':
+                    $args['orderby'] = 'title';
+                    $args['order'] = 'ASC';
+                    break;
+                case 'title_desc':
+                    $args['orderby'] = 'title';
+                    $args['order'] = 'DESC';
+                    break;
+                case 'nganh_hang':
+                    $args['orderby'] = 'meta_value';
+                    $args['meta_key'] = '_nganh_hang';
+                    $args['order'] = 'ASC';
+                    break;
+                case 'khu_vuc':
+                    $args['orderby'] = 'meta_value';
+                    $args['meta_key'] = '_khu_vuc';
+                    $args['order'] = 'ASC';
+                    break;
+                case 'date_desc':
+                default:
+                    $args['orderby'] = 'date';
+                    $args['order'] = 'DESC';
+                    break;
+            }
 
             // Filter by search
             if (isset($_GET['ten_doanh_nghiep']) && !empty($_GET['ten_doanh_nghiep'])) {
@@ -240,7 +301,7 @@ get_header();
                 wp_reset_postdata();
                 
                 // Pagination
-                if ($doanh_nghiep_query->max_num_pages > 1) {
+                if ($doanh_nghiep_query->max_num_pages > 1) :
                     ?>
                     <div class="pagination-wrapper">
                         <?php
@@ -248,7 +309,7 @@ get_header();
                         ?>
                     </div>
                     <?php
-                }
+                endif;
             else :
                 ?>
                 <div class="business-card">

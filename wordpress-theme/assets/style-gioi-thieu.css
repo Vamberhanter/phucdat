@@ -864,10 +864,17 @@ body {
     color: #333;
     text-decoration: none;
     transition: color 0.3s;
+    display: inline-block;
+    cursor: pointer;
 }
 
 .linked-websites li a:hover {
     color: #667eea;
+    text-decoration: underline;
+}
+
+.linked-websites li a:active {
+    color: #06202e;
 }
 
 /* Footer */

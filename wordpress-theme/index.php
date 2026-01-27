@@ -78,7 +78,17 @@ get_header();
         <div class="column-content mobile-collapsed">
             <h4 style="margin-bottom: 15px; color: #333;">Danh sách Doanh nghiệp</h4>
             <ul class="linked-websites">
-                <li><a href="<?php echo get_permalink(get_page_by_path('page-doanh-nghiep')); ?>">Danh sách Doanh nghiệp</a></li>
+                <?php
+                // Get page link for "Danh sách Doanh nghiệp"
+                $page_doanh_nghiep = get_page_by_path('page-doanh-nghiep');
+                if ($page_doanh_nghiep) {
+                    $doanh_nghiep_page_url = get_permalink($page_doanh_nghiep->ID);
+                } else {
+                    // Fallback: try to get by slug or use home_url
+                    $doanh_nghiep_page_url = home_url('/page-doanh-nghiep/');
+                }
+                ?>
+                <li><a href="<?php echo esc_url($doanh_nghiep_page_url); ?>">Danh sách Doanh nghiệp</a></li>
                 <?php
                 $doanh_nghiep_args = array(
                     'post_type'      => 'doanh_nghiep',
@@ -89,7 +99,7 @@ get_header();
                 if ($doanh_nghiep_query->have_posts()) :
                     while ($doanh_nghiep_query->have_posts()) : $doanh_nghiep_query->the_post();
                         ?>
-                        <li><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></li>
+                        <li><a href="<?php echo esc_url(get_permalink()); ?>"><?php the_title(); ?></a></li>
                         <?php
                     endwhile;
                     wp_reset_postdata();

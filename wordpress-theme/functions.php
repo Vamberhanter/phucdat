@@ -66,6 +66,201 @@ function dnttvn_register_tin_tuc_post_type() {
 }
 add_action('init', 'dnttvn_register_tin_tuc_post_type', 0);
 
+// Add custom meta boxes for Tin tức
+function dnttvn_add_tin_tuc_meta_boxes() {
+    add_meta_box(
+        'tin_tuc_details',
+        'Thông tin Tin tức',
+        'dnttvn_tin_tuc_meta_box_callback',
+        'tin_tuc',
+        'normal',
+        'high'
+    );
+    
+    add_meta_box(
+        'tin_tuc_author_info',
+        'Thông tin Tác giả & Nguồn',
+        'dnttvn_tin_tuc_author_meta_box_callback',
+        'tin_tuc',
+        'side',
+        'default'
+    );
+}
+add_action('add_meta_boxes', 'dnttvn_add_tin_tuc_meta_boxes');
+
+// Meta box callback for Tin tức details
+function dnttvn_tin_tuc_meta_box_callback($post) {
+    wp_nonce_field('dnttvn_save_tin_tuc_meta', 'dnttvn_tin_tuc_meta_nonce');
+    
+    $nguon = get_post_meta($post->ID, '_tin_tuc_nguon', true);
+    $tac_gia = get_post_meta($post->ID, '_tin_tuc_tac_gia', true);
+    $ngay_dang = get_post_meta($post->ID, '_tin_tuc_ngay_dang', true);
+    $noi_bat = get_post_meta($post->ID, '_tin_tuc_noi_bat', true);
+    
+    ?>
+    <table class="form-table">
+        <tr>
+            <th><label for="tin_tuc_tac_gia">Tác giả</label></th>
+            <td>
+                <input type="text" id="tin_tuc_tac_gia" name="tin_tuc_tac_gia" value="<?php echo esc_attr($tac_gia); ?>" class="regular-text" />
+                <p class="description">Tên tác giả viết bài (nếu có)</p>
+            </td>
+        </tr>
+        <tr>
+            <th><label for="tin_tuc_nguon">Nguồn</label></th>
+            <td>
+                <input type="url" id="tin_tuc_nguon" name="tin_tuc_nguon" value="<?php echo esc_url($nguon); ?>" class="regular-text" placeholder="https://..." />
+                <p class="description">Link nguồn bài viết (nếu lấy từ nơi khác)</p>
+            </td>
+        </tr>
+        <tr>
+            <th><label for="tin_tuc_ngay_dang">Ngày đăng</label></th>
+            <td>
+                <input type="date" id="tin_tuc_ngay_dang" name="tin_tuc_ngay_dang" value="<?php echo esc_attr($ngay_dang); ?>" class="regular-text" />
+                <p class="description">Ngày đăng tin (để trống sẽ dùng ngày hiện tại)</p>
+            </td>
+        </tr>
+        <tr>
+            <th><label for="tin_tuc_noi_bat">Tin nổi bật</label></th>
+            <td>
+                <label>
+                    <input type="checkbox" id="tin_tuc_noi_bat" name="tin_tuc_noi_bat" value="1" <?php checked($noi_bat, '1'); ?> />
+                    Đánh dấu tin này là tin nổi bật
+                </label>
+                <p class="description">Tin nổi bật sẽ được hiển thị ưu tiên trên trang chủ</p>
+            </td>
+        </tr>
+    </table>
+    <?php
+}
+
+// Meta box callback for Author info (Sidebar)
+function dnttvn_tin_tuc_author_meta_box_callback($post) {
+    $tac_gia = get_post_meta($post->ID, '_tin_tuc_tac_gia', true);
+    $nguon = get_post_meta($post->ID, '_tin_tuc_nguon', true);
+    ?>
+    <div style="padding: 10px 0;">
+        <p><strong>Hướng dẫn:</strong></p>
+        <ul style="margin-left: 20px; margin-top: 10px;">
+            <li>Nhập <strong>Tiêu đề</strong> rõ ràng, hấp dẫn</li>
+            <li>Viết <strong>Nội dung</strong> đầy đủ, có format đẹp</li>
+            <li>Thêm <strong>Excerpt</strong> (tóm tắt) để hiển thị ở trang chủ</li>
+            <li>Chọn <strong>Featured Image</strong> (hình ảnh đại diện)</li>
+            <li>Chọn <strong>Categories</strong> và <strong>Tags</strong> phù hợp</li>
+        </ul>
+        <?php if ($tac_gia) : ?>
+            <p style="margin-top: 15px;"><strong>Tác giả:</strong> <?php echo esc_html($tac_gia); ?></p>
+        <?php endif; ?>
+        <?php if ($nguon) : ?>
+            <p><strong>Nguồn:</strong> <a href="<?php echo esc_url($nguon); ?>" target="_blank">Xem nguồn</a></p>
+        <?php endif; ?>
+    </div>
+    <?php
+}
+
+// Save Tin tức meta box data
+function dnttvn_save_tin_tuc_meta($post_id) {
+    if (!isset($_POST['dnttvn_tin_tuc_meta_nonce'])) {
+        return;
+    }
+    
+    if (!wp_verify_nonce($_POST['dnttvn_tin_tuc_meta_nonce'], 'dnttvn_save_tin_tuc_meta')) {
+        return;
+    }
+    
+    if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
+        return;
+    }
+    
+    if (!current_user_can('edit_post', $post_id)) {
+        return;
+    }
+    
+    if (get_post_type($post_id) != 'tin_tuc') {
+        return;
+    }
+    
+    if (isset($_POST['tin_tuc_tac_gia'])) {
+        update_post_meta($post_id, '_tin_tuc_tac_gia', sanitize_text_field($_POST['tin_tuc_tac_gia']));
+    }
+    
+    if (isset($_POST['tin_tuc_nguon'])) {
+        update_post_meta($post_id, '_tin_tuc_nguon', esc_url_raw($_POST['tin_tuc_nguon']));
+    }
+    
+    if (isset($_POST['tin_tuc_ngay_dang'])) {
+        update_post_meta($post_id, '_tin_tuc_ngay_dang', sanitize_text_field($_POST['tin_tuc_ngay_dang']));
+    }
+    
+    if (isset($_POST['tin_tuc_noi_bat'])) {
+        update_post_meta($post_id, '_tin_tuc_noi_bat', '1');
+    } else {
+        delete_post_meta($post_id, '_tin_tuc_noi_bat');
+    }
+}
+add_action('save_post', 'dnttvn_save_tin_tuc_meta');
+
+// Enhance editor for Tin tức
+function dnttvn_enhance_tin_tuc_editor($settings, $editor_id) {
+    if ($editor_id == 'content' && get_current_screen()->post_type == 'tin_tuc') {
+        // Enable full toolbar
+        $settings['toolbar1'] = 'bold,italic,underline,strikethrough,bullist,numlist,blockquote,hr,alignleft,aligncenter,alignright,link,unlink,wp_more,spellchecker,fullscreen,wp_adv';
+        $settings['toolbar2'] = 'formatselect,fontselect,fontsizeselect,forecolor,backcolor,pastetext,removeformat,charmap,outdent,indent,undo,redo,wp_help';
+        
+        // Enable more features
+        $settings['wordpress_adv_hidden'] = false;
+        $settings['paste_as_text'] = false;
+        $settings['wpautop'] = true;
+        $settings['media_buttons'] = true;
+    }
+    return $settings;
+}
+add_filter('tiny_mce_before_init', 'dnttvn_enhance_tin_tuc_editor', 10, 2);
+
+// Add admin styles for Tin tức editor
+function dnttvn_tin_tuc_admin_styles() {
+    global $post_type;
+    if ($post_type == 'tin_tuc') {
+        ?>
+        <style>
+            /* Improve editor area */
+            #tin_tuc_details .inside {
+                padding: 15px;
+            }
+            
+            #tin_tuc_details .form-table th {
+                width: 150px;
+                font-weight: 600;
+            }
+            
+            #tin_tuc_author_info .inside {
+                background: #f9f9f9;
+                border-left: 4px solid #667eea;
+            }
+            
+            /* Highlight important fields */
+            .postbox#tin_tuc_details {
+                border-left: 4px solid #667eea;
+            }
+            
+            /* Better form styling */
+            #tin_tuc_details input[type="text"],
+            #tin_tuc_details input[type="url"],
+            #tin_tuc_details input[type="date"] {
+                width: 100%;
+                max-width: 500px;
+            }
+            
+            /* Checkbox styling */
+            #tin_tuc_details input[type="checkbox"] {
+                margin-right: 8px;
+            }
+        </style>
+        <?php
+    }
+}
+add_action('admin_head', 'dnttvn_tin_tuc_admin_styles');
+
 // Register Custom Post Type: Doanh nghiệp
 function dnttvn_register_doanh_nghiep_post_type() {
     $labels = array(
@@ -591,6 +786,11 @@ function dnttvn_enqueue_admin_scripts($hook) {
         if ($post_type == 'doanh_nghiep') {
             wp_enqueue_media();
             wp_enqueue_script('dnttvn-admin-script', get_template_directory_uri() . '/assets/admin-script.js', array('jquery'), '1.0.0', true);
+        }
+        
+        // Enable full editor for Tin tức
+        if ($post_type == 'tin_tuc') {
+            wp_enqueue_media();
         }
     }
 }

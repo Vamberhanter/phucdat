@@ -13,7 +13,7 @@ get_header();
 <main class="main-content">
     <!-- Left Sidebar -->
     <div class="sidebar-column">
-        <div class="column-header mobile-toggle collapsed">Tin tức được ghim</div>
+        <div class="column-header mobile-toggle collapsed">Về Cộng đồng DNTTVN</div>
         <div class="column-content mobile-collapsed">
             <?php
             // Get sticky/pinned posts for tin_tuc post type

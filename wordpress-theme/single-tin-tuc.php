@@ -1,29 +1,163 @@
 <?php
 /**
  * Single Post Template for Tin tức
+ * Layout giống trang index với sidebar trái và phải
  */
 
 get_header();
 ?>
 
 <main class="main-content">
-    <div class="main-center" style="max-width: 800px; margin: 0 auto;">
-        <article class="content-column">
+    <!-- Left Sidebar -->
+    <div class="sidebar-column">
+        <div class="column-header mobile-toggle collapsed">Về Cộng đồng DNTTVN</div>
+        <div class="column-content mobile-collapsed">
+            <ul class="about-list">
+                <li><a href="#">Điều lệ tổ chức hoạt động</a></li>
+                <li><a href="#">Danh sách thành viên sáng lập</a></li>
+                <li><a href="#">Cấu trúc Cộng đồng</a></li>
+                <li><a href="#">Danh sách Lãnh đạo điều hành</a></li>
+                <li class="highlight-item">
+                    <a href="#">Tìm hiểu trở thành thành viên mới</a>
+                </li>
+                <li><a href="#">Giá trị nhận được của thành viên</a></li>
+                <li><a href="#">Quy trình gia nhập Cộng đồng</a></li>
+                <li><a href="#">Hỏi đáp về Cộng đồng</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Center Content -->
+    <div class="main-center">
+        <div class="content-column">
             <?php while (have_posts()) : the_post(); ?>
                 <div class="column-header"><?php the_title(); ?></div>
                 <div class="column-content">
-                    <p class="news-date"><?php echo get_the_date('d/m/Y'); ?></p>
-                    <?php if (has_post_thumbnail()) : ?>
-                        <div style="margin-bottom: 20px;">
-                            <?php the_post_thumbnail('large'); ?>
-                        </div>
-                    <?php endif; ?>
                     <div class="news-item">
-                        <?php the_content(); ?>
+                        <p class="news-date">
+                            <strong>Ngày đăng:</strong> <?php echo get_the_date('d/m/Y'); ?>
+                            <?php 
+                            $tac_gia = get_post_meta(get_the_ID(), '_tin_tuc_tac_gia', true);
+                            if ($tac_gia) {
+                                echo ' | <strong>Tác giả:</strong> ' . esc_html($tac_gia);
+                            }
+                            $nguon = get_post_meta(get_the_ID(), '_tin_tuc_nguon', true);
+                            if ($nguon) {
+                                echo ' | <strong>Nguồn:</strong> <a href="' . esc_url($nguon) . '" target="_blank">Xem nguồn</a>';
+                            }
+                            ?>
+                        </p>
+                        
+                        <?php if (has_post_thumbnail()) : ?>
+                            <div style="margin-bottom: 20px; text-align: center;">
+                                <?php the_post_thumbnail('large', array('style' => 'max-width: 100%; height: auto; border-radius: 8px;')); ?>
+                            </div>
+                        <?php endif; ?>
+                        
+                        <div style="line-height: 1.8; font-size: 16px;">
+                            <?php the_content(); ?>
+                        </div>
+                        
+                        <?php
+                        // Display categories and tags
+                        $categories = get_the_terms(get_the_ID(), 'category');
+                        $tags = get_the_terms(get_the_ID(), 'post_tag');
+                        ?>
+                        <?php if ($categories && !is_wp_error($categories)) : ?>
+                            <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd;">
+                                <strong>Danh mục:</strong>
+                                <?php
+                                $cat_names = array();
+                                foreach ($categories as $cat) {
+                                    $cat_names[] = '<a href="' . esc_url(get_term_link($cat)) . '">' . esc_html($cat->name) . '</a>';
+                                }
+                                echo ' ' . implode(', ', $cat_names);
+                                ?>
+                            </div>
+                        <?php endif; ?>
+                        
+                        <?php if ($tags && !is_wp_error($tags)) : ?>
+                            <div style="margin-top: 15px;">
+                                <strong>Thẻ:</strong>
+                                <?php
+                                $tag_names = array();
+                                foreach ($tags as $tag) {
+                                    $tag_names[] = '<a href="' . esc_url(get_term_link($tag)) . '">' . esc_html($tag->name) . '</a>';
+                                }
+                                echo ' ' . implode(', ', $tag_names);
+                                ?>
+                            </div>
+                        <?php endif; ?>
+                        
+                        <!-- Navigation to previous/next post -->
+                        <div style="margin-top: 40px; padding-top: 20px; border-top: 2px solid #667eea; display: flex; justify-content: space-between;">
+                            <div>
+                                <?php
+                                $prev_post = get_previous_post();
+                                if ($prev_post) :
+                                    ?>
+                                    <a href="<?php echo esc_url(get_permalink($prev_post->ID)); ?>" style="color: #667eea; text-decoration: none;">
+                                        ← <?php echo esc_html($prev_post->post_title); ?>
+                                    </a>
+                                <?php endif; ?>
+                            </div>
+                            <div>
+                                <?php
+                                $next_post = get_next_post();
+                                if ($next_post) :
+                                    ?>
+                                    <a href="<?php echo esc_url(get_permalink($next_post->ID)); ?>" style="color: #667eea; text-decoration: none;">
+                                        <?php echo esc_html($next_post->post_title); ?> →
+                                    </a>
+                                <?php endif; ?>
+                            </div>
+                        </div>
                     </div>
                 </div>
             <?php endwhile; ?>
-        </article>
+        </div>
+    </div>
+
+    <!-- Right Sidebar -->
+    <div class="sidebar-column">
+        <div class="column-header mobile-toggle collapsed">Website liên kết</div>
+        <div class="column-content mobile-collapsed">
+            <h4 style="margin-bottom: 15px; color: #333;">Danh sách Doanh nghiệp</h4>
+            <ul class="linked-websites">
+                <?php
+                // Get page link for "Danh sách Doanh nghiệp"
+                $page_doanh_nghiep = get_page_by_path('page-doanh-nghiep');
+                if ($page_doanh_nghiep) {
+                    $doanh_nghiep_page_url = get_permalink($page_doanh_nghiep->ID);
+                } else {
+                    $doanh_nghiep_page_url = home_url('/page-doanh-nghiep/');
+                }
+                ?>
+                <li><a href="<?php echo esc_url($doanh_nghiep_page_url); ?>">Danh sách Doanh nghiệp</a></li>
+                <?php
+                $doanh_nghiep_args = array(
+                    'post_type'      => 'doanh_nghiep',
+                    'posts_per_page' => 4,
+                    'post_status'    => 'publish',
+                );
+                $doanh_nghiep_query = new WP_Query($doanh_nghiep_args);
+                if ($doanh_nghiep_query->have_posts()) :
+                    while ($doanh_nghiep_query->have_posts()) : $doanh_nghiep_query->the_post();
+                        ?>
+                        <li><a href="<?php echo esc_url(get_permalink()); ?>"><?php the_title(); ?></a></li>
+                        <?php
+                    endwhile;
+                    wp_reset_postdata();
+                endif;
+                ?>
+            </ul>
+            <h4 style="margin-top: 25px; margin-bottom: 15px; color: #333;">Cộng đồng</h4>
+            <ul class="linked-websites">
+                <li><a href="#">Cộng đồng Doanh nhân Trẻ</a></li>
+                <li><a href="#">Cộng đồng Khởi nghiệp</a></li>
+                <li><a href="#">Cộng đồng Đầu tư</a></li>
+            </ul>
+        </div>
     </div>
 </main>
 

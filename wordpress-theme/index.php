@@ -13,20 +13,52 @@ get_header();
 <main class="main-content">
     <!-- Left Sidebar -->
     <div class="sidebar-column">
-        <div class="column-header mobile-toggle collapsed">Về Cộng đồng DNTTVN</div>
+        <div class="column-header mobile-toggle collapsed">Tin tức được ghim</div>
         <div class="column-content mobile-collapsed">
-            <ul class="about-list">
-                <li><a href="#">Điều lệ tổ chức hoạt động</a></li>
-                <li><a href="#">Danh sách thành viên sáng lập</a></li>
-                <li><a href="#">Cấu trúc Cộng đồng</a></li>
-                <li><a href="#">Danh sách Lãnh đạo điều hành</a></li>
-                <li class="highlight-item">
-                    <a href="#">Tìm hiểu trở thành thành viên mới</a>
-                </li>
-                <li><a href="#">Giá trị nhận được của thành viên</a></li>
-                <li><a href="#">Quy trình gia nhập Cộng đồng</a></li>
-                <li><a href="#">Hỏi đáp về Cộng đồng</a></li>
-            </ul>
+            <?php
+            // Get sticky/pinned posts for tin_tuc post type
+            // Use meta field '_tin_tuc_noi_bat' to get featured/pinned news
+            $sticky_args = array(
+                'post_type'      => 'tin_tuc',
+                'posts_per_page' => 5,
+                'post_status'    => 'publish',
+                'meta_query'     => array(
+                    array(
+                        'key'     => '_tin_tuc_noi_bat',
+                        'value'   => '1',
+                        'compare' => '='
+                    )
+                ),
+                'orderby'        => 'menu_order date',
+                'order'          => 'ASC',
+            );
+            
+            $sticky_query = new WP_Query($sticky_args);
+            
+            if ($sticky_query->have_posts()) :
+                ?>
+                <ul class="sticky-news-list">
+                    <?php
+                    while ($sticky_query->have_posts()) : $sticky_query->the_post();
+                        ?>
+                        <li class="sticky-news-item">
+                            <a href="<?php the_permalink(); ?>">
+                                <h5><?php the_title(); ?></h5>
+                                <span class="sticky-news-date"><?php echo get_the_date('d/m/Y'); ?></span>
+                            </a>
+                        </li>
+                        <?php
+                    endwhile;
+                    wp_reset_postdata();
+                    ?>
+                </ul>
+                <?php
+            else :
+                ?>
+                <p style="padding: 15px; color: #666; font-size: 14px;">Chưa có tin tức được ghim.</p>
+                <?php
+            endif;
+            ?>
         </div>
     </div>
 

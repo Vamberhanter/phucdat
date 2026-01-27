@@ -1,8 +1,10 @@
 <?php
 /**
- * Template Name: Trang chủ - Tin tức
+ * The main template file for displaying the homepage with news posts
  * 
- * Template for displaying the homepage with news posts
+ * This is the most generic template file in a WordPress theme
+ * and one of the two required files for a theme (the other being style.css).
+ * It is used to display the homepage when no more specific template is available.
  */
 
 get_header();

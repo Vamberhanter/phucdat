@@ -110,7 +110,15 @@ get_header();
         <div class="content-columns">
             <?php
             // Get current page number
-            $paged = (get_query_var('paged')) ? get_query_var('paged') : 1;
+            // For custom page templates, use $_GET['paged'] instead of get_query_var('paged')
+            $paged = 1;
+            if (get_query_var('paged')) {
+                $paged = get_query_var('paged');
+            } elseif (get_query_var('page')) {
+                $paged = get_query_var('page');
+            } elseif (isset($_GET['paged']) && is_numeric($_GET['paged'])) {
+                $paged = absint($_GET['paged']);
+            }
             
             // Get sort parameter
             $sort_by = isset($_GET['sort_by']) ? sanitize_text_field($_GET['sort_by']) : 'date_desc';

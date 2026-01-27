@@ -954,7 +954,16 @@ function dnttvn_custom_pagination($query = null) {
     }
     
     // Get current page
-    $current_page = max(1, get_query_var('paged'));
+    // For custom page templates, check multiple sources
+    $current_page = 1;
+    if (get_query_var('paged')) {
+        $current_page = get_query_var('paged');
+    } elseif (get_query_var('page')) {
+        $current_page = get_query_var('page');
+    } elseif (isset($_GET['paged']) && is_numeric($_GET['paged'])) {
+        $current_page = absint($_GET['paged']);
+    }
+    $current_page = max(1, $current_page);
     
     // Build query string to preserve search, filter, and sort parameters
     $query_args = array();
@@ -971,9 +980,27 @@ function dnttvn_custom_pagination($query = null) {
         $query_args['sort_by'] = sanitize_text_field($_GET['sort_by']);
     }
     
-    $base = str_replace($big, '%#%', esc_url(get_pagenum_link($big)));
+    // For custom page templates, use get_permalink() instead of get_pagenum_link()
+    global $post;
+    $page_permalink = '';
+    if (is_page() && isset($post)) {
+        $page_permalink = get_permalink($post->ID);
+    } else {
+        // Fallback to get_pagenum_link for archive pages
+        $page_permalink = get_pagenum_link($big);
+    }
+    
+    // Build base URL for pagination
+    $base = str_replace($big, '%#%', esc_url($page_permalink));
+    
+    // Add query args to base URL
     if (!empty($query_args)) {
         $base = add_query_arg($query_args, $base);
+    }
+    
+    // Ensure base ends with proper format
+    if (strpos($base, '%#%') === false) {
+        $base = trailingslashit($base) . '%#%';
     }
     
     $pagination = paginate_links(array(

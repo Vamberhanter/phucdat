@@ -266,6 +266,37 @@ function dnttvn_theme_setup() {
 }
 add_action('after_setup_theme', 'dnttvn_theme_setup');
 
+// Auto-create "Danh sách Doanh nghiệp" page on theme activation
+function dnttvn_create_doanh_nghiep_page() {
+    // Check if page already exists
+    $page_slug = 'page-doanh-nghiep';
+    $existing_page = get_page_by_path($page_slug);
+    
+    if (!$existing_page) {
+        // Create the page
+        $page_data = array(
+            'post_title'    => 'Danh sách Doanh nghiệp',
+            'post_name'     => $page_slug,
+            'post_content'  => '',
+            'post_status'   => 'publish',
+            'post_type'     => 'page',
+            'post_author'   => 1,
+            'page_template' => 'page-doanh-nghiep.php',
+        );
+        
+        $page_id = wp_insert_post($page_data);
+        
+        // Set page template
+        if ($page_id && !is_wp_error($page_id)) {
+            update_post_meta($page_id, '_wp_page_template', 'page-doanh-nghiep.php');
+        }
+    } else {
+        // Update existing page to use correct template
+        update_post_meta($existing_page->ID, '_wp_page_template', 'page-doanh-nghiep.php');
+    }
+}
+add_action('after_switch_theme', 'dnttvn_create_doanh_nghiep_page');
+
 // Default menu fallback
 function dnttvn_default_menu() {
     echo '<ul class="menu" id="mainMenu">';

@@ -479,9 +479,22 @@ add_action('after_setup_theme', 'dnttvn_theme_setup');
 
 // Auto-create "Danh sách Doanh nghiệp" page on theme activation
 function dnttvn_create_doanh_nghiep_page() {
-    // Check if page already exists
-    $page_slug = 'page-doanh-nghiep';
+    // Check if page already exists with new slug
+    $page_slug = 'danh-sach-doanh-nghiep';
     $existing_page = get_page_by_path($page_slug);
+    
+    // Also check old slug for migration
+    if (!$existing_page) {
+        $old_page = get_page_by_path('page-doanh-nghiep');
+        if ($old_page) {
+            // Update existing page slug
+            wp_update_post(array(
+                'ID' => $old_page->ID,
+                'post_name' => $page_slug
+            ));
+            $existing_page = $old_page;
+        }
+    }
     
     if (!$existing_page) {
         // Create the page
@@ -502,7 +515,11 @@ function dnttvn_create_doanh_nghiep_page() {
             update_post_meta($page_id, '_wp_page_template', 'page-doanh-nghiep.php');
         }
     } else {
-        // Update existing page to use correct template
+        // Update existing page to use correct template and slug
+        wp_update_post(array(
+            'ID' => $existing_page->ID,
+            'post_name' => $page_slug
+        ));
         update_post_meta($existing_page->ID, '_wp_page_template', 'page-doanh-nghiep.php');
     }
 }
@@ -520,7 +537,11 @@ function dnttvn_default_menu() {
     if ($doanh_nghiep_link) {
         echo '<li><a href="' . esc_url($doanh_nghiep_link) . '">Doanh nghiệp</a></li>';
     }
-    $page_doanh_nghiep = get_page_by_path('page-doanh-nghiep');
+    $page_doanh_nghiep = get_page_by_path('danh-sach-doanh-nghiep');
+    if (!$page_doanh_nghiep) {
+        // Fallback to old slug
+        $page_doanh_nghiep = get_page_by_path('page-doanh-nghiep');
+    }
     if ($page_doanh_nghiep) {
         echo '<li><a href="' . esc_url(get_permalink($page_doanh_nghiep->ID)) . '">Danh sách Doanh nghiệp</a></li>';
     }

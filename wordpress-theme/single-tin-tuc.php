@@ -126,11 +126,16 @@ get_header();
             <ul class="linked-websites">
                 <?php
                 // Get page link for "Danh sách Doanh nghiệp"
-                $page_doanh_nghiep = get_page_by_path('page-doanh-nghiep');
+                $page_doanh_nghiep = get_page_by_path('danh-sach-doanh-nghiep');
+                if (!$page_doanh_nghiep) {
+                    // Fallback to old slug
+                    $page_doanh_nghiep = get_page_by_path('page-doanh-nghiep');
+                }
                 if ($page_doanh_nghiep) {
                     $doanh_nghiep_page_url = get_permalink($page_doanh_nghiep->ID);
                 } else {
-                    $doanh_nghiep_page_url = home_url('/page-doanh-nghiep/');
+                    // Fallback: use home_url with new slug
+                    $doanh_nghiep_page_url = home_url('/danh-sach-doanh-nghiep/');
                 }
                 ?>
                 <li><a href="<?php echo esc_url($doanh_nghiep_page_url); ?>">Danh sách Doanh nghiệp</a></li>

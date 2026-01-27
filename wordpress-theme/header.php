@@ -63,11 +63,40 @@
         </div>
         <div class="banner-section">
             <div class="banner-slider">
-                <div class="banner-slide active">BANNER 1</div>
-                <div class="banner-slide">BANNER 2</div>
-                <div class="banner-slide">BANNER 3</div>
-                <div class="banner-slide">BANNER 4</div>
-                <div class="banner-slide">BANNER 5</div>
+                <?php
+                $banners = array();
+                for ($i = 1; $i <= 5; $i++) {
+                    $banner_id = get_theme_mod('dnttvn_banner_' . $i, '');
+                    if ($banner_id) {
+                        $banners[] = $banner_id;
+                    }
+                }
+                
+                if (!empty($banners)) :
+                    $first = true;
+                    foreach ($banners as $banner_id) :
+                        $banner_url = wp_get_attachment_image_url($banner_id, 'full');
+                        $banner_alt = get_post_meta($banner_id, '_wp_attachment_image_alt', true);
+                        if ($banner_url) :
+                            ?>
+                            <div class="banner-slide <?php echo $first ? 'active' : ''; ?>">
+                                <img src="<?php echo esc_url($banner_url); ?>" alt="<?php echo esc_attr($banner_alt); ?>" style="width: 100%; height: auto; display: block;">
+                            </div>
+                            <?php
+                            $first = false;
+                        endif;
+                    endforeach;
+                else :
+                    // Fallback to default banners
+                    ?>
+                    <div class="banner-slide active">BANNER 1</div>
+                    <div class="banner-slide">BANNER 2</div>
+                    <div class="banner-slide">BANNER 3</div>
+                    <div class="banner-slide">BANNER 4</div>
+                    <div class="banner-slide">BANNER 5</div>
+                    <?php
+                endif;
+                ?>
             </div>
         </div>
     </header>

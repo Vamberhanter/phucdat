@@ -661,3 +661,293 @@ function dnttvn_extend_admin_search($search, $wp_query) {
     return $search;
 }
 add_filter('posts_search', 'dnttvn_extend_admin_search', 10, 2);
+
+// ============================================
+// BANNER MANAGEMENT
+// ============================================
+
+// Register Customizer for Header Banners
+function dnttvn_customize_register($wp_customize) {
+    // Add Section for Header Banners
+    $wp_customize->add_section('dnttvn_header_banners', array(
+        'title'    => 'Banner Header',
+        'priority' => 30,
+    ));
+    
+    // Banner 1
+    $wp_customize->add_setting('dnttvn_banner_1', array(
+        'default'           => '',
+        'sanitize_callback' => 'absint',
+    ));
+    $wp_customize->add_control(new WP_Customize_Media_Control($wp_customize, 'dnttvn_banner_1', array(
+        'label'     => 'Banner 1',
+        'section'   => 'dnttvn_header_banners',
+        'mime_type' => 'image',
+    )));
+    
+    // Banner 2
+    $wp_customize->add_setting('dnttvn_banner_2', array(
+        'default'           => '',
+        'sanitize_callback' => 'absint',
+    ));
+    $wp_customize->add_control(new WP_Customize_Media_Control($wp_customize, 'dnttvn_banner_2', array(
+        'label'     => 'Banner 2',
+        'section'   => 'dnttvn_header_banners',
+        'mime_type' => 'image',
+    )));
+    
+    // Banner 3
+    $wp_customize->add_setting('dnttvn_banner_3', array(
+        'default'           => '',
+        'sanitize_callback' => 'absint',
+    ));
+    $wp_customize->add_control(new WP_Customize_Media_Control($wp_customize, 'dnttvn_banner_3', array(
+        'label'     => 'Banner 3',
+        'section'   => 'dnttvn_header_banners',
+        'mime_type' => 'image',
+    )));
+    
+    // Banner 4
+    $wp_customize->add_setting('dnttvn_banner_4', array(
+        'default'           => '',
+        'sanitize_callback' => 'absint',
+    ));
+    $wp_customize->add_control(new WP_Customize_Media_Control($wp_customize, 'dnttvn_banner_4', array(
+        'label'     => 'Banner 4',
+        'section'   => 'dnttvn_header_banners',
+        'mime_type' => 'image',
+    )));
+    
+    // Banner 5
+    $wp_customize->add_setting('dnttvn_banner_5', array(
+        'default'           => '',
+        'sanitize_callback' => 'absint',
+    ));
+    $wp_customize->add_control(new WP_Customize_Media_Control($wp_customize, 'dnttvn_banner_5', array(
+        'label'     => 'Banner 5',
+        'section'   => 'dnttvn_header_banners',
+        'mime_type' => 'image',
+    )));
+}
+add_action('customize_register', 'dnttvn_customize_register');
+
+// Create Admin Settings Page for Ad Blocks
+function dnttvn_add_admin_menu() {
+    add_menu_page(
+        'Quản lý Banner',
+        'Quản lý Banner',
+        'manage_options',
+        'dnttvn-banner-settings',
+        'dnttvn_banner_settings_page',
+        'dashicons-images-alt2',
+        30
+    );
+}
+add_action('admin_menu', 'dnttvn_add_admin_menu');
+
+// Banner Settings Page
+function dnttvn_banner_settings_page() {
+    if (isset($_POST['dnttvn_save_banners']) && check_admin_referer('dnttvn_save_banners_action', 'dnttvn_save_banners_nonce')) {
+        // Save VVIP Ad Blocks
+        if (isset($_POST['vvip_banners'])) {
+            update_option('dnttvn_vvip_banners', array_map('absint', $_POST['vvip_banners']));
+        }
+        if (isset($_POST['vvip_links'])) {
+            update_option('dnttvn_vvip_links', array_map('esc_url_raw', $_POST['vvip_links']));
+        }
+        
+        // Save VIP Ad Blocks
+        if (isset($_POST['vip_banners'])) {
+            update_option('dnttvn_vip_banners', array_map('absint', $_POST['vip_banners']));
+        }
+        if (isset($_POST['vip_links'])) {
+            update_option('dnttvn_vip_links', array_map('esc_url_raw', $_POST['vip_links']));
+        }
+        
+        // Save Standard Ad Blocks
+        if (isset($_POST['standard_banners'])) {
+            update_option('dnttvn_standard_banners', array_map('absint', $_POST['standard_banners']));
+        }
+        if (isset($_POST['standard_links'])) {
+            update_option('dnttvn_standard_links', array_map('esc_url_raw', $_POST['standard_links']));
+        }
+        
+        echo '<div class="notice notice-success"><p>Đã lưu banner thành công!</p></div>';
+    }
+    
+    $vvip_banners = get_option('dnttvn_vvip_banners', array());
+    $vvip_links = get_option('dnttvn_vvip_links', array());
+    $vip_banners = get_option('dnttvn_vip_banners', array());
+    $vip_links = get_option('dnttvn_vip_links', array());
+    $standard_banners = get_option('dnttvn_standard_banners', array());
+    $standard_links = get_option('dnttvn_standard_links', array());
+    
+    wp_enqueue_media();
+    ?>
+    <div class="wrap">
+        <h1>Quản lý Banner</h1>
+        <form method="post" action="">
+            <?php wp_nonce_field('dnttvn_save_banners_action', 'dnttvn_save_banners_nonce'); ?>
+            
+            <h2>Banner VVIP (Tối đa 2 banner)</h2>
+            <div id="vvip-banners-container">
+                <?php
+                $vvip_count = max(2, count($vvip_banners));
+                for ($i = 0; $i < $vvip_count; $i++) {
+                    $banner_id = isset($vvip_banners[$i]) ? $vvip_banners[$i] : '';
+                    $banner_url = isset($vvip_links[$i]) ? $vvip_links[$i] : '';
+                    ?>
+                    <div class="banner-item" style="margin-bottom: 20px; padding: 15px; border: 1px solid #ddd;">
+                        <h3>Banner VVIP <?php echo $i + 1; ?></h3>
+                        <p>
+                            <label>Hình ảnh/Video:</label><br>
+                            <input type="hidden" name="vvip_banners[]" class="banner-image-id" value="<?php echo esc_attr($banner_id); ?>">
+                            <button type="button" class="button upload-banner-btn" data-type="vvip" data-index="<?php echo $i; ?>">Chọn hình ảnh/Video</button>
+                            <button type="button" class="button remove-banner-btn" data-type="vvip" data-index="<?php echo $i; ?>">Xóa</button>
+                        </p>
+                        <div class="banner-preview" style="margin-top: 10px;">
+                            <?php if ($banner_id) : ?>
+                                <?php echo wp_get_attachment_image($banner_id, 'medium'); ?>
+                            <?php endif; ?>
+                        </div>
+                        <p>
+                            <label>Link (nếu có):</label><br>
+                            <input type="url" name="vvip_links[]" value="<?php echo esc_attr($banner_url); ?>" class="regular-text" placeholder="https://...">
+                        </p>
+                    </div>
+                    <?php
+                }
+                ?>
+            </div>
+            
+            <h2>Banner VIP (Tối đa 2 banner)</h2>
+            <div id="vip-banners-container">
+                <?php
+                $vip_count = max(2, count($vip_banners));
+                for ($i = 0; $i < $vip_count; $i++) {
+                    $banner_id = isset($vip_banners[$i]) ? $vip_banners[$i] : '';
+                    $banner_url = isset($vip_links[$i]) ? $vip_links[$i] : '';
+                    ?>
+                    <div class="banner-item" style="margin-bottom: 20px; padding: 15px; border: 1px solid #ddd;">
+                        <h3>Banner VIP <?php echo $i + 1; ?></h3>
+                        <p>
+                            <label>Hình ảnh/Video:</label><br>
+                            <input type="hidden" name="vip_banners[]" class="banner-image-id" value="<?php echo esc_attr($banner_id); ?>">
+                            <button type="button" class="button upload-banner-btn" data-type="vip" data-index="<?php echo $i; ?>">Chọn hình ảnh/Video</button>
+                            <button type="button" class="button remove-banner-btn" data-type="vip" data-index="<?php echo $i; ?>">Xóa</button>
+                        </p>
+                        <div class="banner-preview" style="margin-top: 10px;">
+                            <?php if ($banner_id) : ?>
+                                <?php echo wp_get_attachment_image($banner_id, 'medium'); ?>
+                            <?php endif; ?>
+                        </div>
+                        <p>
+                            <label>Link (nếu có):</label><br>
+                            <input type="url" name="vip_links[]" value="<?php echo esc_attr($banner_url); ?>" class="regular-text" placeholder="https://...">
+                        </p>
+                    </div>
+                    <?php
+                }
+                ?>
+            </div>
+            
+            <h2>Banner Standard (Tối đa 2 banner)</h2>
+            <div id="standard-banners-container">
+                <?php
+                $standard_count = max(2, count($standard_banners));
+                for ($i = 0; $i < $standard_count; $i++) {
+                    $banner_id = isset($standard_banners[$i]) ? $standard_banners[$i] : '';
+                    $banner_url = isset($standard_links[$i]) ? $standard_links[$i] : '';
+                    ?>
+                    <div class="banner-item" style="margin-bottom: 20px; padding: 15px; border: 1px solid #ddd;">
+                        <h3>Banner Standard <?php echo $i + 1; ?></h3>
+                        <p>
+                            <label>Hình ảnh/Video:</label><br>
+                            <input type="hidden" name="standard_banners[]" class="banner-image-id" value="<?php echo esc_attr($banner_id); ?>">
+                            <button type="button" class="button upload-banner-btn" data-type="standard" data-index="<?php echo $i; ?>">Chọn hình ảnh/Video</button>
+                            <button type="button" class="button remove-banner-btn" data-type="standard" data-index="<?php echo $i; ?>">Xóa</button>
+                        </p>
+                        <div class="banner-preview" style="margin-top: 10px;">
+                            <?php if ($banner_id) : ?>
+                                <?php echo wp_get_attachment_image($banner_id, 'medium'); ?>
+                            <?php endif; ?>
+                        </div>
+                        <p>
+                            <label>Link (nếu có):</label><br>
+                            <input type="url" name="standard_links[]" value="<?php echo esc_attr($banner_url); ?>" class="regular-text" placeholder="https://...">
+                        </p>
+                    </div>
+                    <?php
+                }
+                ?>
+            </div>
+            
+            <p class="submit">
+                <input type="submit" name="dnttvn_save_banners" class="button button-primary" value="Lưu Banner">
+            </p>
+        </form>
+    </div>
+    
+    <script>
+    jQuery(document).ready(function($) {
+        var mediaUploader;
+        
+        $('.upload-banner-btn').on('click', function(e) {
+            e.preventDefault();
+            var button = $(this);
+            var type = button.data('type');
+            var index = button.data('index');
+            var container = button.closest('.banner-item');
+            var input = container.find('.banner-image-id');
+            var preview = container.find('.banner-preview');
+            
+            if (mediaUploader) {
+                mediaUploader.open();
+                return;
+            }
+            
+            mediaUploader = wp.media({
+                title: 'Chọn Banner',
+                button: {
+                    text: 'Sử dụng hình ảnh này'
+                },
+                multiple: false,
+                library: {
+                    type: ['image', 'video']
+                }
+            });
+            
+            mediaUploader.on('select', function() {
+                var attachment = mediaUploader.state().get('selection').first().toJSON();
+                input.val(attachment.id);
+                if (attachment.type === 'image') {
+                    preview.html('<img src="' + attachment.url + '" style="max-width: 300px;">');
+                } else if (attachment.type === 'video') {
+                    preview.html('<video src="' + attachment.url + '" controls style="max-width: 300px;"></video>');
+                }
+            });
+            
+            mediaUploader.open();
+        });
+        
+        $('.remove-banner-btn').on('click', function(e) {
+            e.preventDefault();
+            var button = $(this);
+            var container = button.closest('.banner-item');
+            container.find('.banner-image-id').val('');
+            container.find('.banner-preview').html('');
+            container.find('input[type="url"]').val('');
+        });
+    });
+    </script>
+    <?php
+}
+
+// Enqueue admin script for banner management
+function dnttvn_enqueue_banner_admin_scripts($hook) {
+    if ($hook != 'toplevel_page_dnttvn-banner-settings') {
+        return;
+    }
+    wp_enqueue_media();
+}
+add_action('admin_enqueue_scripts', 'dnttvn_enqueue_banner_admin_scripts');

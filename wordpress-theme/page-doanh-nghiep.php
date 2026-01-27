@@ -249,6 +249,7 @@ get_header();
                     }
                     ?>
                     <div class="business-card">
+                        <a href="<?php the_permalink(); ?>" class="business-card-link" style="text-decoration: none; color: inherit; display: block;">
                         <div class="business-card-left">
                             <!-- Hình chính (Featured Image) - Logo/Ảnh đại diện chính của doanh nghiệp -->
                             <div class="business-card-image">
@@ -310,6 +311,7 @@ get_header();
                                 <?php endif; ?>
                             </div>
                         </div>
+                        </a>
                     </div>
                     <?php
                     // Insert banner after every 3 business cards on mobile

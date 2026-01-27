@@ -418,6 +418,20 @@ body {
     display: flex;
     gap: 20px;
     border: 1px solid #e0e0e0;
+    position: relative;
+}
+
+.business-card-link {
+    text-decoration: none !important;
+    color: inherit !important;
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.business-card-link:hover .business-card {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.15);
 }
 
 .business-card:hover {
@@ -925,6 +939,22 @@ body {
 
 .linked-websites li a:active {
     color: #06202e;
+}
+
+/* Business Card Link */
+.business-card-link {
+    text-decoration: none !important;
+    color: inherit !important;
+    display: block;
+    transition: opacity 0.3s ease;
+}
+
+.business-card-link:hover {
+    opacity: 0.9;
+}
+
+.business-card-link:hover .business-card {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 /* Footer */

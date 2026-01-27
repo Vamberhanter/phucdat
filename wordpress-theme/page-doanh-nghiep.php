@@ -79,12 +79,16 @@ get_header();
         <!-- Business Cards Grid -->
         <div class="content-columns">
             <?php
+            // Get current page number
+            $paged = (get_query_var('paged')) ? get_query_var('paged') : 1;
+            
             $args = array(
                 'post_type'      => 'doanh_nghiep',
                 'posts_per_page' => 6,
                 'post_status'    => 'publish',
                 'orderby'        => 'date',
                 'order'          => 'DESC',
+                'paged'          => $paged,
             );
 
             // Filter by search
@@ -234,6 +238,17 @@ get_header();
                     <?php
                 endwhile;
                 wp_reset_postdata();
+                
+                // Pagination
+                if ($doanh_nghiep_query->max_num_pages > 1) {
+                    ?>
+                    <div class="pagination-wrapper">
+                        <?php
+                        echo dnttvn_custom_pagination($doanh_nghiep_query);
+                        ?>
+                    </div>
+                    <?php
+                }
             else :
                 ?>
                 <div class="business-card">

@@ -651,6 +651,56 @@ function dnttvn_dashboard_stats_widget() {
     <?php
 }
 
+// Custom Pagination Function for Doanh nghiệp page
+function dnttvn_custom_pagination($query = null) {
+    global $wp_query;
+    
+    if (!$query) {
+        $query = $wp_query;
+    }
+    
+    $big = 999999999; // Need an unlikely integer
+    $total_pages = $query->max_num_pages;
+    
+    if ($total_pages <= 1) {
+        return '';
+    }
+    
+    // Get current page
+    $current_page = max(1, get_query_var('paged'));
+    
+    // Build query string to preserve search and filter parameters
+    $query_args = array();
+    if (isset($_GET['ten_doanh_nghiep']) && !empty($_GET['ten_doanh_nghiep'])) {
+        $query_args['ten_doanh_nghiep'] = sanitize_text_field($_GET['ten_doanh_nghiep']);
+    }
+    if (isset($_GET['khu_vuc']) && !empty($_GET['khu_vuc'])) {
+        $query_args['khu_vuc'] = sanitize_text_field($_GET['khu_vuc']);
+    }
+    if (isset($_GET['nganh_hang']) && !empty($_GET['nganh_hang'])) {
+        $query_args['nganh_hang'] = sanitize_text_field($_GET['nganh_hang']);
+    }
+    
+    $base = str_replace($big, '%#%', esc_url(get_pagenum_link($big)));
+    if (!empty($query_args)) {
+        $base = add_query_arg($query_args, $base);
+    }
+    
+    $pagination = paginate_links(array(
+        'base'      => $base,
+        'format'    => '?paged=%#%',
+        'current'   => $current_page,
+        'total'     => $total_pages,
+        'prev_text' => '&laquo; Trước',
+        'next_text' => 'Sau &raquo;',
+        'type'      => 'list',
+        'end_size'  => 2,
+        'mid_size'  => 2,
+    ));
+    
+    return '<div class="pagination">' . $pagination . '</div>';
+}
+
 // Add Custom Fields to Search
 function dnttvn_extend_admin_search($search, $wp_query) {
     global $wpdb;

@@ -94,6 +94,7 @@ get_header();
                 <div class="sort-controls">
                     <label for="sort_by">Sắp xếp theo:</label>
                     <select name="sort_by" id="sort_by" onchange="document.getElementById('sort-form').submit();">
+                        <option value="menu_order" <?php echo isset($_GET['sort_by']) && $_GET['sort_by'] == 'menu_order' ? 'selected' : ''; ?>>Thứ tự đăng bài</option>
                         <option value="date_desc" <?php echo (isset($_GET['sort_by']) && $_GET['sort_by'] == 'date_desc') || !isset($_GET['sort_by']) ? 'selected' : ''; ?>>Mới nhất</option>
                         <option value="date_asc" <?php echo isset($_GET['sort_by']) && $_GET['sort_by'] == 'date_asc' ? 'selected' : ''; ?>>Cũ nhất</option>
                         <option value="title_asc" <?php echo isset($_GET['sort_by']) && $_GET['sort_by'] == 'title_asc' ? 'selected' : ''; ?>>Tên A-Z</option>
@@ -123,6 +124,10 @@ get_header();
             
             // Handle sorting
             switch ($sort_by) {
+                case 'menu_order':
+                    $args['orderby'] = 'menu_order date';
+                    $args['order'] = 'ASC';
+                    break;
                 case 'date_asc':
                     $args['orderby'] = 'date';
                     $args['order'] = 'ASC';

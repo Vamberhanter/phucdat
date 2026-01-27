@@ -41,6 +41,7 @@ get_header();
                     <div class="sort-controls">
                         <label for="tin_tuc_sort_by">Sắp xếp tin tức:</label>
                         <select name="tin_tuc_sort_by" id="tin_tuc_sort_by" onchange="document.getElementById('tin-tuc-sort-form').submit();">
+                            <option value="menu_order" <?php echo isset($_GET['tin_tuc_sort_by']) && $_GET['tin_tuc_sort_by'] == 'menu_order' ? 'selected' : ''; ?>>Thứ tự đăng bài</option>
                             <option value="date_desc" <?php echo (isset($_GET['tin_tuc_sort_by']) && $_GET['tin_tuc_sort_by'] == 'date_desc') || !isset($_GET['tin_tuc_sort_by']) ? 'selected' : ''; ?>>Mới nhất</option>
                             <option value="date_asc" <?php echo isset($_GET['tin_tuc_sort_by']) && $_GET['tin_tuc_sort_by'] == 'date_asc' ? 'selected' : ''; ?>>Cũ nhất</option>
                             <option value="title_asc" <?php echo isset($_GET['tin_tuc_sort_by']) && $_GET['tin_tuc_sort_by'] == 'title_asc' ? 'selected' : ''; ?>>Tiêu đề A-Z</option>
@@ -64,6 +65,10 @@ get_header();
                 
                 // Handle sorting for Tin tức
                 switch ($tin_tuc_sort_by) {
+                    case 'menu_order':
+                        $args['orderby'] = 'menu_order date';
+                        $args['order'] = 'ASC';
+                        break;
                     case 'date_asc':
                         $args['orderby'] = 'date';
                         $args['order'] = 'ASC';

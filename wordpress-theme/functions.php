@@ -45,7 +45,7 @@ function dnttvn_register_tin_tuc_post_type() {
         'label'                 => 'Tin tức',
         'description'           => 'Quản lý tin tức của Cộng đồng',
         'labels'                => $labels,
-        'supports'              => array('title', 'editor', 'thumbnail', 'excerpt', 'custom-fields'),
+        'supports'              => array('title', 'editor', 'thumbnail', 'excerpt', 'custom-fields', 'page-attributes'),
         'taxonomies'            => array('category', 'post_tag'),
         'hierarchical'          => false,
         'public'                => true,
@@ -296,7 +296,7 @@ function dnttvn_register_doanh_nghiep_post_type() {
         'label'                 => 'Doanh nghiệp',
         'description'           => 'Quản lý danh sách doanh nghiệp',
         'labels'                => $labels,
-        'supports'              => array('title', 'editor', 'thumbnail', 'excerpt', 'custom-fields'),
+        'supports'              => array('title', 'editor', 'thumbnail', 'excerpt', 'custom-fields', 'page-attributes'),
         'taxonomies'            => array('nganh_hang', 'khu_vuc'),
         'hierarchical'          => false,
         'public'                => true,
@@ -538,6 +538,7 @@ function dnttvn_add_doanh_nghiep_admin_columns($columns) {
     $new_columns = array();
     $new_columns['cb'] = $columns['cb'];
     $new_columns['title'] = $columns['title'];
+    $new_columns['menu_order'] = 'Thứ tự';
     $new_columns['nganh_hang'] = 'Ngành hàng';
     $new_columns['khu_vuc'] = 'Khu vực';
     $new_columns['nganh_hang_tax'] = 'Ngành hàng (Taxonomy)';
@@ -550,6 +551,10 @@ add_filter('manage_doanh_nghiep_posts_columns', 'dnttvn_add_doanh_nghiep_admin_c
 // Populate Admin Columns for Doanh nghiệp
 function dnttvn_populate_doanh_nghiep_admin_columns($column, $post_id) {
     switch ($column) {
+        case 'menu_order':
+            $menu_order = get_post($post_id)->menu_order;
+            echo '<strong>' . esc_html($menu_order) . '</strong>';
+            break;
         case 'nganh_hang':
             $nganh_hang = get_post_meta($post_id, '_nganh_hang', true);
             echo $nganh_hang ? esc_html($nganh_hang) : '—';
@@ -588,6 +593,7 @@ add_action('manage_doanh_nghiep_posts_custom_column', 'dnttvn_populate_doanh_ngh
 
 // Make Admin Columns Sortable
 function dnttvn_make_doanh_nghiep_columns_sortable($columns) {
+    $columns['menu_order'] = 'menu_order';
     $columns['nganh_hang'] = 'nganh_hang';
     $columns['khu_vuc'] = 'khu_vuc';
     return $columns;
@@ -601,12 +607,72 @@ function dnttvn_handle_doanh_nghiep_sorting($query) {
     }
     
     $orderby = $query->get('orderby');
-    if ($orderby == 'nganh_hang' || $orderby == 'khu_vuc') {
+    if ($orderby == 'menu_order') {
+        $query->set('orderby', 'menu_order');
+        $query->set('order', 'ASC');
+    } elseif ($orderby == 'nganh_hang' || $orderby == 'khu_vuc') {
         $query->set('meta_key', '_' . $orderby);
         $query->set('orderby', 'meta_value');
     }
 }
 add_action('pre_get_posts', 'dnttvn_handle_doanh_nghiep_sorting');
+
+// Add Admin Columns for Tin tức
+function dnttvn_add_tin_tuc_admin_columns($columns) {
+    $new_columns = array();
+    $new_columns['cb'] = $columns['cb'];
+    $new_columns['title'] = $columns['title'];
+    $new_columns['menu_order'] = 'Thứ tự';
+    $new_columns['noi_bat'] = 'Nổi bật';
+    $new_columns['date'] = $columns['date'];
+    return $new_columns;
+}
+add_filter('manage_tin_tuc_posts_columns', 'dnttvn_add_tin_tuc_admin_columns');
+
+// Populate Admin Columns for Tin tức
+function dnttvn_populate_tin_tuc_admin_columns($column, $post_id) {
+    switch ($column) {
+        case 'menu_order':
+            $menu_order = get_post($post_id)->menu_order;
+            echo '<strong>' . esc_html($menu_order) . '</strong>';
+            break;
+        case 'noi_bat':
+            $noi_bat = get_post_meta($post_id, '_tin_tuc_noi_bat', true);
+            if ($noi_bat == '1') {
+                echo '<span style="color: #ff9800; font-weight: bold;">⭐ Nổi bật</span>';
+            } else {
+                echo '—';
+            }
+            break;
+    }
+}
+add_action('manage_tin_tuc_posts_custom_column', 'dnttvn_populate_tin_tuc_admin_columns', 10, 2);
+
+// Make Tin tức Columns Sortable
+function dnttvn_make_tin_tuc_columns_sortable($columns) {
+    $columns['menu_order'] = 'menu_order';
+    $columns['noi_bat'] = 'noi_bat';
+    return $columns;
+}
+add_filter('manage_edit-tin_tuc_sortable_columns', 'dnttvn_make_tin_tuc_columns_sortable');
+
+// Handle Tin tức Sorting
+function dnttvn_handle_tin_tuc_sorting($query) {
+    if (!is_admin() || !$query->is_main_query()) {
+        return;
+    }
+    
+    $orderby = $query->get('orderby');
+    if ($orderby == 'menu_order') {
+        $query->set('orderby', 'menu_order');
+        $query->set('order', 'ASC');
+    } elseif ($orderby == 'noi_bat') {
+        $query->set('meta_key', '_tin_tuc_noi_bat');
+        $query->set('orderby', 'meta_value date');
+        $query->set('order', 'DESC');
+    }
+}
+add_action('pre_get_posts', 'dnttvn_handle_tin_tuc_sorting');
 
 // Add Admin Filters (Dropdown filters)
 function dnttvn_add_doanh_nghiep_admin_filters() {

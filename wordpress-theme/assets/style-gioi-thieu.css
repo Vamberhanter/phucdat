@@ -752,8 +752,13 @@ body {
     font-size: 12px;
 }
 
+/* Mobile banner blocks - hidden on desktop by default */
+.ad-section-mobile {
+    display: none;
+}
+
 .ad-block-mobile {
-    display: none !important; /* Ẩn hoàn toàn trên desktop */
+    display: none; /* Ẩn trên desktop */
     background: #f8f9fa;
     padding: 15px;
     border-radius: 8px;
@@ -1017,9 +1022,18 @@ body {
         display: none;
     }
 
+    /* Mobile banner section - hiển thị trong danh sách doanh nghiệp */
+    .ad-section-mobile {
+        display: block !important;
+        width: 100%;
+        margin: 30px 0;
+        padding: 0;
+    }
+    
     .ad-block-mobile {
         display: block !important;
         margin-bottom: 20px;
+        width: 100%;
     }
 
     .main-navigation {
@@ -1100,12 +1114,9 @@ body {
         display: none;
     }
 
-    /* Sidebar phải: hiện cả tên và mũi tên, có thể toggle */
+    /* Sidebar phải: ẩn trên mobile, banner sẽ hiển thị trong danh sách */
     .sidebar-column:last-child {
-        display: block;
-        width: 100%;
-        margin-bottom: 10px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        display: none !important;
     }
 
     .sidebar-column:last-child .column-header {
@@ -1148,10 +1159,33 @@ body {
         margin-bottom: 20px;
     }
 
-    /* Ad blocks mobile: hiển thị */
+    /* Ad blocks mobile: hiển thị trong danh sách doanh nghiệp */
+    .ad-section-mobile {
+        width: 100%;
+        margin: 30px 0;
+        padding: 0;
+    }
+    
     .ad-block-mobile {
-        display: block;
+        display: block !important;
         margin-bottom: 20px;
+        width: 100%;
+    }
+    
+    /* Ẩn banner desktop trong sidebar trên mobile */
+    .ad-section {
+        display: none !important;
+    }
+}
+
+/* Desktop: ẩn banner mobile */
+@media (min-width: 769px) {
+    .ad-section-mobile {
+        display: none !important;
+    }
+    
+    .ad-block-mobile {
+        display: none !important;
     }
 }
 

@@ -193,7 +193,9 @@ get_header();
             $doanh_nghiep_query = new WP_Query($args);
 
             if ($doanh_nghiep_query->have_posts()) :
+                $post_count = 0;
                 while ($doanh_nghiep_query->have_posts()) : $doanh_nghiep_query->the_post();
+                    $post_count++;
                     // Get custom fields
                     $nganh_hang = get_post_meta(get_the_ID(), '_nganh_hang', true);
                     $khu_vuc = get_post_meta(get_the_ID(), '_khu_vuc', true);
@@ -310,6 +312,13 @@ get_header();
                         </div>
                     </div>
                     <?php
+                    // Insert banner after every 3 business cards on mobile
+                    if ($post_count % 3 == 0) {
+                        $mobile_banners = dnttvn_render_banner_blocks('ad-block-mobile');
+                        if (!empty($mobile_banners)) {
+                            echo '<div class="ad-section-mobile">' . $mobile_banners . '</div>';
+                        }
+                    }
                 endwhile;
                 wp_reset_postdata();
                 
@@ -339,88 +348,7 @@ get_header();
         <div class="column-header mobile-toggle collapsed">Theo ngành hàng</div>
         <div class="column-content mobile-collapsed">
             <div class="ad-section">
-                <?php
-                // Get banner order
-                $banner_column_order = get_option('dnttvn_banner_column_order', 'vvip,vip,standard');
-                $order_array = array_map('trim', explode(',', $banner_column_order));
-                
-                // Prepare banner data
-                $banner_data = array(
-                    'vvip' => array(
-                        'banners' => get_option('dnttvn_vvip_banners', array()),
-                        'links' => get_option('dnttvn_vvip_links', array()),
-                        'type' => 'vvip',
-                        'title' => 'Video quảng cáo hoặc banner: VVIP',
-                        'label' => 'VVIP'
-                    ),
-                    'vip' => array(
-                        'banners' => get_option('dnttvn_vip_banners', array()),
-                        'links' => get_option('dnttvn_vip_links', array()),
-                        'type' => 'vip',
-                        'title' => 'Video quảng cáo hoặc banner: VIP',
-                        'label' => 'VIP'
-                    ),
-                    'standard' => array(
-                        'banners' => get_option('dnttvn_standard_banners', array()),
-                        'links' => get_option('dnttvn_standard_links', array()),
-                        'type' => 'standard',
-                        'title' => 'Video quảng cáo hoặc banner: Standard',
-                        'label' => 'Standard'
-                    )
-                );
-                
-                // Display banners according to order
-                foreach ($order_array as $banner_type) {
-                    if (!isset($banner_data[$banner_type])) continue;
-                    
-                    $data = $banner_data[$banner_type];
-                    $banners = $data['banners'];
-                    $links = $data['links'];
-                    
-                    if (!empty($banners)) {
-                        foreach ($banners as $index => $banner_id) {
-                            if ($banner_id) {
-                                $banner_url = wp_get_attachment_image_url($banner_id, 'full');
-                                $banner_alt = get_post_meta($banner_id, '_wp_attachment_image_alt', true);
-                                $link_url = isset($links[$index]) ? $links[$index] : '';
-                                if ($banner_url) {
-                                    ?>
-                                    <div class="ad-block <?php echo esc_attr($data['type']); ?>">
-                                        <h4><?php echo esc_html($data['title']); ?></h4>
-                                        <div class="ad-type"><?php echo esc_html($data['label']); ?></div>
-                                        <div class="ad-description">Blog 15 giây, tối đa 5 doanh nghiệp</div>
-                                        <?php if ($link_url) : ?>
-                                            <a href="<?php echo esc_url($link_url); ?>" target="_blank">
-                                        <?php endif; ?>
-                                        <?php
-                                        $mime_type = get_post_mime_type($banner_id);
-                                        if (strpos($mime_type, 'video') !== false) {
-                                            echo '<video src="' . esc_url($banner_url) . '" controls style="width: 100%; max-width: 100%;"></video>';
-                                        } else {
-                                            echo '<img src="' . esc_url($banner_url) . '" alt="' . esc_attr($banner_alt) . '" style="width: 100%; max-width: 100%;">';
-                                        }
-                                        ?>
-                                        <?php if ($link_url) : ?>
-                                            </a>
-                                        <?php endif; ?>
-                                    </div>
-                                    <?php
-                                }
-                            }
-                        }
-                    } else {
-                        // Default placeholder
-                        ?>
-                        <div class="ad-block <?php echo esc_attr($data['type']); ?>">
-                            <h4><?php echo esc_html($data['title']); ?></h4>
-                            <div class="ad-type"><?php echo esc_html($data['label']); ?></div>
-                            <div class="ad-description">Blog 15 giây, tối đa 5 doanh nghiệp</div>
-                            <div class="ad-placeholder">Banner/Video <?php echo esc_html($data['label']); ?></div>
-                        </div>
-                        <?php
-                    }
-                }
-                ?>
+                <?php echo dnttvn_render_banner_blocks('ad-block'); ?>
             </div>
         </div>
     </div>

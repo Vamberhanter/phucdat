@@ -1018,6 +1018,80 @@ function dnttvn_custom_pagination($query = null) {
     return '<div class="pagination">' . $pagination . '</div>';
 }
 
+// Helper function to render banner blocks (for reuse in sidebar and mobile)
+function dnttvn_render_banner_blocks($class_prefix = 'ad-block') {
+    // Get banner order
+    $banner_column_order = get_option('dnttvn_banner_column_order', 'vvip,vip,standard');
+    $order_array = array_map('trim', explode(',', $banner_column_order));
+    
+    // Prepare banner data
+    $banner_data = array(
+        'vvip' => array(
+            'banners' => get_option('dnttvn_vvip_banners', array()),
+            'links' => get_option('dnttvn_vvip_links', array()),
+            'type' => 'vvip',
+            'title' => 'Video quảng cáo hoặc banner: VVIP',
+            'label' => 'VVIP'
+        ),
+        'vip' => array(
+            'banners' => get_option('dnttvn_vip_banners', array()),
+            'links' => get_option('dnttvn_vip_links', array()),
+            'type' => 'vip',
+            'title' => 'Video quảng cáo hoặc banner: VIP',
+            'label' => 'VIP'
+        ),
+        'standard' => array(
+            'banners' => get_option('dnttvn_standard_banners', array()),
+            'links' => get_option('dnttvn_standard_links', array()),
+            'type' => 'standard',
+            'title' => 'Video quảng cáo hoặc banner: Standard',
+            'label' => 'Standard'
+        )
+    );
+    
+    $output = '';
+    
+    // Display banners according to order
+    foreach ($order_array as $banner_type) {
+        if (!isset($banner_data[$banner_type])) continue;
+        
+        $data = $banner_data[$banner_type];
+        $banners = $data['banners'];
+        $links = $data['links'];
+        
+        if (!empty($banners)) {
+            foreach ($banners as $index => $banner_id) {
+                if ($banner_id) {
+                    $banner_url = wp_get_attachment_image_url($banner_id, 'full');
+                    $banner_alt = get_post_meta($banner_id, '_wp_attachment_image_alt', true);
+                    $link_url = isset($links[$index]) ? $links[$index] : '';
+                    if ($banner_url) {
+                        $output .= '<div class="' . esc_attr($class_prefix) . ' ' . esc_attr($data['type']) . '">';
+                        $output .= '<h4>' . esc_html($data['title']) . '</h4>';
+                        $output .= '<div class="ad-type">' . esc_html($data['label']) . '</div>';
+                        $output .= '<div class="ad-description">Blog 15 giây, tối đa 5 doanh nghiệp</div>';
+                        if ($link_url) {
+                            $output .= '<a href="' . esc_url($link_url) . '" target="_blank">';
+                        }
+                        $mime_type = get_post_mime_type($banner_id);
+                        if (strpos($mime_type, 'video') !== false) {
+                            $output .= '<video src="' . esc_url($banner_url) . '" controls style="width: 100%; max-width: 100%;"></video>';
+                        } else {
+                            $output .= '<img src="' . esc_url($banner_url) . '" alt="' . esc_attr($banner_alt) . '" style="width: 100%; max-width: 100%;">';
+                        }
+                        if ($link_url) {
+                            $output .= '</a>';
+                        }
+                        $output .= '</div>';
+                    }
+                }
+            }
+        }
+    }
+    
+    return $output;
+}
+
 // Add Custom Fields to Search
 function dnttvn_extend_admin_search($search, $wp_query) {
     global $wpdb;

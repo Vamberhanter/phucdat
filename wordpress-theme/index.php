@@ -34,15 +34,60 @@ get_header();
     <div class="main-center">
         <div class="content-column">
             <div class="column-header">Tin tức Cộng đồng</div>
+            
+            <!-- Sort Section for Tin tức -->
+            <div class="sort-section" style="margin-bottom: 20px;">
+                <form method="get" action="<?php echo esc_url(home_url('/')); ?>" id="tin-tuc-sort-form">
+                    <div class="sort-controls">
+                        <label for="tin_tuc_sort_by">Sắp xếp tin tức:</label>
+                        <select name="tin_tuc_sort_by" id="tin_tuc_sort_by" onchange="document.getElementById('tin-tuc-sort-form').submit();">
+                            <option value="date_desc" <?php echo (isset($_GET['tin_tuc_sort_by']) && $_GET['tin_tuc_sort_by'] == 'date_desc') || !isset($_GET['tin_tuc_sort_by']) ? 'selected' : ''; ?>>Mới nhất</option>
+                            <option value="date_asc" <?php echo isset($_GET['tin_tuc_sort_by']) && $_GET['tin_tuc_sort_by'] == 'date_asc' ? 'selected' : ''; ?>>Cũ nhất</option>
+                            <option value="title_asc" <?php echo isset($_GET['tin_tuc_sort_by']) && $_GET['tin_tuc_sort_by'] == 'title_asc' ? 'selected' : ''; ?>>Tiêu đề A-Z</option>
+                            <option value="title_desc" <?php echo isset($_GET['tin_tuc_sort_by']) && $_GET['tin_tuc_sort_by'] == 'title_desc' ? 'selected' : ''; ?>>Tiêu đề Z-A</option>
+                            <option value="noi_bat" <?php echo isset($_GET['tin_tuc_sort_by']) && $_GET['tin_tuc_sort_by'] == 'noi_bat' ? 'selected' : ''; ?>>Tin nổi bật trước</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            
             <div class="column-content">
                 <?php
+                // Get sort parameter for Tin tức
+                $tin_tuc_sort_by = isset($_GET['tin_tuc_sort_by']) ? sanitize_text_field($_GET['tin_tuc_sort_by']) : 'date_desc';
+                
                 $args = array(
                     'post_type'      => 'tin_tuc',
                     'posts_per_page' => 10,
                     'post_status'    => 'publish',
-                    'orderby'        => 'date',
-                    'order'          => 'DESC',
                 );
+                
+                // Handle sorting for Tin tức
+                switch ($tin_tuc_sort_by) {
+                    case 'date_asc':
+                        $args['orderby'] = 'date';
+                        $args['order'] = 'ASC';
+                        break;
+                    case 'title_asc':
+                        $args['orderby'] = 'title';
+                        $args['order'] = 'ASC';
+                        break;
+                    case 'title_desc':
+                        $args['orderby'] = 'title';
+                        $args['order'] = 'DESC';
+                        break;
+                    case 'noi_bat':
+                        $args['meta_key'] = '_tin_tuc_noi_bat';
+                        $args['orderby'] = 'meta_value date';
+                        $args['order'] = 'DESC';
+                        break;
+                    case 'date_desc':
+                    default:
+                        $args['orderby'] = 'date';
+                        $args['order'] = 'DESC';
+                        break;
+                }
+                
                 $tin_tuc_query = new WP_Query($args);
 
                 if ($tin_tuc_query->have_posts()) :

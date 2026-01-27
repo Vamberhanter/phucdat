@@ -64,11 +64,25 @@
         <div class="banner-section">
             <div class="banner-slider">
                 <?php
+                // Get banner order
+                $banner_order = get_theme_mod('dnttvn_banner_order', '1,2,3,4,5');
+                $order_array = array_map('trim', explode(',', $banner_order));
+                
                 $banners = array();
-                for ($i = 1; $i <= 5; $i++) {
-                    $banner_id = get_theme_mod('dnttvn_banner_' . $i, '');
+                foreach ($order_array as $order_num) {
+                    $banner_id = get_theme_mod('dnttvn_banner_' . $order_num, '');
                     if ($banner_id) {
                         $banners[] = $banner_id;
+                    }
+                }
+                
+                // If no custom order, use default order
+                if (empty($banners)) {
+                    for ($i = 1; $i <= 5; $i++) {
+                        $banner_id = get_theme_mod('dnttvn_banner_' . $i, '');
+                        if ($banner_id) {
+                            $banners[] = $banner_id;
+                        }
                     }
                 }
                 

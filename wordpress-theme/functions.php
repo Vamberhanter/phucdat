@@ -997,6 +997,18 @@ function dnttvn_customize_register($wp_customize) {
         'section'   => 'dnttvn_header_banners',
         'mime_type' => 'image',
     )));
+    
+    // Banner Order (Thứ tự hiển thị)
+    $wp_customize->add_setting('dnttvn_banner_order', array(
+        'default'           => '1,2,3,4,5',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    $wp_customize->add_control('dnttvn_banner_order', array(
+        'label'       => 'Thứ tự hiển thị Banner',
+        'section'     => 'dnttvn_header_banners',
+        'type'        => 'text',
+        'description' => 'Nhập thứ tự banner (ví dụ: 1,2,3,4,5 hoặc 5,4,3,2,1). Phân cách bằng dấu phẩy.',
+    ));
 }
 add_action('customize_register', 'dnttvn_customize_register');
 
@@ -1041,8 +1053,15 @@ function dnttvn_banner_settings_page() {
             update_option('dnttvn_standard_links', array_map('esc_url_raw', $_POST['standard_links']));
         }
         
+        // Save Banner Order (Thứ tự hiển thị)
+        if (isset($_POST['banner_column_order'])) {
+            update_option('dnttvn_banner_column_order', sanitize_text_field($_POST['banner_column_order']));
+        }
+        
         echo '<div class="notice notice-success"><p>Đã lưu banner thành công!</p></div>';
     }
+    
+    $banner_column_order = get_option('dnttvn_banner_column_order', 'vvip,vip,standard');
     
     $vvip_banners = get_option('dnttvn_vvip_banners', array());
     $vvip_links = get_option('dnttvn_vvip_links', array());
@@ -1175,6 +1194,22 @@ function dnttvn_banner_settings_page() {
                     <?php
                 }
                 ?>
+            </div>
+            
+            <h2 style="margin-top: 40px;">Thứ tự hiển thị Banner</h2>
+            <div style="background: #f9f9f9; padding: 15px; border: 1px solid #ddd; border-radius: 4px; margin-bottom: 20px;">
+                <p>
+                    <label for="banner_column_order"><strong>Thứ tự hiển thị các loại banner:</strong></label><br>
+                    <select name="banner_column_order" id="banner_column_order" style="min-width: 300px; padding: 8px;">
+                        <option value="vvip,vip,standard" <?php selected($banner_column_order, 'vvip,vip,standard'); ?>>VVIP → VIP → Standard</option>
+                        <option value="vvip,standard,vip" <?php selected($banner_column_order, 'vvip,standard,vip'); ?>>VVIP → Standard → VIP</option>
+                        <option value="vip,vvip,standard" <?php selected($banner_column_order, 'vip,vvip,standard'); ?>>VIP → VVIP → Standard</option>
+                        <option value="vip,standard,vvip" <?php selected($banner_column_order, 'vip,standard,vvip'); ?>>VIP → Standard → VVIP</option>
+                        <option value="standard,vvip,vip" <?php selected($banner_column_order, 'standard,vvip,vip'); ?>>Standard → VVIP → VIP</option>
+                        <option value="standard,vip,vvip" <?php selected($banner_column_order, 'standard,vip,vvip'); ?>>Standard → VIP → VVIP</option>
+                    </select>
+                </p>
+                <p class="description">Chọn thứ tự hiển thị các loại banner ở cột bên phải trang doanh nghiệp.</p>
             </div>
             
             <p class="submit">

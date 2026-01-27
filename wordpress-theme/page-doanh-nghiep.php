@@ -327,142 +327,85 @@ get_header();
         <div class="column-content mobile-collapsed">
             <div class="ad-section">
                 <?php
-                // VVIP Ad Blocks (2 banners)
-                $vvip_banners = get_option('dnttvn_vvip_banners', array());
-                $vvip_links = get_option('dnttvn_vvip_links', array());
-                if (!empty($vvip_banners)) {
-                    foreach ($vvip_banners as $index => $banner_id) {
-                        if ($banner_id) {
-                            $banner_url = wp_get_attachment_image_url($banner_id, 'full');
-                            $banner_alt = get_post_meta($banner_id, '_wp_attachment_image_alt', true);
-                            $link_url = isset($vvip_links[$index]) ? $vvip_links[$index] : '';
-                            if ($banner_url) {
-                                ?>
-                                <div class="ad-block vvip">
-                                    <h4>Video quảng cáo hoặc banner: VVIP</h4>
-                                    <div class="ad-type">VVIP</div>
-                                    <div class="ad-description">Blog 15 giây, tối đa 5 doanh nghiệp</div>
-                                    <?php if ($link_url) : ?>
-                                        <a href="<?php echo esc_url($link_url); ?>" target="_blank">
-                                    <?php endif; ?>
-                                    <?php
-                                    $mime_type = get_post_mime_type($banner_id);
-                                    if (strpos($mime_type, 'video') !== false) {
-                                        echo '<video src="' . esc_url($banner_url) . '" controls style="width: 100%; max-width: 100%;"></video>';
-                                    } else {
-                                        echo '<img src="' . esc_url($banner_url) . '" alt="' . esc_attr($banner_alt) . '" style="width: 100%; max-width: 100%;">';
-                                    }
-                                    ?>
-                                    <?php if ($link_url) : ?>
-                                        </a>
-                                    <?php endif; ?>
-                                </div>
-                                <?php
-                            }
-                        }
-                    }
-                } else {
-                    // Default placeholder
-                    ?>
-                    <div class="ad-block vvip">
-                        <h4>Video quảng cáo hoặc banner: VVIP</h4>
-                        <div class="ad-type">VVIP</div>
-                        <div class="ad-description">Blog 15 giây, tối đa 5 doanh nghiệp</div>
-                        <div class="ad-placeholder">Banner/Video VVIP</div>
-                    </div>
-                    <?php
-                }
+                // Get banner order
+                $banner_column_order = get_option('dnttvn_banner_column_order', 'vvip,vip,standard');
+                $order_array = array_map('trim', explode(',', $banner_column_order));
                 
-                // VIP Ad Blocks (2 banners)
-                $vip_banners = get_option('dnttvn_vip_banners', array());
-                $vip_links = get_option('dnttvn_vip_links', array());
-                if (!empty($vip_banners)) {
-                    foreach ($vip_banners as $index => $banner_id) {
-                        if ($banner_id) {
-                            $banner_url = wp_get_attachment_image_url($banner_id, 'full');
-                            $banner_alt = get_post_meta($banner_id, '_wp_attachment_image_alt', true);
-                            $link_url = isset($vip_links[$index]) ? $vip_links[$index] : '';
-                            if ($banner_url) {
-                                ?>
-                                <div class="ad-block vip">
-                                    <h4>Video quảng cáo hoặc banner: VIP</h4>
-                                    <div class="ad-type">VIP</div>
-                                    <div class="ad-description">Blog 15 giây, tối đa 5 doanh nghiệp</div>
-                                    <?php if ($link_url) : ?>
-                                        <a href="<?php echo esc_url($link_url); ?>" target="_blank">
-                                    <?php endif; ?>
-                                    <?php
-                                    $mime_type = get_post_mime_type($banner_id);
-                                    if (strpos($mime_type, 'video') !== false) {
-                                        echo '<video src="' . esc_url($banner_url) . '" controls style="width: 100%; max-width: 100%;"></video>';
-                                    } else {
-                                        echo '<img src="' . esc_url($banner_url) . '" alt="' . esc_attr($banner_alt) . '" style="width: 100%; max-width: 100%;">';
-                                    }
-                                    ?>
-                                    <?php if ($link_url) : ?>
-                                        </a>
-                                    <?php endif; ?>
-                                </div>
-                                <?php
-                            }
-                        }
-                    }
-                } else {
-                    // Default placeholder
-                    ?>
-                    <div class="ad-block vip">
-                        <h4>Video quảng cáo hoặc banner: VIP</h4>
-                        <div class="ad-type">VIP</div>
-                        <div class="ad-description">Blog 15 giây, tối đa 5 doanh nghiệp</div>
-                        <div class="ad-placeholder">Banner/Video VIP</div>
-                    </div>
-                    <?php
-                }
+                // Prepare banner data
+                $banner_data = array(
+                    'vvip' => array(
+                        'banners' => get_option('dnttvn_vvip_banners', array()),
+                        'links' => get_option('dnttvn_vvip_links', array()),
+                        'type' => 'vvip',
+                        'title' => 'Video quảng cáo hoặc banner: VVIP',
+                        'label' => 'VVIP'
+                    ),
+                    'vip' => array(
+                        'banners' => get_option('dnttvn_vip_banners', array()),
+                        'links' => get_option('dnttvn_vip_links', array()),
+                        'type' => 'vip',
+                        'title' => 'Video quảng cáo hoặc banner: VIP',
+                        'label' => 'VIP'
+                    ),
+                    'standard' => array(
+                        'banners' => get_option('dnttvn_standard_banners', array()),
+                        'links' => get_option('dnttvn_standard_links', array()),
+                        'type' => 'standard',
+                        'title' => 'Video quảng cáo hoặc banner: Standard',
+                        'label' => 'Standard'
+                    )
+                );
                 
-                // Standard Ad Blocks (2 banners)
-                $standard_banners = get_option('dnttvn_standard_banners', array());
-                $standard_links = get_option('dnttvn_standard_links', array());
-                if (!empty($standard_banners)) {
-                    foreach ($standard_banners as $index => $banner_id) {
-                        if ($banner_id) {
-                            $banner_url = wp_get_attachment_image_url($banner_id, 'full');
-                            $banner_alt = get_post_meta($banner_id, '_wp_attachment_image_alt', true);
-                            $link_url = isset($standard_links[$index]) ? $standard_links[$index] : '';
-                            if ($banner_url) {
-                                ?>
-                                <div class="ad-block standard">
-                                    <h4>Video quảng cáo hoặc banner: Standard</h4>
-                                    <div class="ad-type">Standard</div>
-                                    <div class="ad-description">Blog 15 giây, tối đa 5 doanh nghiệp</div>
-                                    <?php if ($link_url) : ?>
-                                        <a href="<?php echo esc_url($link_url); ?>" target="_blank">
-                                    <?php endif; ?>
-                                    <?php
-                                    $mime_type = get_post_mime_type($banner_id);
-                                    if (strpos($mime_type, 'video') !== false) {
-                                        echo '<video src="' . esc_url($banner_url) . '" controls style="width: 100%; max-width: 100%;"></video>';
-                                    } else {
-                                        echo '<img src="' . esc_url($banner_url) . '" alt="' . esc_attr($banner_alt) . '" style="width: 100%; max-width: 100%;">';
-                                    }
+                // Display banners according to order
+                foreach ($order_array as $banner_type) {
+                    if (!isset($banner_data[$banner_type])) continue;
+                    
+                    $data = $banner_data[$banner_type];
+                    $banners = $data['banners'];
+                    $links = $data['links'];
+                    
+                    if (!empty($banners)) {
+                        foreach ($banners as $index => $banner_id) {
+                            if ($banner_id) {
+                                $banner_url = wp_get_attachment_image_url($banner_id, 'full');
+                                $banner_alt = get_post_meta($banner_id, '_wp_attachment_image_alt', true);
+                                $link_url = isset($links[$index]) ? $links[$index] : '';
+                                if ($banner_url) {
                                     ?>
-                                    <?php if ($link_url) : ?>
-                                        </a>
-                                    <?php endif; ?>
-                                </div>
-                                <?php
+                                    <div class="ad-block <?php echo esc_attr($data['type']); ?>">
+                                        <h4><?php echo esc_html($data['title']); ?></h4>
+                                        <div class="ad-type"><?php echo esc_html($data['label']); ?></div>
+                                        <div class="ad-description">Blog 15 giây, tối đa 5 doanh nghiệp</div>
+                                        <?php if ($link_url) : ?>
+                                            <a href="<?php echo esc_url($link_url); ?>" target="_blank">
+                                        <?php endif; ?>
+                                        <?php
+                                        $mime_type = get_post_mime_type($banner_id);
+                                        if (strpos($mime_type, 'video') !== false) {
+                                            echo '<video src="' . esc_url($banner_url) . '" controls style="width: 100%; max-width: 100%;"></video>';
+                                        } else {
+                                            echo '<img src="' . esc_url($banner_url) . '" alt="' . esc_attr($banner_alt) . '" style="width: 100%; max-width: 100%;">';
+                                        }
+                                        ?>
+                                        <?php if ($link_url) : ?>
+                                            </a>
+                                        <?php endif; ?>
+                                    </div>
+                                    <?php
+                                }
                             }
                         }
+                    } else {
+                        // Default placeholder
+                        ?>
+                        <div class="ad-block <?php echo esc_attr($data['type']); ?>">
+                            <h4><?php echo esc_html($data['title']); ?></h4>
+                            <div class="ad-type"><?php echo esc_html($data['label']); ?></div>
+                            <div class="ad-description">Blog 15 giây, tối đa 5 doanh nghiệp</div>
+                            <div class="ad-placeholder">Banner/Video <?php echo esc_html($data['label']); ?></div>
+                        </div>
+                        <?php
                     }
-                } else {
-                    // Default placeholder
-                    ?>
-                    <div class="ad-block standard">
-                        <h4>Video quảng cáo hoặc banner: Standard</h4>
-                        <div class="ad-type">Standard</div>
-                        <div class="ad-description">Blog 15 giây, tối đa 5 doanh nghiệp</div>
-                        <div class="ad-placeholder">Banner/Video Standard</div>
-                    </div>
-                    <?php
                 }
                 ?>
             </div>

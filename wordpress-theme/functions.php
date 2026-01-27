@@ -1054,7 +1054,8 @@ function dnttvn_banner_settings_page() {
     wp_enqueue_media();
     ?>
     <div class="wrap">
-        <h1>Quản lý Banner</h1>
+        <h1>Quản lý Banner & Video Quảng cáo</h1>
+        <p class="description">Quản lý banner và video quảng cáo hiển thị ở cột bên phải trang "Danh sách Doanh nghiệp". Hỗ trợ cả hình ảnh và video.</p>
         <form method="post" action="">
             <?php wp_nonce_field('dnttvn_save_banners_action', 'dnttvn_save_banners_nonce'); ?>
             
@@ -1069,15 +1070,24 @@ function dnttvn_banner_settings_page() {
                     <div class="banner-item" style="margin-bottom: 20px; padding: 15px; border: 1px solid #ddd;">
                         <h3>Banner VVIP <?php echo $i + 1; ?></h3>
                         <p>
-                            <label>Hình ảnh/Video:</label><br>
+                            <label><strong>Hình ảnh/Video Quảng cáo:</strong></label><br>
                             <input type="hidden" name="vvip_banners[]" class="banner-image-id" value="<?php echo esc_attr($banner_id); ?>">
-                            <button type="button" class="button upload-banner-btn" data-type="vvip" data-index="<?php echo $i; ?>">Chọn hình ảnh/Video</button>
-                            <button type="button" class="button remove-banner-btn" data-type="vvip" data-index="<?php echo $i; ?>">Xóa</button>
+                            <button type="button" class="button button-primary upload-banner-btn" data-type="vvip" data-index="<?php echo $i; ?>">📁 Chọn hình ảnh/Video</button>
+                            <button type="button" class="button remove-banner-btn" data-type="vvip" data-index="<?php echo $i; ?>">🗑️ Xóa</button>
+                            <span class="description" style="margin-left: 10px;">Hỗ trợ: JPG, PNG, GIF, MP4, WebM</span>
                         </p>
                         <div class="banner-preview" style="margin-top: 10px;">
-                            <?php if ($banner_id) : ?>
-                                <?php echo wp_get_attachment_image($banner_id, 'medium'); ?>
-                            <?php endif; ?>
+                            <?php if ($banner_id) : 
+                                $mime_type = get_post_mime_type($banner_id);
+                                if (strpos($mime_type, 'video') !== false) :
+                                    $video_url = wp_get_attachment_url($banner_id);
+                                    ?>
+                                    <video src="<?php echo esc_url($video_url); ?>" controls style="max-width: 300px; max-height: 200px; display: block; margin-top: 10px;"></video>
+                                    <p style="margin-top: 5px; color: #666; font-size: 12px;">Video ID: <?php echo esc_html($banner_id); ?></p>
+                                <?php else :
+                                    echo wp_get_attachment_image($banner_id, 'medium');
+                                endif;
+                            endif; ?>
                         </div>
                         <p>
                             <label>Link (nếu có):</label><br>
@@ -1106,9 +1116,17 @@ function dnttvn_banner_settings_page() {
                             <button type="button" class="button remove-banner-btn" data-type="vip" data-index="<?php echo $i; ?>">Xóa</button>
                         </p>
                         <div class="banner-preview" style="margin-top: 10px;">
-                            <?php if ($banner_id) : ?>
-                                <?php echo wp_get_attachment_image($banner_id, 'medium'); ?>
-                            <?php endif; ?>
+                            <?php if ($banner_id) : 
+                                $mime_type = get_post_mime_type($banner_id);
+                                if (strpos($mime_type, 'video') !== false) :
+                                    $video_url = wp_get_attachment_url($banner_id);
+                                    ?>
+                                    <video src="<?php echo esc_url($video_url); ?>" controls style="max-width: 300px; max-height: 200px; display: block; margin-top: 10px;"></video>
+                                    <p style="margin-top: 5px; color: #666; font-size: 12px;">Video ID: <?php echo esc_html($banner_id); ?></p>
+                                <?php else :
+                                    echo wp_get_attachment_image($banner_id, 'medium');
+                                endif;
+                            endif; ?>
                         </div>
                         <p>
                             <label>Link (nếu có):</label><br>
@@ -1137,9 +1155,17 @@ function dnttvn_banner_settings_page() {
                             <button type="button" class="button remove-banner-btn" data-type="standard" data-index="<?php echo $i; ?>">Xóa</button>
                         </p>
                         <div class="banner-preview" style="margin-top: 10px;">
-                            <?php if ($banner_id) : ?>
-                                <?php echo wp_get_attachment_image($banner_id, 'medium'); ?>
-                            <?php endif; ?>
+                            <?php if ($banner_id) : 
+                                $mime_type = get_post_mime_type($banner_id);
+                                if (strpos($mime_type, 'video') !== false) :
+                                    $video_url = wp_get_attachment_url($banner_id);
+                                    ?>
+                                    <video src="<?php echo esc_url($video_url); ?>" controls style="max-width: 300px; max-height: 200px; display: block; margin-top: 10px;"></video>
+                                    <p style="margin-top: 5px; color: #666; font-size: 12px;">Video ID: <?php echo esc_html($banner_id); ?></p>
+                                <?php else :
+                                    echo wp_get_attachment_image($banner_id, 'medium');
+                                endif;
+                            endif; ?>
                         </div>
                         <p>
                             <label>Link (nếu có):</label><br>
@@ -1189,11 +1215,15 @@ function dnttvn_banner_settings_page() {
             mediaUploader.on('select', function() {
                 var attachment = mediaUploader.state().get('selection').first().toJSON();
                 input.val(attachment.id);
+                var previewHtml = '';
                 if (attachment.type === 'image') {
-                    preview.html('<img src="' + attachment.url + '" style="max-width: 300px;">');
+                    previewHtml = '<img src="' + attachment.url + '" style="max-width: 300px; max-height: 200px; display: block; margin-top: 10px;">';
+                    previewHtml += '<p style="margin-top: 5px; color: #666; font-size: 12px;">Hình ảnh ID: ' + attachment.id + '</p>';
                 } else if (attachment.type === 'video') {
-                    preview.html('<video src="' + attachment.url + '" controls style="max-width: 300px;"></video>');
+                    previewHtml = '<video src="' + attachment.url + '" controls style="max-width: 300px; max-height: 200px; display: block; margin-top: 10px;"></video>';
+                    previewHtml += '<p style="margin-top: 5px; color: #666; font-size: 12px;">Video ID: ' + attachment.id + ' (' + attachment.mime + ')</p>';
                 }
+                preview.html(previewHtml);
             });
             
             mediaUploader.open();

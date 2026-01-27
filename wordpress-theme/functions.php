@@ -210,11 +210,27 @@ function dnttvn_doanh_nghiep_meta_box_callback($post) {
             </td>
         </tr>
         <tr>
-            <th><label for="hinh_anh_phu">Hình ảnh phụ (URL hoặc ID)</label></th>
+            <th><label for="hinh_anh_phu">Hình ảnh phụ</label></th>
             <td>
                 <input type="text" id="hinh_anh_phu" name="hinh_anh_phu" value="<?php echo esc_attr($hinh_anh_phu); ?>" class="regular-text" />
                 <button type="button" class="button" id="upload_hinh_anh_phu">Chọn hình ảnh</button>
-                <p class="description">Có thể nhập URL hoặc ID của hình ảnh đã upload</p>
+                <p class="description">
+                    <strong>Lưu ý:</strong><br>
+                    • <strong>Hình chính:</strong> Sử dụng "Featured Image" (Hình ảnh đại diện) ở sidebar bên phải - đây là logo/ảnh chính của doanh nghiệp<br>
+                    • <strong>Hình ảnh phụ:</strong> Ảnh bổ sung hiển thị ở phần mô tả (có thể để trống). Nhập ID hoặc URL của hình ảnh, hoặc click "Chọn hình ảnh" để upload.
+                </p>
+                <?php if ($hinh_anh_phu) : ?>
+                    <?php
+                    $preview_id = is_numeric($hinh_anh_phu) ? absint($hinh_anh_phu) : attachment_url_to_postid($hinh_anh_phu);
+                    if ($preview_id) {
+                        echo '<div style="margin-top: 10px;">';
+                        echo wp_get_attachment_image($preview_id, 'thumbnail');
+                        echo '</div>';
+                    } elseif (filter_var($hinh_anh_phu, FILTER_VALIDATE_URL)) {
+                        echo '<div style="margin-top: 10px;"><img src="' . esc_url($hinh_anh_phu) . '" style="max-width: 150px; height: auto;" /></div>';
+                    }
+                    ?>
+                <?php endif; ?>
             </td>
         </tr>
     </table>

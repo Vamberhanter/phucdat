@@ -1,19 +1,39 @@
 jQuery(document).ready(function($) {
     // Media Uploader for Hình ảnh phụ
+    var mediaUploader;
+    
     $('#upload_hinh_anh_phu').on('click', function(e) {
         e.preventDefault();
         
-        var mediaUploader = wp.media({
+        if (mediaUploader) {
+            mediaUploader.open();
+            return;
+        }
+        
+        mediaUploader = wp.media({
             title: 'Chọn hình ảnh phụ',
             button: {
                 text: 'Sử dụng hình ảnh này'
             },
-            multiple: false
+            multiple: false,
+            library: {
+                type: 'image'
+            }
         });
         
         mediaUploader.on('select', function() {
             var attachment = mediaUploader.state().get('selection').first().toJSON();
             $('#hinh_anh_phu').val(attachment.id);
+            
+            // Show preview
+            var previewHtml = '<div style="margin-top: 10px;" class="hinh-anh-phu-preview">';
+            previewHtml += '<img src="' + attachment.sizes.thumbnail ? attachment.sizes.thumbnail.url : attachment.url + '" style="max-width: 150px; height: auto; border: 1px solid #ddd; padding: 5px;" />';
+            previewHtml += '<p style="margin-top: 5px; color: #666; font-size: 12px;">ID: ' + attachment.id + '</p>';
+            previewHtml += '</div>';
+            
+            // Remove old preview if exists
+            $('.hinh-anh-phu-preview').remove();
+            $('#hinh_anh_phu').after(previewHtml);
         });
         
         mediaUploader.open();

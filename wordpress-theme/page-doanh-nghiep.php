@@ -116,17 +116,72 @@ get_header();
 
             if ($doanh_nghiep_query->have_posts()) :
                 while ($doanh_nghiep_query->have_posts()) : $doanh_nghiep_query->the_post();
+                    // Get custom fields
                     $nganh_hang = get_post_meta(get_the_ID(), '_nganh_hang', true);
                     $khu_vuc = get_post_meta(get_the_ID(), '_khu_vuc', true);
                     $hinh_anh_phu = get_post_meta(get_the_ID(), '_hinh_anh_phu', true);
+                    
+                    // Get Featured Image (Hình chính) - This is the main logo/image of the business
+                    $featured_image_id = get_post_thumbnail_id();
+                    $featured_image_url = '';
+                    $featured_image_alt = '';
+                    if ($featured_image_id) {
+                        $featured_image_url = wp_get_attachment_image_url($featured_image_id, 'medium');
+                        $featured_image_alt = get_post_meta($featured_image_id, '_wp_attachment_image_alt', true);
+                        if (empty($featured_image_alt)) {
+                            $featured_image_alt = get_the_title() . ' - Logo';
+                        }
+                    }
+                    
+                    // Get Hình ảnh phụ (Small image) - This is the additional image
+                    $small_image_id = null;
+                    $small_image_url = '';
+                    $small_image_alt = '';
+                    if ($hinh_anh_phu) {
+                        // Check if it's a numeric ID
+                        if (is_numeric($hinh_anh_phu)) {
+                            $small_image_id = absint($hinh_anh_phu);
+                        } else {
+                            // Try to get attachment ID from URL
+                            $small_image_id = attachment_url_to_postid($hinh_anh_phu);
+                            if (!$small_image_id) {
+                                // If not found, use as direct URL
+                                $small_image_url = esc_url($hinh_anh_phu);
+                            }
+                        }
+                        
+                        if ($small_image_id) {
+                            $small_image_url = wp_get_attachment_image_url($small_image_id, 'medium');
+                            $small_image_alt = get_post_meta($small_image_id, '_wp_attachment_image_alt', true);
+                            if (empty($small_image_alt)) {
+                                $small_image_alt = get_the_title() . ' - Hình ảnh phụ';
+                            }
+                        }
+                    }
+                    
+                    // Get description/excerpt
+                    $description = '';
+                    if (has_excerpt()) {
+                        $description = get_the_excerpt();
+                    } else {
+                        $content = get_the_content();
+                        $description = wp_trim_words(strip_shortcodes($content), 50, '...');
+                    }
                     ?>
                     <div class="business-card">
                         <div class="business-card-left">
+                            <!-- Hình chính (Featured Image) - Logo/Ảnh đại diện chính của doanh nghiệp -->
                             <div class="business-card-image">
-                                <?php if (has_post_thumbnail()) : ?>
-                                    <?php the_post_thumbnail('medium'); ?>
+                                <?php if ($featured_image_url) : ?>
+                                    <img src="<?php echo esc_url($featured_image_url); ?>" 
+                                         alt="<?php echo esc_attr($featured_image_alt); ?>" 
+                                         class="business-main-image"
+                                         loading="lazy">
                                 <?php else : ?>
-                                    <img src="https://via.placeholder.com/200x200/667eea/ffffff?text=<?php echo esc_attr(get_the_title()); ?>" alt="<?php the_title(); ?>">
+                                    <img src="https://via.placeholder.com/200x200/667eea/ffffff?text=<?php echo esc_attr(urlencode(get_the_title())); ?>" 
+                                         alt="<?php echo esc_attr(get_the_title()); ?>" 
+                                         class="business-main-image"
+                                         loading="lazy">
                                 <?php endif; ?>
                             </div>
                             <div class="business-card-info-section">
@@ -150,23 +205,28 @@ get_header();
                             </div>
                         </div>
                         <div class="business-card-content">
-                            <?php if ($hinh_anh_phu) : ?>
+                            <!-- Hình ảnh phụ (Small Image) - Ảnh bổ sung của doanh nghiệp -->
+                            <?php if ($small_image_url || ($small_image_id && $small_image_url)) : ?>
                                 <div class="business-card-small-image">
-                                    <?php
-                                    $image_id = is_numeric($hinh_anh_phu) ? $hinh_anh_phu : attachment_url_to_postid($hinh_anh_phu);
-                                    if ($image_id) {
-                                        echo wp_get_attachment_image($image_id, 'medium');
-                                    } else {
-                                        echo '<img src="' . esc_url($hinh_anh_phu) . '" alt="Hình ảnh phụ">';
-                                    }
-                                    ?>
+                                    <?php if ($small_image_id) : ?>
+                                        <img src="<?php echo esc_url($small_image_url); ?>" 
+                                             alt="<?php echo esc_attr($small_image_alt); ?>" 
+                                             class="business-small-image"
+                                             loading="lazy">
+                                    <?php else : ?>
+                                        <img src="<?php echo esc_url($small_image_url); ?>" 
+                                             alt="<?php echo esc_attr(get_the_title() . ' - Hình ảnh phụ'); ?>" 
+                                             class="business-small-image"
+                                             loading="lazy">
+                                    <?php endif; ?>
                                 </div>
                             <?php endif; ?>
+                            <!-- Mô tả doanh nghiệp -->
                             <div class="business-card-description">
-                                <?php if (has_excerpt()) : ?>
-                                    <?php the_excerpt(); ?>
+                                <?php if ($description) : ?>
+                                    <p><?php echo wp_kses_post($description); ?></p>
                                 <?php else : ?>
-                                    <p><strong>Mô tả:</strong> <?php echo wp_trim_words(get_the_content(), 50); ?></p>
+                                    <p><em>Chưa có mô tả.</em></p>
                                 <?php endif; ?>
                             </div>
                         </div>

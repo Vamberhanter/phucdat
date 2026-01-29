@@ -31,9 +31,16 @@ get_header();
     <div class="main-center">
         <?php while (have_posts()) : the_post(); 
             // Get custom fields
-            $nganh_hang = get_post_meta(get_the_ID(), '_nganh_hang', true);
-            $khu_vuc = get_post_meta(get_the_ID(), '_khu_vuc', true);
-            $hinh_anh_phu = get_post_meta(get_the_ID(), '_hinh_anh_phu', true);
+            $nganh_hang    = get_post_meta(get_the_ID(), '_nganh_hang', true);
+            $khu_vuc       = get_post_meta(get_the_ID(), '_khu_vuc', true);
+            $hinh_anh_phu  = get_post_meta(get_the_ID(), '_hinh_anh_phu', true);
+            $gallery_raw   = get_post_meta(get_the_ID(), '_gallery_images', true);
+            $gallery_ids   = array_filter(array_map('absint', explode(',', (string) $gallery_raw)));
+            $dia_chi       = get_post_meta(get_the_ID(), '_dia_chi', true);
+            $dien_thoai    = get_post_meta(get_the_ID(), '_dien_thoai', true);
+            $email_lh      = get_post_meta(get_the_ID(), '_email_lien_he', true);
+            $website_dn    = get_post_meta(get_the_ID(), '_website_doanh_nghiep', true);
+            $thong_tin_bs  = get_post_meta(get_the_ID(), '_thong_tin_bo_sung', true);
             
             // Get Featured Image (Hình chính)
             $featured_image_id = get_post_thumbnail_id();
@@ -47,28 +54,28 @@ get_header();
                 }
             }
             
-            // Get Hình ảnh phụ (Small image)
-            $small_image_id = null;
-            $small_image_url = '';
-            $small_image_alt = '';
-            if ($hinh_anh_phu) {
-                if (is_numeric($hinh_anh_phu)) {
-                    $small_image_id = absint($hinh_anh_phu);
-                } else {
-                    $small_image_id = attachment_url_to_postid($hinh_anh_phu);
-                    if (!$small_image_id) {
-                        $small_image_url = esc_url($hinh_anh_phu);
+                    // Get Hình ảnh phụ (Small image) - single fallback if no gallery
+                    $small_image_id  = null;
+                    $small_image_url = '';
+                    $small_image_alt = '';
+                    if (!$gallery_ids && $hinh_anh_phu) {
+                        if (is_numeric($hinh_anh_phu)) {
+                            $small_image_id = absint($hinh_anh_phu);
+                        } else {
+                            $small_image_id = attachment_url_to_postid($hinh_anh_phu);
+                            if (!$small_image_id) {
+                                $small_image_url = esc_url($hinh_anh_phu);
+                            }
+                        }
+                        
+                        if ($small_image_id) {
+                            $small_image_url = wp_get_attachment_image_url($small_image_id, 'full');
+                            $small_image_alt = get_post_meta($small_image_id, '_wp_attachment_image_alt', true);
+                            if (empty($small_image_alt)) {
+                                $small_image_alt = get_the_title() . ' - Hình ảnh phụ';
+                            }
+                        }
                     }
-                }
-                
-                if ($small_image_id) {
-                    $small_image_url = wp_get_attachment_image_url($small_image_id, 'full');
-                    $small_image_alt = get_post_meta($small_image_id, '_wp_attachment_image_alt', true);
-                    if (empty($small_image_alt)) {
-                        $small_image_alt = get_the_title() . ' - Hình ảnh phụ';
-                    }
-                }
-            }
             
             // Get taxonomy terms
             $nganh_hang_terms = get_the_terms(get_the_ID(), 'nganh_hang');
@@ -102,23 +109,6 @@ get_header();
                             </div>
                         <?php endif; ?>
                         
-                        <?php if ($nganh_hang_terms && !is_wp_error($nganh_hang_terms)) : ?>
-                            <div class="business-card-info">
-                                <svg class="business-card-info-icon" viewBox="0 0 24 24">
-                                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-                                </svg>
-                                <p><strong>Ngành hàng (Taxonomy):</strong> 
-                                    <?php
-                                    $term_names = array();
-                                    foreach ($nganh_hang_terms as $term) {
-                                        $term_names[] = '<a href="' . esc_url(get_term_link($term)) . '">' . esc_html($term->name) . '</a>';
-                                    }
-                                    echo implode(', ', $term_names);
-                                    ?>
-                                </p>
-                            </div>
-                        <?php endif; ?>
-                        
                         <?php if ($khu_vuc) : ?>
                             <div class="business-card-info">
                                 <svg class="business-card-info-icon" viewBox="0 0 24 24">
@@ -128,22 +118,7 @@ get_header();
                             </div>
                         <?php endif; ?>
                         
-                        <?php if ($khu_vuc_terms && !is_wp_error($khu_vuc_terms)) : ?>
-                            <div class="business-card-info">
-                                <svg class="business-card-info-icon" viewBox="0 0 24 24">
-                                    <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
-                                </svg>
-                                <p><strong>Khu vực (Taxonomy):</strong> 
-                                    <?php
-                                    $term_names = array();
-                                    foreach ($khu_vuc_terms as $term) {
-                                        $term_names[] = '<a href="' . esc_url(get_term_link($term)) . '">' . esc_html($term->name) . '</a>';
-                                    }
-                                    echo implode(', ', $term_names);
-                                    ?>
-                                </p>
-                            </div>
-                        <?php endif; ?>
+                        <!-- Đã bỏ hiển thị lặp lại Ngành hàng / Khu vực theo taxonomy để tránh trùng lặp -->
                         
                         <p style="margin-top: 15px; color: #666; font-size: 14px;">
                             <strong>Ngày đăng:</strong> <?php echo get_the_date('d/m/Y'); ?>
@@ -151,8 +126,61 @@ get_header();
                     </div>
                 </div>
                 <div class="business-card-content">
-                    <!-- Hình ảnh phụ (Small Image) -->
-                    <?php if ($small_image_url || ($small_image_id && $small_image_url)) : ?>
+                    <!-- Hình ảnh phụ / Thư viện hình -->
+                    <?php if ($gallery_ids) : ?>
+                        <div class="business-card-small-image">
+                            <div class="business-card-small-image-slider">
+                                <?php
+                                $first = true;
+                                foreach ($gallery_ids as $img_id) :
+                                    $img_url = wp_get_attachment_image_url($img_id, 'large');
+                                    if (!$img_url) {
+                                        continue;
+                                    }
+                                    $img_alt = get_post_meta($img_id, '_wp_attachment_image_alt', true);
+                                    if (empty($img_alt)) {
+                                        $img_alt = get_the_title() . ' - Hình ảnh ' . $img_id;
+                                    }
+                                    ?>
+                                    <div class="business-card-small-image-slide <?php echo $first ? 'active' : ''; ?>"
+                                         data-full="<?php echo esc_url($img_url); ?>"
+                                         data-alt="<?php echo esc_attr($img_alt); ?>">
+                                        <img src="<?php echo esc_url($img_url); ?>" 
+                                             alt="<?php echo esc_attr($img_alt); ?>" 
+                                             class="business-small-image"
+                                             loading="lazy">
+                                    </div>
+                                    <?php
+                                    $first = false;
+                                endforeach;
+                                ?>
+                            </div>
+                            <div class="business-card-small-image-nav">
+                                <button type="button" class="business-card-small-image-prev">&#10094;</button>
+                                <button type="button" class="business-card-small-image-next">&#10095;</button>
+                            </div>
+                        </div>
+
+                        <!-- Thư viện hình (thumbnail dưới dạng lưới) -->
+                        <div class="business-card-gallery" style="margin-top: 12px;">
+                            <?php
+                            foreach ($gallery_ids as $img_id) :
+                                $thumb_url = wp_get_attachment_image_url($img_id, 'thumbnail');
+                                if (!$thumb_url) {
+                                    $thumb_url = wp_get_attachment_image_url($img_id, 'medium');
+                                }
+                                if (!$thumb_url) {
+                                    continue;
+                                }
+                                $thumb_alt = get_post_meta($img_id, '_wp_attachment_image_alt', true);
+                                ?>
+                                <img src="<?php echo esc_url($thumb_url); ?>"
+                                     alt="<?php echo esc_attr($thumb_alt); ?>"
+                                     data-full="<?php echo esc_url(wp_get_attachment_image_url($img_id, 'large')); ?>"
+                                     class="business-gallery-thumb" />
+                            <?php endforeach; ?>
+                        </div>
+                    <?php elseif ($small_image_url || ($small_image_id && $small_image_url)) : ?>
                         <div class="business-card-small-image">
                             <?php if ($small_image_id) : ?>
                                 <img src="<?php echo esc_url($small_image_url); ?>" 
@@ -168,10 +196,76 @@ get_header();
                         </div>
                     <?php endif; ?>
                     
+                    <!-- Thông tin bổ sung (Địa chỉ, Điện thoại, Email, Website) -->
+                    <?php if ($dia_chi || $dien_thoai || $email_lh || $website_dn || $thong_tin_bs) : ?>
+                        <div style="margin-bottom: 25px; padding: 15px 18px; border-radius: 8px; background:#f8f9fa; border:1px solid #e0e0e0;">
+                            <h3 style="margin-top:0; margin-bottom:12px; font-size:18px; color:#06202e;">Thông tin liên hệ & bổ sung</h3>
+                            <ul style="list-style:none; margin:0; padding:0; font-size:14px; color:#444;">
+                                <?php if ($dia_chi) : ?>
+                                    <li style="margin-bottom:6px;"><strong>Địa chỉ:</strong> <?php echo esc_html($dia_chi); ?></li>
+                                <?php endif; ?>
+                                <?php if ($dien_thoai) : ?>
+                                    <li style="margin-bottom:6px;"><strong>Điện thoại:</strong> <?php echo esc_html($dien_thoai); ?></li>
+                                <?php endif; ?>
+                                <?php if ($email_lh) : ?>
+                                    <li style="margin-bottom:6px;"><strong>Email:</strong> <a href="mailto:<?php echo esc_attr($email_lh); ?>"><?php echo esc_html($email_lh); ?></a></li>
+                                <?php endif; ?>
+                                <?php if ($website_dn) : ?>
+                                    <?php
+                                    $website_raw = trim($website_dn);
+                                    $website_href = $website_raw;
+                                    if ($website_href && !preg_match('~^https?://~i', $website_href)) {
+                                        $website_href = '//' . $website_href;
+                                    }
+                                    ?>
+                                    <li style="margin-bottom:6px;"><strong>Website:</strong> <a href="<?php echo esc_url($website_href); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html($website_raw); ?></a></li>
+                                <?php endif; ?>
+                            </ul>
+                            <?php if ($thong_tin_bs) : ?>
+                                <div style="margin-top:10px; font-size:14px; color:#555; line-height:1.7;">
+                                    <?php echo wp_kses_post(wpautop($thong_tin_bs)); ?>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                    <?php endif; ?>
+
                     <!-- Mô tả doanh nghiệp -->
                     <div class="business-card-description" style="font-size: 16px; line-height: 1.8;">
+                        <h3 style="margin-top:0; margin-bottom:10px; font-size:18px; color:#06202e;">Mô tả chi tiết doanh nghiệp</h3>
                         <?php the_content(); ?>
                     </div>
+
+                    <!-- Nội dung có cấu trúc (giống Tin tức) -->
+                    <?php
+                    $structured_content = get_post_meta(get_the_ID(), '_structured_content', true);
+                    if (!empty($structured_content)) {
+                        $items = json_decode($structured_content, true);
+                        if (is_array($items) && !empty($items)) :
+                            ?>
+                            <div class="structured-content-display" style="margin-top: 30px;">
+                                <?php foreach ($items as $item) : ?>
+                                    <?php if (!empty($item['heading']) || !empty($item['content'])) : ?>
+                                        <div class="structured-item-display" style="margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #eee;">
+                                            <?php if (!empty($item['heading'])) : ?>
+                                                <h3 style="font-size: 20px; font-weight: bold; color: #333; margin-bottom: 15px;">
+                                                    <?php echo esc_html($item['heading']); ?>
+                                                </h3>
+                                            <?php endif; ?>
+                                            <?php if (!empty($item['content'])) : ?>
+                                                <div style="line-height: 1.8; font-size: 16px; color: #555;">
+                                                    <?php echo wp_kses_post(wpautop($item['content'])); ?>
+                                                </div>
+                                            <?php endif; ?>
+                                        </div>
+                                    <?php endif; ?>
+                                <?php endforeach; ?>
+                            </div>
+                            <?php
+                        endif;
+                    }
+                    ?>
+
+                    <!-- (Khối Thông tin bổ sung đã được dời lên phía trên mô tả) -->
                     
                     <!-- Navigation to previous/next post -->
                     <div style="margin-top: 40px; padding-top: 20px; border-top: 2px solid #667eea; display: flex; justify-content: space-between; flex-wrap: wrap;">
@@ -205,6 +299,17 @@ get_header();
                 </div>
             </div>
         <?php endwhile; ?>
+    </div>
+
+    <!-- Lightbox xem ảnh lớn cho Doanh nghiệp -->
+    <div class="business-lightbox" id="business-lightbox" aria-hidden="true">
+        <div class="business-lightbox-backdrop"></div>
+        <div class="business-lightbox-inner">
+            <button type="button" class="business-lightbox-close" aria-label="Đóng">×</button>
+            <button type="button" class="business-lightbox-prev" aria-label="Ảnh trước">&#10094;</button>
+            <img src="" alt="" class="business-lightbox-image" />
+            <button type="button" class="business-lightbox-next" aria-label="Ảnh sau">&#10095;</button>
+        </div>
     </div>
 
     <!-- Right Sidebar -->

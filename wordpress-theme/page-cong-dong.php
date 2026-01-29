@@ -1,10 +1,9 @@
 <?php
 /**
- * The main template file for displaying the homepage with news posts
+ * Template Name: Trang Cộng đồng
  * 
- * This is the most generic template file in a WordPress theme
- * and one of the two required files for a theme (the other being style.css).
- * It is used to display the homepage when no more specific template is available.
+ * Template for displaying Community posts (Cộng đồng)
+ * Based on index.php structure
  */
 
 get_header();
@@ -17,23 +16,31 @@ get_header();
         <div class="column-content mobile-collapsed">
             <ul class="about-list">
                 <?php
-                // Hiển thị danh sách các bài viết Cộng đồng ở cột trái
-                $cong_dong_args = array(
+                // Query Cộng đồng posts for sidebar
+                $sidebar_args = array(
                     'post_type'      => 'cong_dong',
                     'posts_per_page' => -1,
                     'post_status'    => 'publish',
                     'orderby'        => 'menu_order date',
                     'order'          => 'ASC',
                 );
-                $cong_dong_query = new WP_Query($cong_dong_args);
-
-                if ($cong_dong_query->have_posts()) :
-                    while ($cong_dong_query->have_posts()) :
-                        $cong_dong_query->the_post();
-                        $is_noi_bat = get_post_meta(get_the_ID(), '_cong_dong_noi_bat', true);
+                $sidebar_query = new WP_Query($sidebar_args);
+                
+                // ID bài hiện tại (nếu đang xem chi tiết Cộng đồng)
+                $current_post_id = get_queried_object_id();
+                
+                if ($sidebar_query->have_posts()) :
+                    while ($sidebar_query->have_posts()) : $sidebar_query->the_post();
+                        $post_id    = get_the_ID();
+                        $is_noi_bat = get_post_meta($post_id, '_cong_dong_noi_bat', true);
                         $li_class   = ($is_noi_bat == '1') ? 'highlight-item' : '';
+
+                        // Nếu đang ở bài này thì tô nổi bật thêm class current-item
+                        if ((int) $current_post_id === (int) $post_id) {
+                            $li_class .= ' current-item';
+                        }
                         ?>
-                        <li class="<?php echo esc_attr($li_class); ?>">
+                        <li class="<?php echo esc_attr(trim($li_class)); ?>">
                             <a href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
                         </li>
                         <?php
@@ -52,38 +59,42 @@ get_header();
     <!-- Center Content -->
     <div class="main-center">
         <div class="content-column">
-            <div class="column-header">Tin tức Cộng đồng</div>
+            <div class="column-header">Bài viết Cộng đồng</div>
             
-            <!-- Sort Section for Tin tức -->
+            <!-- Sort Section -->
             <div class="sort-section" style="margin-bottom: 20px;">
-                <form method="get" action="<?php echo esc_url(home_url('/')); ?>" id="tin-tuc-sort-form">
+                <form method="get" action="<?php echo esc_url(get_permalink()); ?>" id="cong-dong-sort-form">
                     <div class="sort-controls">
-                        <label for="tin_tuc_sort_by">Sắp xếp tin tức:</label>
-                        <select name="tin_tuc_sort_by" id="tin_tuc_sort_by" onchange="document.getElementById('tin-tuc-sort-form').submit();">
-                            <option value="menu_order" <?php echo isset($_GET['tin_tuc_sort_by']) && $_GET['tin_tuc_sort_by'] == 'menu_order' ? 'selected' : ''; ?>>Thứ tự đăng bài</option>
-                            <option value="date_desc" <?php echo (isset($_GET['tin_tuc_sort_by']) && $_GET['tin_tuc_sort_by'] == 'date_desc') || !isset($_GET['tin_tuc_sort_by']) ? 'selected' : ''; ?>>Mới nhất</option>
-                            <option value="date_asc" <?php echo isset($_GET['tin_tuc_sort_by']) && $_GET['tin_tuc_sort_by'] == 'date_asc' ? 'selected' : ''; ?>>Cũ nhất</option>
-                            <option value="title_asc" <?php echo isset($_GET['tin_tuc_sort_by']) && $_GET['tin_tuc_sort_by'] == 'title_asc' ? 'selected' : ''; ?>>Tiêu đề A-Z</option>
-                            <option value="title_desc" <?php echo isset($_GET['tin_tuc_sort_by']) && $_GET['tin_tuc_sort_by'] == 'title_desc' ? 'selected' : ''; ?>>Tiêu đề Z-A</option>
-                            <option value="noi_bat" <?php echo isset($_GET['tin_tuc_sort_by']) && $_GET['tin_tuc_sort_by'] == 'noi_bat' ? 'selected' : ''; ?>>Tin nổi bật trước</option>
+                        <label for="cong_dong_sort_by">Sắp xếp:</label>
+                        <select name="cong_dong_sort_by" id="cong_dong_sort_by" onchange="document.getElementById('cong-dong-sort-form').submit();">
+                            <option value="menu_order" <?php echo isset($_GET['cong_dong_sort_by']) && $_GET['cong_dong_sort_by'] == 'menu_order' ? 'selected' : ''; ?>>Thứ tự đăng bài</option>
+                            <option value="date_desc" <?php echo (isset($_GET['cong_dong_sort_by']) && $_GET['cong_dong_sort_by'] == 'date_desc') || !isset($_GET['cong_dong_sort_by']) ? 'selected' : ''; ?>>Mới nhất</option>
+                            <option value="date_asc" <?php echo isset($_GET['cong_dong_sort_by']) && $_GET['cong_dong_sort_by'] == 'date_asc' ? 'selected' : ''; ?>>Cũ nhất</option>
+                            <option value="title_asc" <?php echo isset($_GET['cong_dong_sort_by']) && $_GET['cong_dong_sort_by'] == 'title_asc' ? 'selected' : ''; ?>>Tiêu đề A-Z</option>
+                            <option value="title_desc" <?php echo isset($_GET['cong_dong_sort_by']) && $_GET['cong_dong_sort_by'] == 'title_desc' ? 'selected' : ''; ?>>Tiêu đề Z-A</option>
+                            <option value="noi_bat" <?php echo isset($_GET['cong_dong_sort_by']) && $_GET['cong_dong_sort_by'] == 'noi_bat' ? 'selected' : ''; ?>>Bài nổi bật trước</option>
                         </select>
                     </div>
+
                 </form>
             </div>
             
             <div class="column-content">
                 <?php
-                // Get sort parameter for Tin tức
-                $tin_tuc_sort_by = isset($_GET['tin_tuc_sort_by']) ? sanitize_text_field($_GET['tin_tuc_sort_by']) : 'date_desc';
+                // Get sort parameter
+                $cong_dong_sort_by = isset($_GET['cong_dong_sort_by']) ? sanitize_text_field($_GET['cong_dong_sort_by']) : 'date_desc';
                 
+                // Phân trang & sắp xếp cho Cộng đồng
+                $paged_cong_dong = get_query_var('paged') ? get_query_var('paged') : 1;
                 $args = array(
-                    'post_type'      => 'tin_tuc',
+                    'post_type'      => 'cong_dong',
                     'posts_per_page' => 10,
                     'post_status'    => 'publish',
+                    'paged'          => $paged_cong_dong,
                 );
                 
-                // Handle sorting for Tin tức
-                switch ($tin_tuc_sort_by) {
+                // Handle sorting
+                switch ($cong_dong_sort_by) {
                     case 'menu_order':
                         $args['orderby'] = 'menu_order date';
                         $args['order'] = 'ASC';
@@ -101,7 +112,7 @@ get_header();
                         $args['order'] = 'DESC';
                         break;
                     case 'noi_bat':
-                        $args['meta_key'] = '_tin_tuc_noi_bat';
+                        $args['meta_key'] = '_cong_dong_noi_bat';
                         $args['orderby'] = 'meta_value date';
                         $args['order'] = 'DESC';
                         break;
@@ -112,39 +123,33 @@ get_header();
                         break;
                 }
                 
-                // Phân trang cho Tin tức
-                $paged_news = get_query_var('paged') ? get_query_var('paged') : 1;
-                $args['paged'] = $paged_news;
-                $tin_tuc_query = new WP_Query($args);
+                $cong_dong_query = new WP_Query($args);
                 
-                // Get detail page for news/business
-                $detail_page        = get_page_by_path('trang-doanh-nghiep-chi-tiet');
-                $detail_page_base   = $detail_page ? get_permalink($detail_page->ID) : home_url('/trang-doanh-nghiep-chi-tiet/');
-
-                if ($tin_tuc_query->have_posts()) :
-                    while ($tin_tuc_query->have_posts()) : $tin_tuc_query->the_post();
-                        // Build detail URL with post_id for this news item
-                        $detail_url = add_query_arg(
-                            'post_id',
-                            get_the_ID(),
-                            $detail_page_base
-                        );
+                if ($cong_dong_query->have_posts()) :
+                    while ($cong_dong_query->have_posts()) : $cong_dong_query->the_post();
+                        // Show excerpt/summary for list view
                         ?>
                         <div class="news-item">
-                            <h4><a href="<?php echo esc_url($detail_url); ?>"><?php the_title(); ?></a></h4>
+                            <h4><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h4>
                             <p class="news-date"><?php echo get_the_date('d/m/Y'); ?></p>
-                            <?php if (has_excerpt()) : ?>
-                                <p><?php the_excerpt(); ?></p>
-                            <?php else : ?>
-                                <p><?php echo wp_trim_words(get_the_content(), 50); ?></p>
-                            <?php endif; ?>
+                            <?php
+                            // Try to get custom short description first
+                            $mo_ta_ngan = get_post_meta(get_the_ID(), '_cong_dong_mo_ta_ngan', true);
+                            if ($mo_ta_ngan) {
+                                echo '<p>' . esc_html($mo_ta_ngan) . '</p>';
+                            } elseif (has_excerpt()) {
+                                the_excerpt();
+                            } else {
+                                echo '<p>' . wp_trim_words(get_the_content(), 50) . '</p>';
+                            }
+                            ?>
                         </div>
                         <?php
                     endwhile;
                     ?>
                     <div class="pagination-wrapper">
                         <?php
-                        echo dnttvn_custom_pagination($tin_tuc_query);
+                        echo dnttvn_custom_pagination($cong_dong_query);
                         ?>
                     </div>
                     <?php
@@ -152,7 +157,7 @@ get_header();
                 else :
                     ?>
                     <div class="news-item">
-                        <p>Chưa có tin tức nào. Vui lòng thêm tin tức từ trang quản trị WordPress.</p>
+                        <p>Chưa có bài viết Cộng đồng nào. Vui lòng thêm bài viết từ trang quản trị WordPress.</p>
                     </div>
                     <?php
                 endif;
@@ -171,13 +176,11 @@ get_header();
                 // Get page link for "Danh sách Doanh nghiệp"
                 $page_doanh_nghiep = get_page_by_path('danh-sach-doanh-nghiep');
                 if (!$page_doanh_nghiep) {
-                    // Fallback to old slug
                     $page_doanh_nghiep = get_page_by_path('page-doanh-nghiep');
                 }
                 if ($page_doanh_nghiep) {
                     $doanh_nghiep_page_url = get_permalink($page_doanh_nghiep->ID);
                 } else {
-                    // Fallback: use home_url with new slug
                     $doanh_nghiep_page_url = home_url('/danh-sach-doanh-nghiep/');
                 }
                 ?>
@@ -196,12 +199,7 @@ get_header();
 
                 if ($doanh_nghiep_query->have_posts()) :
                     while ($doanh_nghiep_query->have_posts()) : $doanh_nghiep_query->the_post();
-                        // Build detail URL with post_id for this business
-                        $detail_url = add_query_arg(
-                            'post_id',
-                            get_the_ID(),
-                            $detail_page_base
-                        );
+                        $detail_url = add_query_arg('post_id', get_the_ID(), $detail_page_base);
                         ?>
                         <li><a href="<?php echo esc_url($detail_url); ?>"><?php the_title(); ?></a></li>
                         <?php
@@ -224,5 +222,7 @@ get_header();
         </div>
     </div>
 </main>
+
+
 
 <?php get_footer(); ?>

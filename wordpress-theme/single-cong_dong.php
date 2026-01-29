@@ -1,7 +1,6 @@
 <?php
 /**
- * Single Post Template for Tin tức
- * Layout giống trang index với sidebar trái và phải
+ * Single Post Template for Cộng đồng
  */
 
 get_header();
@@ -13,16 +12,43 @@ get_header();
         <div class="column-header mobile-toggle collapsed">Về Cộng đồng DNTTVN</div>
         <div class="column-content mobile-collapsed">
             <ul class="about-list">
-                <li><a href="#">Điều lệ tổ chức hoạt động</a></li>
-                <li><a href="#">Danh sách thành viên sáng lập</a></li>
-                <li><a href="#">Cấu trúc Cộng đồng</a></li>
-                <li><a href="#">Danh sách Lãnh đạo điều hành</a></li>
-                <li class="highlight-item">
-                    <a href="#">Tìm hiểu trở thành thành viên mới</a>
-                </li>
-                <li><a href="#">Giá trị nhận được của thành viên</a></li>
-                <li><a href="#">Quy trình gia nhập Cộng đồng</a></li>
-                <li><a href="#">Hỏi đáp về Cộng đồng</a></li>
+                <?php
+                // Query Cộng đồng posts for sidebar
+                $sidebar_args = array(
+                    'post_type'      => 'cong_dong',
+                    'posts_per_page' => -1,
+                    'post_status'    => 'publish',
+                    'orderby'        => 'menu_order date',
+                    'order'          => 'ASC',
+                );
+                $sidebar_query = new WP_Query($sidebar_args);
+                
+                // Get current post ID
+                $current_post_id = get_the_ID();
+                
+                if ($sidebar_query->have_posts()) :
+                    while ($sidebar_query->have_posts()) : $sidebar_query->the_post();
+                        $post_id = get_the_ID();
+                        $is_noi_bat = get_post_meta($post_id, '_cong_dong_noi_bat', true);
+                        $li_class = ($is_noi_bat == '1') ? 'highlight-item' : '';
+                        
+                        // Highlight current item
+                        if ($current_post_id == $post_id) {
+                            $li_class .= ' current-item';
+                        }
+                        ?>
+                        <li class="<?php echo esc_attr(trim($li_class)); ?>">
+                            <a href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
+                        </li>
+                        <?php
+                    endwhile;
+                    wp_reset_postdata();
+                else :
+                    ?>
+                    <li><a href="#">Chưa có bài viết Cộng đồng</a></li>
+                    <?php
+                endif;
+                ?>
             </ul>
         </div>
     </div>
@@ -36,16 +62,6 @@ get_header();
                     <div class="news-item">
                         <p class="news-date">
                             <strong>Ngày đăng:</strong> <?php echo get_the_date('d/m/Y'); ?>
-                            <?php 
-                            $tac_gia = get_post_meta(get_the_ID(), '_tin_tuc_tac_gia', true);
-                            if ($tac_gia) {
-                                echo ' | <strong>Tác giả:</strong> ' . esc_html($tac_gia);
-                            }
-                            $nguon = get_post_meta(get_the_ID(), '_tin_tuc_nguon', true);
-                            if ($nguon) {
-                                echo ' | <strong>Nguồn:</strong> <a href="' . esc_url($nguon) . '" target="_blank">Xem nguồn</a>';
-                            }
-                            ?>
                         </p>
                         
                         <?php if (has_post_thumbnail()) : ?>
@@ -156,37 +172,6 @@ get_header();
                         }
                         ?>
                         
-                        <?php
-                        // Display categories and tags
-                        $categories = get_the_terms(get_the_ID(), 'category');
-                        $tags = get_the_terms(get_the_ID(), 'post_tag');
-                        ?>
-                        <?php if ($categories && !is_wp_error($categories)) : ?>
-                            <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd;">
-                                <strong>Danh mục:</strong>
-                                <?php
-                                $cat_names = array();
-                                foreach ($categories as $cat) {
-                                    $cat_names[] = '<a href="' . esc_url(get_term_link($cat)) . '">' . esc_html($cat->name) . '</a>';
-                                }
-                                echo ' ' . implode(', ', $cat_names);
-                                ?>
-                            </div>
-                        <?php endif; ?>
-                        
-                        <?php if ($tags && !is_wp_error($tags)) : ?>
-                            <div style="margin-top: 15px;">
-                                <strong>Thẻ:</strong>
-                                <?php
-                                $tag_names = array();
-                                foreach ($tags as $tag) {
-                                    $tag_names[] = '<a href="' . esc_url(get_term_link($tag)) . '">' . esc_html($tag->name) . '</a>';
-                                }
-                                echo ' ' . implode(', ', $tag_names);
-                                ?>
-                            </div>
-                        <?php endif; ?>
-                        
                         <!-- Navigation to previous/next post -->
                         <div style="margin-top: 40px; padding-top: 20px; border-top: 2px solid #667eea; display: flex; justify-content: space-between;">
                             <div>
@@ -226,13 +211,11 @@ get_header();
                 // Get page link for "Danh sách Doanh nghiệp"
                 $page_doanh_nghiep = get_page_by_path('danh-sach-doanh-nghiep');
                 if (!$page_doanh_nghiep) {
-                    // Fallback to old slug
                     $page_doanh_nghiep = get_page_by_path('page-doanh-nghiep');
                 }
                 if ($page_doanh_nghiep) {
                     $doanh_nghiep_page_url = get_permalink($page_doanh_nghiep->ID);
                 } else {
-                    // Fallback: use home_url with new slug
                     $doanh_nghiep_page_url = home_url('/danh-sach-doanh-nghiep/');
                 }
                 ?>
@@ -244,19 +227,15 @@ get_header();
                     'post_status'    => 'publish',
                 );
                 $doanh_nghiep_query = new WP_Query($doanh_nghiep_args);
-
+                
                 // Detail page for doanh_nghiep
                 $detail_page      = get_page_by_path('trang-doanh-nghiep-chi-tiet');
                 $detail_page_base = $detail_page ? get_permalink($detail_page->ID) : home_url('/trang-doanh-nghiep-chi-tiet/');
 
                 if ($doanh_nghiep_query->have_posts()) :
                     while ($doanh_nghiep_query->have_posts()) : $doanh_nghiep_query->the_post();
-                        // Build detail URL with post_id for this business
-                        $detail_url = add_query_arg(
-                            'post_id',
-                            get_the_ID(),
-                            $detail_page_base
-                        );
+                        // For Doanh nghiep, we might be using the special detail page with query param as per previous code
+                        $detail_url = add_query_arg('post_id', get_the_ID(), $detail_page_base);
                         ?>
                         <li><a href="<?php echo esc_url($detail_url); ?>"><?php the_title(); ?></a></li>
                         <?php
@@ -267,6 +246,7 @@ get_header();
             </ul>
             <h4 style="margin-top: 25px; margin-bottom: 15px; color: #333;">Cộng đồng</h4>
             <ul class="linked-websites">
+                <li><a href="<?php echo esc_url($cong_dong_page_url); ?>">Trang Cộng đồng</a></li>
                 <li><a href="#">Cộng đồng Doanh nhân Trẻ</a></li>
                 <li><a href="#">Cộng đồng Khởi nghiệp</a></li>
                 <li><a href="#">Cộng đồng Đầu tư</a></li>
@@ -274,5 +254,36 @@ get_header();
         </div>
     </div>
 </main>
+
+<style>
+    .current-item {
+        background-color: #f0f0f0;
+        font-weight: bold;
+    }
+    
+    .current-item a {
+        color: #2271b1 !important;
+    }
+    
+    .cong-dong-detail h2 {
+        color: #333;
+        margin-bottom: 10px;
+    }
+    
+    .button {
+        display: inline-block;
+        background: #2271b1;
+        color: #fff;
+        padding: 8px 15px;
+        text-decoration: none;
+        border-radius: 4px;
+        transition: background 0.3s;
+        font-size: 14px;
+    }
+    
+    .button:hover {
+        background: #135e96;
+    }
+</style>
 
 <?php get_footer(); ?>

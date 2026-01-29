@@ -19,8 +19,8 @@
             }
         }
 
-        // Banner Carousel Auto-play
         document.addEventListener('DOMContentLoaded', function() {
+            // Banner Carousel Auto-play
             const slides = document.querySelectorAll('.banner-slide');
             if (slides.length > 0) {
                 let currentSlide = 0;
@@ -53,6 +53,56 @@
                         content.classList.toggle('mobile-collapsed');
                     }
                 });
+            });
+
+            // Small image sliders (business gallery) with arrows
+            const sliders = document.querySelectorAll('.business-card-small-image-slider');
+            sliders.forEach(function(slider) {
+                const slides = slider.querySelectorAll('.business-card-small-image-slide');
+                if (!slides.length) return;
+
+                let current = 0;
+                // Ensure exactly one active
+                slides.forEach(function(s, idx) {
+                    if (idx === 0) {
+                        s.classList.add('active');
+                    } else {
+                        s.classList.remove('active');
+                    }
+                });
+
+                function show(index) {
+                    if (!slides.length) return;
+                    if (index < 0) index = slides.length - 1;
+                    if (index >= slides.length) index = 0;
+                    slides.forEach(function(s, idx) {
+                        if (idx === index) {
+                            s.classList.add('active');
+                        } else {
+                            s.classList.remove('active');
+                        }
+                    });
+                    current = index;
+                }
+
+                const container = slider.closest('.business-card-small-image');
+                if (!container) return;
+                const prevBtn = container.querySelector('.business-card-small-image-prev');
+                const nextBtn = container.querySelector('.business-card-small-image-next');
+
+                if (prevBtn) {
+                    prevBtn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        show(current - 1);
+                    });
+                }
+
+                if (nextBtn) {
+                    nextBtn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        show(current + 1);
+                    });
+                }
             });
         });
     </script>

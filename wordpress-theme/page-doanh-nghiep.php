@@ -14,16 +14,35 @@ get_header();
         <div class="column-header mobile-toggle collapsed">Về Cộng đồng DNTTVN</div>
         <div class="column-content mobile-collapsed">
             <ul class="about-list">
-                <li><a href="#">Điều lệ tổ chức hoạt động</a></li>
-                <li><a href="#">Danh sách thành viên sáng lập</a></li>
-                <li><a href="#">Cấu trúc Cộng đồng</a></li>
-                <li><a href="#">Danh sách Lãnh đạo điều hành</a></li>
-                <li class="highlight-item">
-                    <a href="#">Tìm hiểu trở thành thành viên mới</a>
-                </li>
-                <li><a href="#">Giá trị nhận được của thành viên</a></li>
-                <li><a href="#">Quy trình gia nhập Cộng đồng</a></li>
-                <li><a href="#">Hỏi đáp về Cộng đồng</a></li>
+                <?php
+                // Hiển thị danh sách các bài viết Cộng đồng ở cột trái (đồng bộ với trang chủ)
+                $cong_dong_args = array(
+                    'post_type'      => 'cong_dong',
+                    'posts_per_page' => -1,
+                    'post_status'    => 'publish',
+                    'orderby'        => 'menu_order date',
+                    'order'          => 'ASC',
+                );
+                $cong_dong_query = new WP_Query($cong_dong_args);
+
+                if ($cong_dong_query->have_posts()) :
+                    while ($cong_dong_query->have_posts()) :
+                        $cong_dong_query->the_post();
+                        $is_noi_bat = get_post_meta(get_the_ID(), '_cong_dong_noi_bat', true);
+                        $li_class   = ($is_noi_bat == '1') ? 'highlight-item' : '';
+                        ?>
+                        <li class="<?php echo esc_attr($li_class); ?>">
+                            <a href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
+                        </li>
+                        <?php
+                    endwhile;
+                    wp_reset_postdata();
+                else :
+                    ?>
+                    <li><a href="#">Chưa có bài viết Cộng đồng</a></li>
+                    <?php
+                endif;
+                ?>
             </ul>
         </div>
     </div>
@@ -192,14 +211,22 @@ get_header();
 
             $doanh_nghiep_query = new WP_Query($args);
 
+            // Get detail page for business/news
+            $detail_page      = get_page_by_path('trang-doanh-nghiep-chi-tiet');
+            $detail_page_base = $detail_page ? get_permalink($detail_page->ID) : home_url('/trang-doanh-nghiep-chi-tiet/');
+
             if ($doanh_nghiep_query->have_posts()) :
                 $post_count = 0;
                 while ($doanh_nghiep_query->have_posts()) : $doanh_nghiep_query->the_post();
                     $post_count++;
                     // Get custom fields
                     $nganh_hang = get_post_meta(get_the_ID(), '_nganh_hang', true);
-                    $khu_vuc = get_post_meta(get_the_ID(), '_khu_vuc', true);
+                    $khu_vuc    = get_post_meta(get_the_ID(), '_khu_vuc', true);
                     $hinh_anh_phu = get_post_meta(get_the_ID(), '_hinh_anh_phu', true);
+                    
+                    // Get taxonomy terms as fallback nếu meta trống
+                    $nganh_hang_terms = get_the_terms(get_the_ID(), 'nganh_hang');
+                    $khu_vuc_terms    = get_the_terms(get_the_ID(), 'khu_vuc');
                     
                     // Get Featured Image (Hình chính) - This is the main logo/image of the business
                     $featured_image_id = get_post_thumbnail_id();
@@ -239,16 +266,24 @@ get_header();
                         }
                     }
                     
-                    // Get description/excerpt
-                    $description = '';
-                    if (has_excerpt()) {
-                        $description = get_the_excerpt();
-                    } else {
-                        $content = get_the_content();
-                        $description = wp_trim_words(strip_shortcodes($content), 50, '...');
+                    // Get description/excerpt (ưu tiên Mô tả ngắn trong meta)
+                    $description = get_post_meta(get_the_ID(), '_doanh_nghiep_mo_ta_ngan', true);
+                    if (!$description) {
+                        if (has_excerpt()) {
+                            $description = get_the_excerpt();
+                        } else {
+                            $content = get_the_content();
+                            $description = wp_trim_words(strip_shortcodes($content), 50, '...');
+                        }
                     }
+                    // Build detail URL with post_id for this business
+                    $detail_url = add_query_arg(
+                        'post_id',
+                        get_the_ID(),
+                        $detail_page_base
+                    );
                     ?>
-                    <a href="<?php the_permalink(); ?>" class="business-card-link">
+                    <a href="<?php echo esc_url($detail_url); ?>" class="business-card-link">
                     <div class="business-card">
                         <div class="business-card-left">
                             <!-- Hình chính (Featured Image) - Logo/Ảnh đại diện chính của doanh nghiệp -->
@@ -267,6 +302,17 @@ get_header();
                             </div>
                             <div class="business-card-info-section">
                                 <h4><?php the_title(); ?></h4>
+                                <?php
+                                // Ưu tiên dùng meta; nếu trống thì dùng tên taxonomy
+                                if (!$nganh_hang && $nganh_hang_terms && !is_wp_error($nganh_hang_terms)) {
+                                    $term_names = wp_list_pluck($nganh_hang_terms, 'name');
+                                    $nganh_hang = implode(', ', $term_names);
+                                }
+                                if (!$khu_vuc && $khu_vuc_terms && !is_wp_error($khu_vuc_terms)) {
+                                    $term_names = wp_list_pluck($khu_vuc_terms, 'name');
+                                    $khu_vuc    = implode(', ', $term_names);
+                                }
+                                ?>
                                 <?php if ($nganh_hang) : ?>
                                     <div class="business-card-info">
                                         <svg class="business-card-info-icon" viewBox="0 0 24 24">
@@ -314,12 +360,14 @@ get_header();
                     </div>
                     </a>
                     <?php
-                    // Insert banner after every 3 business cards on mobile
-                    if ($post_count % 3 == 0) {
-                        $mobile_banners = dnttvn_render_banner_blocks('ad-block-mobile');
-                        if (!empty($mobile_banners)) {
-                            echo '<div class="ad-section-mobile">' . $mobile_banners . '</div>';
-                        }
+                    // View mobile: chèn banner xen kẽ 1 thẻ DN – 1 banner,
+                    // và vẫn giữ thứ tự theo toàn bộ danh sách (tính cả khi phân trang).
+                    // posts_per_page hiện đang là 6
+                    $posts_per_page   = $args['posts_per_page'];
+                    $global_index     = ($paged - 1) * $posts_per_page + ($post_count - 1); // 0-based index
+                    $mobile_banner_html = dnttvn_render_banner_blocks('ad-block-mobile', $global_index, 1);
+                    if (!empty($mobile_banner_html)) {
+                        echo '<div class="ad-section-mobile">' . $mobile_banner_html . '</div>';
                     }
                 endwhile;
                 wp_reset_postdata();

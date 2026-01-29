@@ -11,12 +11,23 @@
 ### Bước 2: Nhập Thông tin Tin tức
 
 1. **Tiêu đề**: Nhập tiêu đề tin tức (ví dụ: "Ra mắt Cộng đồng Doanh nhân Trí tuệ Việt Nam")
-
+ 
 2. **Nội dung**: 
    - Nhập nội dung tin tức trong editor
    - Có thể format text, thêm hình ảnh, links, v.v.
 
-3. **Tóm tắt (Excerpt)** (Tùy chọn):
+3. **Nội dung có cấu trúc (mục lớn / nội dung nhỏ)**:
+   - Scroll xuống, tìm box **"Nội dung có cấu trúc"**
+   - Mỗi mục gồm:
+     - **Mục lớn**: tiêu đề (hiển thị in đậm như heading)
+     - **Nội dung nhỏ**: đoạn nội dung chi tiết bên dưới
+   - Có thể:
+     - Nhấn **"+ Thêm mục mới"** để thêm nhiều mục
+     - Kéo icon **☰** để đổi thứ tự mục
+     - Dùng nút **"Xóa mục"** để bỏ mục không dùng
+   - Phần **Preview** cho phép xem trước bố cục gần giống trang chi tiết
+
+4. **Tóm tắt (Excerpt)** (Tùy chọn):
    - Bên phải → **"Excerpt"** (hoặc click 3 chấm → Preferences → bật Excerpt)
    - Nhập tóm tắt ngắn gọn (sẽ hiển thị ở trang chủ)
 
@@ -63,9 +74,12 @@
    - **Khu vực**: Nhập khu vực (ví dụ: "Hà Nội", "TP. Hồ Chí Minh", "Đà Nẵng")
    - **Hình ảnh phụ**: 
      - Click nút **"Chọn hình ảnh"**
-     - Media Library sẽ mở
-     - Chọn hình ảnh → Click **"Sử dụng hình ảnh này"**
-     - Hoặc nhập URL/ID trực tiếp
+     - Chọn 1 hình dùng làm ảnh nhỏ bên phải card doanh nghiệp
+   - **Thư viện hình (Gallery)**:
+     - Click nút **"Chọn nhiều hình cho thư viện"**
+     - Chọn nhiều ảnh → slider sẽ hiển thị ở trang chi tiết Doanh nghiệp
+   - **Địa chỉ / Điện thoại / Email / Website / Thông tin bổ sung**:
+     - Điền đầy đủ để hiển thị ở phần **"Thông tin bổ sung"** trên trang chi tiết
 
 5. **Hình ảnh đại diện (Featured Image)**:
    - Bên phải → **"Featured image"**

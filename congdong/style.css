@@ -1,0 +1,266 @@
+/*
+Theme Name: Cộng đồng DNTTVN
+Theme URI: https://congdongdoanhnhantrituevietnam.vn
+Author: Your Name
+Author URI: https://congdongdoanhnhantrituevietnam.vn
+Description: Theme Cộng đồng & Tin tức. Cột phải chỉ hiển thị Link Website liên kết (9 link), không liên kết tới trang doanh nghiệp.
+Version: 1.0
+Text Domain: dnttvn-congdong
+*/
+
+@import url('assets/style-gioi-thieu.css');
+
+/* Bảng trong nội dung (view chi tiết) – đúng số dòng/số cột, màu ô đúng vị trí, viền rõ */
+.entry-content table,
+main table,
+.content-section table,
+.section-content table,
+.accordion-section-content table,
+.structured-content-text table,
+.content-item-display table,
+.dang-ky-luat-choi-content table,
+.dnttvn-editor-table {
+    border-collapse: collapse;
+    table-layout: auto;
+    width: 100%;
+    max-width: 100%;
+    margin: 1.5em 0;
+    font-size: 0.95em;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid #000;
+    empty-cells: show;
+}
+.entry-content td,
+.entry-content th,
+main td,
+main th,
+.content-section td,
+.content-section th,
+.section-content td,
+.section-content th,
+.accordion-section-content td,
+.accordion-section-content th,
+.structured-content-text td,
+.structured-content-text th,
+.content-item-display td,
+.content-item-display th,
+.dang-ky-luat-choi-content td,
+.dang-ky-luat-choi-content th,
+.dnttvn-editor-table td,
+.dnttvn-editor-table th {
+    border: 1px solid #000;
+    padding: 10px 14px;
+    text-align: left;
+    vertical-align: top;
+    line-height: 1.5;
+}
+/* Màu nền ô: style nội tuyến (td[style], th[style]) luôn ưu tiên — đúng ô đúng vị trí đã tạo trong editor */
+/* Màu nền mặc định cho th/thead khi không có style; zebra chỉ áp dụng ô không có background */
+.entry-content th,
+main th,
+.content-section th,
+.section-content th,
+.accordion-section-content th,
+.structured-content-text th,
+.content-item-display th,
+.dang-ky-luat-choi-content th,
+.dnttvn-editor-table th {
+    background: #f8f9fa;
+    font-weight: 600;
+    color: #333;
+}
+.entry-content tbody tr:nth-child(even) td:not([style*="background"]),
+main tbody tr:nth-child(even) td:not([style*="background"]),
+.content-section tbody tr:nth-child(even) td:not([style*="background"]),
+.section-content tbody tr:nth-child(even) td:not([style*="background"]),
+.accordion-section-content tbody tr:nth-child(even) td:not([style*="background"]),
+.structured-content-text tbody tr:nth-child(even) td:not([style*="background"]),
+.content-item-display tbody tr:nth-child(even) td:not([style*="background"]),
+.dang-ky-luat-choi-content tbody tr:nth-child(even) td:not([style*="background"]) {
+    background: rgba(0, 0, 0, 0.04);
+}
+.entry-content thead th,
+main thead th,
+.content-section thead th,
+.section-content thead th,
+.accordion-section-content thead th,
+.structured-content-text thead th,
+.content-item-display thead th,
+.dang-ky-luat-choi-content thead th {
+    background: #eef1f4;
+    border-bottom: 2px solid #000;
+}
+
+/* === Override: cho phép nội dung bảng cuộn ngang bên trong content-column === */
+.content-column {
+    overflow: visible !important;
+}
+
+/* === Bảng cuộn ngang (cho bảng nhiều cột) === */
+.dnttvn-table-scroll-wrapper {
+    overflow-x: scroll !important;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    margin: 1.5em 0;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    position: relative;
+    padding-bottom: 4px;
+    scrollbar-width: thin;
+    scrollbar-color: #999 #f0f0f0;
+}
+.dnttvn-table-scroll-wrapper::-webkit-scrollbar {
+    height: 12px;
+    display: block !important;
+}
+.dnttvn-table-scroll-wrapper::-webkit-scrollbar-track {
+    background: #f0f0f0;
+    border-radius: 0 0 8px 8px;
+}
+.dnttvn-table-scroll-wrapper::-webkit-scrollbar-thumb {
+    background: #999;
+    border-radius: 6px;
+    border: 2px solid #f0f0f0;
+}
+.dnttvn-table-scroll-wrapper::-webkit-scrollbar-thumb:hover {
+    background: #667eea;
+}
+.dnttvn-table-scroll-wrapper table {
+    margin: 0;
+    border-radius: 0;
+    box-shadow: none;
+    border: none;
+    min-width: 700px;
+    width: max-content;
+    max-width: none;
+}
+.dnttvn-table-scroll-wrapper td,
+.dnttvn-table-scroll-wrapper th {
+    white-space: pre-line;
+    min-width: 80px;
+}
+.dnttvn-table-scroll-wrapper td p,
+.dnttvn-table-scroll-wrapper th p {
+    white-space: normal;
+    min-width: 120px;
+}
+.dnttvn-scroll-hint {
+    text-align: center;
+    padding: 6px 0 2px;
+    font-size: 12px;
+    color: #888;
+    background: #fafafa;
+    border-bottom: 1px solid #eee;
+}
+
+/* === Excel table section === */
+.dnttvn-excel-section {
+    margin: 30px 0;
+    padding: 20px 0 0;
+    border-top: 2px solid #667eea;
+}
+.dnttvn-excel-section-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.dnttvn-excel-sheet-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0;
+    border-bottom: 2px solid #e0e0e0;
+    margin-bottom: 0;
+}
+.dnttvn-excel-sheet-tab {
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #666;
+    background: #f5f5f5;
+    border: 1px solid #e0e0e0;
+    border-bottom: none;
+    border-radius: 6px 6px 0 0;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-right: -1px;
+}
+.dnttvn-excel-sheet-tab:hover {
+    background: #eef1f4;
+    color: #333;
+}
+.dnttvn-excel-sheet-tab.active {
+    background: #fff;
+    color: #667eea;
+    border-color: #e0e0e0;
+    border-bottom-color: #fff;
+    position: relative;
+    z-index: 1;
+}
+.dnttvn-excel-sheet-content {
+    display: none;
+    border: 1px solid #e0e0e0;
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+}
+.dnttvn-excel-sheet-content.active {
+    display: block;
+}
+.dnttvn-excel-sheet-content .dnttvn-table-scroll-wrapper {
+    margin: 0;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+}
+.dnttvn-excel-file-info {
+    font-size: 13px;
+    color: #888;
+    margin-bottom: 10px;
+}
+@media (max-width: 768px) {
+    .dnttvn-excel-sheet-tab {
+        padding: 8px 14px;
+        font-size: 13px;
+    }
+    .dnttvn-excel-section {
+        margin: 20px -10px;
+        padding: 15px 0 0;
+    }
+    .dnttvn-excel-section-title {
+        font-size: 17px;
+        padding: 0 10px;
+    }
+    .dnttvn-excel-file-info {
+        padding: 0 10px;
+    }
+    .dnttvn-excel-sheet-tabs {
+        padding: 0 10px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        flex-wrap: nowrap;
+    }
+    .dnttvn-excel-sheet-tab {
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+    .dnttvn-table-scroll-wrapper {
+        margin: 1em 0;
+        border-radius: 4px;
+    }
+    .dnttvn-table-scroll-wrapper::-webkit-scrollbar {
+        height: 8px;
+    }
+    .dnttvn-table-scroll-wrapper::-webkit-scrollbar-thumb {
+        background: #bbb;
+        border-radius: 4px;
+    }
+    .dnttvn-table-scroll-wrapper::-webkit-scrollbar-track {
+        background: #eee;
+    }
+}

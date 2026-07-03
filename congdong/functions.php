@@ -5511,36 +5511,6 @@ function dnttvn_default_menu() {
     echo '</ul>';
 }
 
-// Dify Chatbot: nút bong bóng nổi toàn site (icon màu vàng), đã tắt iframe trên trang Hỏi đáp
-function dnttvn_output_dify_chatbot() {
-    ?>
-<script>
-window.difyChatbotConfig = {
-  token: 'g4YfW8VuBWmWCR1S',
-  inputs: {},
-  systemVariables: {},
-  userVariables: {}
-};
-</script>
-<script src="https://udify.app/embed.min.js" id="g4YfW8VuBWmWCR1S" defer></script>
-<style>
-  #dify-chatbot-bubble-button {
-    background-color: #F6D53A !important;
-  }
-  #dify-chatbot-bubble-window {
-    width: 24rem !important;
-    height: 40rem !important;
-  }
-  /* Nút bong bóng và khung chat cố định viewport, luôn đi theo khi cuộn trang (dính góc màn hình) */
-  #dify-chatbot-bubble-button,
-  #dify-chatbot-bubble-window {
-    position: fixed !important;
-  }
-</style>
-    <?php
-}
-add_action('wp_footer', 'dnttvn_output_dify_chatbot');
-
 // ============================================
 // ADMIN MANAGEMENT FEATURES
 // ============================================

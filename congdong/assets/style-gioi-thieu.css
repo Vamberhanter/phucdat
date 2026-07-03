@@ -4282,6 +4282,7 @@ a.business-card-image-link {
 }
 .dang-ky-field input[type="text"],
 .dang-ky-field input[type="tel"],
+.dang-ky-field input[type="email"],
 .dang-ky-field input[type="number"],
 .dang-ky-field input[type="date"],
 .dang-ky-field select {

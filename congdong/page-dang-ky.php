@@ -91,22 +91,22 @@ $submitted = isset($_GET['submitted']) && $_GET['submitted'] === '1';
                                 </select>
                             </div>
                             <div class="dang-ky-field">
-                                <label for="dang_ky_ngay_sinh">3. Ngày tháng năm sinh</label>
-                                <input type="date" id="dang_ky_ngay_sinh" name="dang_ky_ngay_sinh" value="<?php echo isset($_POST['dang_ky_ngay_sinh']) ? esc_attr($_POST['dang_ky_ngay_sinh']) : ''; ?>">
+                                <label for="dang_ky_ngay_sinh">3. Ngày tháng năm sinh <span class="required">*</span></label>
+                                <input type="date" id="dang_ky_ngay_sinh" name="dang_ky_ngay_sinh" required value="<?php echo isset($_POST['dang_ky_ngay_sinh']) ? esc_attr($_POST['dang_ky_ngay_sinh']) : ''; ?>">
                             </div>
                             <div class="dang-ky-field">
-                                <label for="dang_ky_ten_dn">4. Tên doanh nghiệp</label>
-                                <input type="text" id="dang_ky_ten_dn" name="dang_ky_ten_dn" maxlength="255" placeholder="Tên doanh nghiệp" value="<?php echo isset($_POST['dang_ky_ten_dn']) ? esc_attr($_POST['dang_ky_ten_dn']) : ''; ?>">
+                                <label for="dang_ky_ten_dn">4. Tên doanh nghiệp <span class="required">*</span></label>
+                                <input type="text" id="dang_ky_ten_dn" name="dang_ky_ten_dn" required maxlength="255" placeholder="Tên doanh nghiệp" value="<?php echo isset($_POST['dang_ky_ten_dn']) ? esc_attr($_POST['dang_ky_ten_dn']) : ''; ?>">
                             </div>
                             <div class="dang-ky-field">
-                                <label for="dang_ky_nganh_nghe">5. Ngành nghề kinh doanh</label>
+                                <label for="dang_ky_nganh_nghe">5. Ngành nghề kinh doanh <span class="required">*</span></label>
                                 <?php
                                 $nganh_nghe_predefined = function_exists('dnttvn_get_nganh_nghe_options') ? dnttvn_get_nganh_nghe_options() : array('Sản xuất', 'Dịch vụ', 'Thương mại', 'Công nghệ');
                                 $saved_nganh = isset($_POST['dang_ky_nganh_nghe']) ? $_POST['dang_ky_nganh_nghe'] : '';
                                 $saved_nganh_khac = isset($_POST['dang_ky_nganh_nghe_khac']) ? $_POST['dang_ky_nganh_nghe_khac'] : '';
                                 $show_other_input = ($saved_nganh === '__other__');
                                 ?>
-                                <select id="dang_ky_nganh_nghe" name="dang_ky_nganh_nghe">
+                                <select id="dang_ky_nganh_nghe" name="dang_ky_nganh_nghe" required>
                                     <option value="">-- Chọn ngành nghề --</option>
                                     <?php foreach ($nganh_nghe_predefined as $opt) : ?>
                                     <option value="<?php echo esc_attr($opt); ?>" <?php selected($saved_nganh, $opt); ?>><?php echo esc_html($opt); ?></option>
@@ -114,30 +114,47 @@ $submitted = isset($_GET['submitted']) && $_GET['submitted'] === '1';
                                     <option value="__other__" <?php selected($saved_nganh, '__other__'); ?>>Khác (ghi rõ bên dưới)</option>
                                 </select>
                                 <div id="dang_ky_nganh_nghe_khac_wrap" class="dang-ky-nganh-nghe-khac-wrap" style="<?php echo $show_other_input ? '' : 'display:none;'; ?> margin-top: 8px;">
-                                    <label for="dang_ky_nganh_nghe_khac" class="dang-ky-inline-label">Nhập ngành nghề:</label>
+                                    <label for="dang_ky_nganh_nghe_khac" class="dang-ky-inline-label">Nhập ngành nghề: <span class="required">*</span></label>
                                     <input type="text" id="dang_ky_nganh_nghe_khac" name="dang_ky_nganh_nghe_khac" maxlength="255" placeholder="Ví dụ: Xây dựng, Giáo dục..." value="<?php echo esc_attr($saved_nganh_khac); ?>">
                                 </div>
                                 <script>
                                 (function(){
                                     var sel = document.getElementById('dang_ky_nganh_nghe');
                                     var wrap = document.getElementById('dang_ky_nganh_nghe_khac_wrap');
-                                    if (!sel || !wrap) return;
-                                    function toggle(){ wrap.style.display = (sel.value === '__other__') ? 'block' : 'none'; }
+                                    var input = document.getElementById('dang_ky_nganh_nghe_khac');
+                                    if (!sel || !wrap || !input) return;
+                                    function toggle(){ 
+                                        if (sel.value === '__other__') {
+                                            wrap.style.display = 'block';
+                                            input.setAttribute('required', 'required');
+                                        } else {
+                                            wrap.style.display = 'none';
+                                            input.removeAttribute('required');
+                                        }
+                                    }
                                     sel.addEventListener('change', toggle);
                                     toggle();
                                 })();
                                 </script>
                             </div>
                             <div class="dang-ky-field">
-                                <label for="dang_ky_chuc_vu">6. Chức vụ</label>
-                                <input type="text" id="dang_ky_chuc_vu" name="dang_ky_chuc_vu" maxlength="200" placeholder="Chức vụ" value="<?php echo isset($_POST['dang_ky_chuc_vu']) ? esc_attr($_POST['dang_ky_chuc_vu']) : ''; ?>">
+                                <label for="dang_ky_chuc_vu">6. Chức vụ <span class="required">*</span></label>
+                                <input type="text" id="dang_ky_chuc_vu" name="dang_ky_chuc_vu" required maxlength="200" placeholder="Chức vụ" value="<?php echo isset($_POST['dang_ky_chuc_vu']) ? esc_attr($_POST['dang_ky_chuc_vu']) : ''; ?>">
                             </div>
                             <div class="dang-ky-field">
                                 <label for="dang_ky_sdt">7. Số điện thoại / Zalo <span class="required">*</span></label>
                                 <input type="tel" id="dang_ky_sdt" name="dang_ky_sdt" required maxlength="20" placeholder="Số điện thoại hoặc Zalo" value="<?php echo isset($_POST['dang_ky_sdt']) ? esc_attr($_POST['dang_ky_sdt']) : ''; ?>">
                             </div>
                             <div class="dang-ky-field">
-                                <label for="dang_ky_portrait">8. Ảnh chân dung (cho trang danh sách) <span class="required">*</span></label>
+                                <label for="dang_ky_dia_chi">8. Địa chỉ <span class="required">*</span></label>
+                                <input type="text" id="dang_ky_dia_chi" name="dang_ky_dia_chi" required placeholder="Nhập địa chỉ của bạn" value="<?php echo isset($_POST['dang_ky_dia_chi']) ? esc_attr($_POST['dang_ky_dia_chi']) : ''; ?>">
+                            </div>
+                            <div class="dang-ky-field">
+                                <label for="dang_ky_email">9. Email <span class="required">*</span></label>
+                                <input type="email" id="dang_ky_email" name="dang_ky_email" required placeholder="Nhập email của bạn" value="<?php echo isset($_POST['dang_ky_email']) ? esc_attr($_POST['dang_ky_email']) : ''; ?>">
+                            </div>
+                            <div class="dang-ky-field">
+                                <label for="dang_ky_portrait">10. Ảnh chân dung (cho trang danh sách) <span class="required">*</span></label>
                                 <input type="file" id="dang_ky_portrait" name="dang_ky_portrait" accept="image/*" required>
                                 <p class="description" style="font-size: 12px; color: #666; margin-top: 4px;">Vui lòng tải lên ảnh chân dung rõ nét để hiển thị trong Danh sách Doanh nhân.</p>
                             </div>
@@ -149,19 +166,19 @@ $submitted = isset($_GET['submitted']) && $_GET['submitted'] === '1';
                         <h2 class="dang-ky-section-title">Phần 3: Sứ mệnh Gia đình</h2>
                         <div class="dang-ky-fields">
                             <div class="dang-ky-field">
-                                <span class="dang-ky-label">7. Tình trạng hôn nhân</span>
+                                <span class="dang-ky-label">11. Tình trạng hôn nhân <span class="required">*</span></span>
                                 <div class="dang-ky-options">
-                                    <label class="dang-ky-option"><input type="radio" name="dang_ky_hon_nhan" value="Độc thân" <?php echo (isset($_POST['dang_ky_hon_nhan']) && $_POST['dang_ky_hon_nhan'] === 'Độc thân') ? 'checked' : ''; ?>> Độc thân</label>
-                                    <label class="dang-ky-option"><input type="radio" name="dang_ky_hon_nhan" value="Đã kết hôn" <?php echo (isset($_POST['dang_ky_hon_nhan']) && $_POST['dang_ky_hon_nhan'] === 'Đã kết hôn') ? 'checked' : ''; ?>> Đã kết hôn</label>
-                                    <label class="dang-ky-option"><input type="radio" name="dang_ky_hon_nhan" value="Khác" <?php echo (isset($_POST['dang_ky_hon_nhan']) && $_POST['dang_ky_hon_nhan'] === 'Khác') ? 'checked' : ''; ?>> Khác</label>
+                                    <label class="dang-ky-option"><input type="radio" name="dang_ky_hon_nhan" value="Độc thân" required <?php echo (isset($_POST['dang_ky_hon_nhan']) && $_POST['dang_ky_hon_nhan'] === 'Độc thân') ? 'checked' : ''; ?>> Độc thân</label>
+                                    <label class="dang-ky-option"><input type="radio" name="dang_ky_hon_nhan" value="Đã kết hôn" required <?php echo (isset($_POST['dang_ky_hon_nhan']) && $_POST['dang_ky_hon_nhan'] === 'Đã kết hôn') ? 'checked' : ''; ?>> Đã kết hôn</label>
+                                    <label class="dang-ky-option"><input type="radio" name="dang_ky_hon_nhan" value="Khác" required <?php echo (isset($_POST['dang_ky_hon_nhan']) && $_POST['dang_ky_hon_nhan'] === 'Khác') ? 'checked' : ''; ?>> Khác</label>
                                 </div>
                             </div>
                             <div class="dang-ky-field">
-                                <label for="dang_ky_so_con">8. Số lượng con</label>
-                                <input type="number" id="dang_ky_so_con" name="dang_ky_so_con" min="0" max="20" step="1" placeholder="0" value="<?php echo isset($_POST['dang_ky_so_con']) ? esc_attr($_POST['dang_ky_so_con']) : ''; ?>">
+                                <label for="dang_ky_so_con">12. Số lượng con <span class="required">*</span></label>
+                                <input type="number" id="dang_ky_so_con" name="dang_ky_so_con" required min="0" max="20" step="1" placeholder="0" value="<?php echo isset($_POST['dang_ky_so_con']) ? esc_attr($_POST['dang_ky_so_con']) : ''; ?>">
                             </div>
                             <div class="dang-ky-field">
-                                <span class="dang-ky-label">9. Độ tuổi của các con</span>
+                                <span class="dang-ky-label">13. Độ tuổi của các con <span class="required" id="dang_ky_do_tuoi_con_required_star" style="display:none;">*</span></span>
                                 <div class="dang-ky-options dang-ky-checkboxes">
                                     <?php
                                     $do_tuoi_opts = array('Dưới THCS' => 'duoi_thcs', 'THCS' => 'thcs', 'THPT' => 'thpt', 'SV' => 'sv', 'Đã đi làm' => 'da_di_lam');
@@ -179,21 +196,69 @@ $submitted = isset($_GET['submitted']) && $_GET['submitted'] === '1';
                     <!-- Phần 4: Tâm thế & Nhu cầu -->
                     <section class="dang-ky-section">
                         <h2 class="dang-ky-section-title">Phần 4: Tâm thế & Nhu cầu</h2>
-                        <p class="dang-ky-description">10. Mục tiêu ưu tiên khi gia nhập (Chọn 1 hoặc nhiều mục tiêu bên dưới)</p>
-                        <div class="dang-ky-options dang-ky-checkboxes">
-                            <?php
-                            $muc_tieu_opts = array(
-                                'Nâng tầm bản thân & Rõ đường hành động',
-                                'Kết nối cộng hưởng doanh nghiệp',
-                                'Định hướng khởi nghiệp cho con cái',
-                                'Phụng sự & Đóng góp giá trị quốc gia',
-                            );
-                            $saved_mt = isset($_POST['dang_ky_muc_tieu']) && is_array($_POST['dang_ky_muc_tieu']) ? $_POST['dang_ky_muc_tieu'] : array();
-                            foreach ($muc_tieu_opts as $idx => $label) :
-                                $checked = in_array($label, $saved_mt, true) ? ' checked' : '';
-                            ?>
-                            <label class="dang-ky-option"><input type="checkbox" name="dang_ky_muc_tieu[]" value="<?php echo esc_attr($label); ?>"<?php echo $checked; ?>> <?php echo esc_html($label); ?></label>
-                            <?php endforeach; ?>
+                        <div class="dang-ky-fields">
+                            <div class="dang-ky-field">
+                                <span class="dang-ky-label">14. Mục tiêu ưu tiên khi gia nhập (Chọn 1 hoặc nhiều mục tiêu bên dưới) <span class="required">*</span></span>
+                                <div class="dang-ky-options dang-ky-checkboxes">
+                                    <?php
+                                    $muc_tieu_opts = array(
+                                        'Nâng tầm bản thân & Rõ đường hành động',
+                                        'Kết nối cộng hưởng doanh nghiệp',
+                                        'Định hướng khởi nghiệp cho con cái',
+                                        'Phụng sự & Đóng góp giá trị quốc gia',
+                                    );
+                                    $saved_mt = isset($_POST['dang_ky_muc_tieu']) && is_array($_POST['dang_ky_muc_tieu']) ? $_POST['dang_ky_muc_tieu'] : array();
+                                    foreach ($muc_tieu_opts as $idx => $label) :
+                                        $checked = in_array($label, $saved_mt, true) ? ' checked' : '';
+                                    ?>
+                                    <label class="dang-ky-option"><input type="checkbox" name="dang_ky_muc_tieu[]" value="<?php echo esc_attr($label); ?>"<?php echo $checked; ?>> <?php echo esc_html($label); ?></label>
+                                    <?php endforeach; ?>
+                                </div>
+                            </div>
+
+                            <div class="dang-ky-field">
+                                <span class="dang-ky-label">15. Bạn đã từng tham gia khóa học nào của thầy Ngô Minh Tuấn chưa? <span class="required">*</span></span>
+                                <div class="dang-ky-options">
+                                    <label class="dang-ky-option">
+                                        <input type="radio" name="dang_ky_khoa_hoc" value="Tôi chưa từng tham gia." required <?php echo (isset($_POST['dang_ky_khoa_hoc']) && $_POST['dang_ky_khoa_hoc'] === 'Tôi chưa từng tham gia.') ? 'checked' : ''; ?>> Tôi chưa từng tham gia.
+                                    </label>
+                                    <label class="dang-ky-option">
+                                        <input type="radio" name="dang_ky_khoa_hoc" value="Tôi đã từng tham gia" required <?php echo (isset($_POST['dang_ky_khoa_hoc']) && $_POST['dang_ky_khoa_hoc'] === 'Tôi đã từng tham gia') ? 'checked' : ''; ?>> Tôi đã từng tham gia (Vui lòng điền tên khóa học bên dưới)
+                                    </label>
+                                    <label class="dang-ky-option">
+                                        <input type="radio" name="dang_ky_khoa_hoc" value="Tôi mới chỉ theo dõi các bài giảng của thầy trên các kênh mạng xã hội" required <?php echo (isset($_POST['dang_ky_khoa_hoc']) && $_POST['dang_ky_khoa_hoc'] === 'Tôi mới chỉ theo dõi các bài giảng của thầy trên các kênh mạng xã hội') ? 'checked' : ''; ?>> Tôi mới chỉ theo dõi các bài giảng của thầy trên các kênh mạng xã hội
+                                    </label>
+                                </div>
+                                <div id="dang_ky_khoa_hoc_ten_wrap" class="dang-ky-nganh-nghe-khac-wrap" style="display:none; margin-top: 8px;">
+                                    <label for="dang_ky_khoa_hoc_ten" class="dang-ky-inline-label">Tên khóa học bạn đã tham gia: <span class="required">*</span></label>
+                                    <input type="text" id="dang_ky_khoa_hoc_ten" name="dang_ky_khoa_hoc_ten" maxlength="255" placeholder="Ví dụ: CEO Quản trị, CEO Master..." value="<?php echo isset($_POST['dang_ky_khoa_hoc_ten']) ? esc_attr($_POST['dang_ky_khoa_hoc_ten']) : ''; ?>">
+                                </div>
+                            </div>
+
+                            <div class="dang-ky-field">
+                                <span class="dang-ky-label">16. Bạn biết đến cộng đồng qua đâu? <span class="required">*</span></span>
+                                <div class="dang-ky-options">
+                                    <label class="dang-ky-option">
+                                        <input type="radio" name="dang_ky_nguon_tin" value="Fanpage Facebook Cộng đồng Doanh nhân Trí tuệ Việt Nam" required <?php echo (isset($_POST['dang_ky_nguon_tin']) && $_POST['dang_ky_nguon_tin'] === 'Fanpage Facebook Cộng đồng Doanh nhân Trí tuệ Việt Nam') ? 'checked' : ''; ?>> Fanpage Facebook Cộng đồng Doanh nhân Trí tuệ Việt Nam
+                                    </label>
+                                    <label class="dang-ky-option">
+                                        <input type="radio" name="dang_ky_nguon_tin" value="Tìm kiếm Google" required <?php echo (isset($_POST['dang_ky_nguon_tin']) && $_POST['dang_ky_nguon_tin'] === 'Tìm kiếm Google') ? 'checked' : ''; ?>> Tìm kiếm Google
+                                    </label>
+                                    <label class="dang-ky-option">
+                                        <input type="radio" name="dang_ky_nguon_tin" value="Được bạn bè, đồng nghiệp giới thiệu" required <?php echo (isset($_POST['dang_ky_nguon_tin']) && $_POST['dang_ky_nguon_tin'] === 'Được bạn bè, đồng nghiệp giới thiệu') ? 'checked' : ''; ?>> Được bạn bè, đồng nghiệp giới thiệu
+                                    </label>
+                                    <label class="dang-ky-option">
+                                        <input type="radio" name="dang_ky_nguon_tin" value="Sự kiện / Hội thảo / Webinar (Offline & Online)" required <?php echo (isset($_POST['dang_ky_nguon_tin']) && $_POST['dang_ky_nguon_tin'] === 'Sự kiện / Hội thảo / Webinar (Offline & Online)') ? 'checked' : ''; ?>> Sự kiện / Hội thảo / Webinar (Offline & Online)
+                                    </label>
+                                    <label class="dang-ky-option">
+                                        <input type="radio" name="dang_ky_nguon_tin" value="Khác" required <?php echo (isset($_POST['dang_ky_nguon_tin']) && $_POST['dang_ky_nguon_tin'] === 'Khác') ? 'checked' : ''; ?>> Khác (Vui lòng điền thông tin bên dưới)
+                                    </label>
+                                </div>
+                                <div id="dang_ky_nguon_tin_khac_wrap" class="dang-ky-nganh-nghe-khac-wrap" style="display:none; margin-top: 8px;">
+                                    <label for="dang_ky_nguon_tin_khac" class="dang-ky-inline-label">Thông tin chi tiết: <span class="required">*</span></label>
+                                    <input type="text" id="dang_ky_nguon_tin_khac" name="dang_ky_nguon_tin_khac" maxlength="255" placeholder="Nhập thông tin..." value="<?php echo isset($_POST['dang_ky_nguon_tin_khac']) ? esc_attr($_POST['dang_ky_nguon_tin_khac']) : ''; ?>">
+                                </div>
+                            </div>
                         </div>
                     </section>
 
@@ -211,7 +276,7 @@ $submitted = isset($_GET['submitted']) && $_GET['submitted'] === '1';
                         </div>
                         <?php endif; ?>
                         <div class="dang-ky-field">
-                            <span class="dang-ky-label">11. Xác nhận "Luật chơi"</span>
+                            <span class="dang-ky-label">17. Xác nhận "Luật chơi" <span class="required">*</span></span>
                             <div class="dang-ky-options">
                                 <label class="dang-ky-option"><input type="radio" name="dang_ky_xac_nhan" value="Đã rõ và Cam kết" required <?php echo (isset($_POST['dang_ky_xac_nhan']) && $_POST['dang_ky_xac_nhan'] === 'Đã rõ và Cam kết') ? 'checked' : ''; ?>> Đã rõ và Cam kết</label>
                             </div>
@@ -247,17 +312,110 @@ $submitted = isset($_GET['submitted']) && $_GET['submitted'] === '1';
     </div>
 </main>
 
-<?php
-if ($submitted) :
-    ?>
 <script>
 (function () {
+    // 1. Scroll to success if submitted
+    <?php if ($submitted) : ?>
     var el = document.getElementById('dang-ky-success-anchor');
     if (el && el.scrollIntoView) {
         el.scrollIntoView({ behavior: 'smooth', block: 'start' });
         try { el.focus({ preventScroll: true }); } catch (e) { el.focus(); }
     }
+    <?php endif; ?>
+
+    // 2. Validate Children's Age checkboxes based on children count
+    var soConInput = document.getElementById('dang_ky_so_con');
+    var ageCheckboxes = document.querySelectorAll('input[name="dang_ky_do_tuoi_con[]"]');
+    var ageRequiredStar = document.getElementById('dang_ky_do_tuoi_con_required_star');
+    
+    function validateChildrenAge() {
+        if (!soConInput || ageCheckboxes.length === 0) return;
+        var count = parseInt(soConInput.value, 10) || 0;
+        if (count > 0) {
+            if (ageRequiredStar) ageRequiredStar.style.display = 'inline';
+            var checkedCount = Array.from(ageCheckboxes).filter(function(cb) { return cb.checked; }).length;
+            if (checkedCount === 0) {
+                ageCheckboxes[0].setCustomValidity('Vui lòng chọn ít nhất một độ tuổi cho các con.');
+            } else {
+                ageCheckboxes.forEach(function(cb) { cb.setCustomValidity(''); });
+            }
+        } else {
+            if (ageRequiredStar) ageRequiredStar.style.display = 'none';
+            ageCheckboxes.forEach(function(cb) { cb.setCustomValidity(''); });
+        }
+    }
+    
+    if (soConInput) {
+        soConInput.addEventListener('input', validateChildrenAge);
+        ageCheckboxes.forEach(function(cb) {
+            cb.addEventListener('change', validateChildrenAge);
+        });
+        validateChildrenAge();
+    }
+
+    // 3. Validate Goal checkboxes (at least one must be checked)
+    var goalCheckboxes = document.querySelectorAll('input[name="dang_ky_muc_tieu[]"]');
+    function validateGoals() {
+        if (goalCheckboxes.length === 0) return;
+        var checkedCount = Array.from(goalCheckboxes).filter(function(cb) { return cb.checked; }).length;
+        if (checkedCount === 0) {
+            goalCheckboxes[0].setCustomValidity('Vui lòng chọn ít nhất một mục tiêu gia nhập.');
+        } else {
+            goalCheckboxes.forEach(function(cb) { cb.setCustomValidity(''); });
+        }
+    }
+    if (goalCheckboxes.length > 0) {
+        goalCheckboxes.forEach(function(cb) {
+            cb.addEventListener('change', validateGoals);
+        });
+        validateGoals();
+    }
+
+    // 4. Toggle required field for Ngô Minh Tuấn Course survey
+    var khRadios = document.querySelectorAll('input[name="dang_ky_khoa_hoc"]');
+    var khWrap = document.getElementById('dang_ky_khoa_hoc_ten_wrap');
+    var khInput = document.getElementById('dang_ky_khoa_hoc_ten');
+    
+    function toggleKH() {
+        if (!khWrap || !khInput) return;
+        var checkedRadio = Array.from(khRadios).find(function(r) { return r.checked; });
+        if (checkedRadio && checkedRadio.value === 'Tôi đã từng tham gia') {
+            khWrap.style.display = 'block';
+            khInput.setAttribute('required', 'required');
+        } else {
+            khWrap.style.display = 'none';
+            khInput.removeAttribute('required');
+        }
+    }
+    if (khRadios.length > 0) {
+        khRadios.forEach(function(r) {
+            r.addEventListener('change', toggleKH);
+        });
+        toggleKH();
+    }
+
+    // 5. Toggle required field for Biết đến cộng đồng
+    var ntRadios = document.querySelectorAll('input[name="dang_ky_nguon_tin"]');
+    var ntWrap = document.getElementById('dang_ky_nguon_tin_khac_wrap');
+    var ntInput = document.getElementById('dang_ky_nguon_tin_khac');
+    
+    function toggleNT() {
+        if (!ntWrap || !ntInput) return;
+        var checkedRadio = Array.from(ntRadios).find(function(r) { return r.checked; });
+        if (checkedRadio && checkedRadio.value === 'Khác') {
+            ntWrap.style.display = 'block';
+            ntInput.setAttribute('required', 'required');
+        } else {
+            ntWrap.style.display = 'none';
+            ntInput.removeAttribute('required');
+        }
+    }
+    if (ntRadios.length > 0) {
+        ntRadios.forEach(function(r) {
+            r.addEventListener('change', toggleNT);
+        });
+        toggleNT();
+    }
 })();
 </script>
-<?php endif; ?>
 <?php get_footer(); ?>

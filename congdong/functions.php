@@ -4573,10 +4573,60 @@ function dnttvn_handle_dang_ky_form() {
         return;
     }
     $ho_ten = isset($_POST['dang_ky_ho_ten']) ? sanitize_text_field($_POST['dang_ky_ho_ten']) : '';
+    $khu_vuc = isset($_POST['dang_ky_khu_vuc']) ? absint($_POST['dang_ky_khu_vuc']) : 0;
+    $ngay_sinh = isset($_POST['dang_ky_ngay_sinh']) ? sanitize_text_field($_POST['dang_ky_ngay_sinh']) : '';
+    $ten_dn = isset($_POST['dang_ky_ten_dn']) ? sanitize_text_field($_POST['dang_ky_ten_dn']) : '';
+    $nganh_nghe = isset($_POST['dang_ky_nganh_nghe']) ? sanitize_text_field($_POST['dang_ky_nganh_nghe']) : '';
+    $nganh_nghe_khac = isset($_POST['dang_ky_nganh_nghe_khac']) ? sanitize_text_field($_POST['dang_ky_nganh_nghe_khac']) : '';
+    $chuc_vu = isset($_POST['dang_ky_chuc_vu']) ? sanitize_text_field($_POST['dang_ky_chuc_vu']) : '';
     $sdt = isset($_POST['dang_ky_sdt']) ? sanitize_text_field($_POST['dang_ky_sdt']) : '';
-    if (empty($ho_ten) || empty($sdt)) {
+    $dia_chi = isset($_POST['dang_ky_dia_chi']) ? sanitize_text_field($_POST['dang_ky_dia_chi']) : '';
+    $email = isset($_POST['dang_ky_email']) ? sanitize_email($_POST['dang_ky_email']) : '';
+    $hon_nhan = isset($_POST['dang_ky_hon_nhan']) ? sanitize_text_field($_POST['dang_ky_hon_nhan']) : '';
+    $so_con = isset($_POST['dang_ky_so_con']) ? sanitize_text_field($_POST['dang_ky_so_con']) : '';
+    $do_tuoi_con = isset($_POST['dang_ky_do_tuoi_con']) ? $_POST['dang_ky_do_tuoi_con'] : array();
+    $muc_tieu = isset($_POST['dang_ky_muc_tieu']) ? $_POST['dang_ky_muc_tieu'] : array();
+    $khoa_hoc = isset($_POST['dang_ky_khoa_hoc']) ? sanitize_text_field($_POST['dang_ky_khoa_hoc']) : '';
+    $khoa_hoc_ten = isset($_POST['dang_ky_khoa_hoc_ten']) ? sanitize_text_field($_POST['dang_ky_khoa_hoc_ten']) : '';
+    $nguon_tin = isset($_POST['dang_ky_nguon_tin']) ? sanitize_text_field($_POST['dang_ky_nguon_tin']) : '';
+    $nguon_tin_khac = isset($_POST['dang_ky_nguon_tin_khac']) ? sanitize_text_field($_POST['dang_ky_nguon_tin_khac']) : '';
+    $xac_nhan = isset($_POST['dang_ky_xac_nhan']) ? sanitize_text_field($_POST['dang_ky_xac_nhan']) : '';
+
+    // Validate fields on the backend
+    if (empty($ho_ten) || $khu_vuc <= 0 || empty($ngay_sinh) || empty($ten_dn) || empty($nganh_nghe) || empty($chuc_vu) || empty($sdt) || empty($dia_chi) || empty($email) || empty($hon_nhan) || $so_con === '' || empty($muc_tieu) || empty($khoa_hoc) || empty($nguon_tin) || empty($xac_nhan)) {
         return;
     }
+    
+    // Check email format
+    if (!is_email($email)) {
+        return;
+    }
+
+    // Check conditional require for "Other" industry
+    if ($nganh_nghe === '__other__' && empty($nganh_nghe_khac)) {
+        return;
+    }
+    
+    // Check conditional require for children ages if so_con > 0
+    if (intval($so_con) > 0 && empty($do_tuoi_con)) {
+        return;
+    }
+
+    // Check conditional require for courses
+    if ($khoa_hoc === 'Tôi đã từng tham gia' && empty($khoa_hoc_ten)) {
+        return;
+    }
+
+    // Check conditional require for referral source
+    if ($nguon_tin === 'Khác' && empty($nguon_tin_khac)) {
+        return;
+    }
+
+    // Check if portrait file was uploaded
+    if (empty($_FILES['dang_ky_portrait']['name']) || $_FILES['dang_ky_portrait']['error'] !== UPLOAD_ERR_OK) {
+        return;
+    }
+
     $title = $ho_ten . ' - ' . $sdt . ' - ' . current_time('Y-m-d H:i');
     $post_id = wp_insert_post(array(
         'post_type'   => 'dang_ky',
@@ -4610,6 +4660,8 @@ function dnttvn_handle_dang_ky_form() {
         'dang_ky_ho_ten', 'dang_ky_ngay_sinh', 'dang_ky_ten_dn',
         'dang_ky_chuc_vu', 'dang_ky_sdt', 'dang_ky_hon_nhan', 'dang_ky_so_con',
         'dang_ky_do_tuoi_con', 'dang_ky_muc_tieu', 'dang_ky_xac_nhan',
+        'dang_ky_dia_chi', 'dang_ky_email', 'dang_ky_khoa_hoc', 'dang_ky_khoa_hoc_ten',
+        'dang_ky_nguon_tin', 'dang_ky_nguon_tin_khac',
     );
     foreach ($fields as $key) {
         if (isset($_POST[$key])) {
@@ -5027,17 +5079,23 @@ function dnttvn_add_dang_ky_meta_box() {
 }
 function dnttvn_dang_ky_meta_box_callback($post) {
     $labels = array(
-        'dang_ky_ho_ten'     => 'Họ và tên',
-        'dang_ky_ngay_sinh'  => 'Ngày sinh',
-        'dang_ky_ten_dn'     => 'Tên doanh nghiệp',
-        'dang_ky_nganh_nghe' => 'Ngành nghề',
-        'dang_ky_chuc_vu'    => 'Chức vụ',
-        'dang_ky_sdt'        => 'SĐT / Zalo',
-        'dang_ky_hon_nhan'   => 'Tình trạng hôn nhân',
-        'dang_ky_so_con'     => 'Số lượng con',
-        'dang_ky_do_tuoi_con'=> 'Độ tuổi các con',
-        'dang_ky_muc_tieu'   => 'Mục tiêu gia nhập',
-        'dang_ky_xac_nhan'   => 'Xác nhận cam kết',
+        'dang_ky_ho_ten'          => 'Họ và tên',
+        'dang_ky_ngay_sinh'       => 'Ngày sinh',
+        'dang_ky_ten_dn'          => 'Tên doanh nghiệp',
+        'dang_ky_nganh_nghe'      => 'Ngành nghề',
+        'dang_ky_chuc_vu'         => 'Chức vụ',
+        'dang_ky_sdt'             => 'SĐT / Zalo',
+        'dang_ky_dia_chi'         => 'Địa chỉ',
+        'dang_ky_email'           => 'Email',
+        'dang_ky_hon_nhan'        => 'Tình trạng hôn nhân',
+        'dang_ky_so_con'          => 'Số lượng con',
+        'dang_ky_do_tuoi_con'     => 'Độ tuổi các con',
+        'dang_ky_muc_tieu'        => 'Mục tiêu gia nhập',
+        'dang_ky_khoa_hoc'        => 'Khóa học thầy Ngô Minh Tuấn',
+        'dang_ky_khoa_hoc_ten'    => 'Chi tiết khóa học',
+        'dang_ky_nguon_tin'       => 'Biết đến cộng đồng qua đâu',
+        'dang_ky_nguon_tin_khac'  => 'Chi tiết nguồn khác',
+        'dang_ky_xac_nhan'        => 'Xác nhận cam kết',
     );
     echo '<table class="widefat striped" style="margin-top:8px;">';
     foreach ($labels as $key => $label) {
@@ -5148,33 +5206,26 @@ function dnttvn_export_dang_ky_csv() {
     $labels = array(
         'Ngày đăng ký',
         'Họ và tên',
+        'Khu vực',
         'Ngày sinh',
         'Tên doanh nghiệp',
         'Ngành nghề',
         'Chức vụ',
         'SĐT / Zalo',
+        'Địa chỉ',
+        'Email',
+        'Ảnh chân dung (URL)',
         'Tình trạng hôn nhân',
         'Số lượng con',
         'Độ tuổi các con',
         'Mục tiêu gia nhập',
+        'Khóa học thầy Ngô Minh Tuấn',
+        'Chi tiết khóa học',
+        'Biết đến cộng đồng qua đâu',
+        'Chi tiết nguồn khác',
         'Xác nhận cam kết',
         'Trạng thái',
         'Lý do',
-    );
-    $meta_keys = array(
-        '_dang_ky_ho_ten',
-        '_dang_ky_ngay_sinh',
-        '_dang_ky_ten_dn',
-        '_dang_ky_nganh_nghe',
-        '_dang_ky_chuc_vu',
-        '_dang_ky_sdt',
-        '_dang_ky_hon_nhan',
-        '_dang_ky_so_con',
-        '_dang_ky_do_tuoi_con',
-        '_dang_ky_muc_tieu',
-        '_dang_ky_xac_nhan',
-        '_dang_ky_status',
-        '_dang_ky_ly_do',
     );
     $filename = 'danh-sach-dang-ky-' . date('Y-m-d-His') . '.csv';
     header('Content-Type: text/csv; charset=UTF-8');
@@ -5186,11 +5237,100 @@ function dnttvn_export_dang_ky_csv() {
     fputcsv($out, $labels);
     foreach ($posts as $post) {
         $row = array(get_the_date('d/m/Y H:i', $post));
-        foreach ($meta_keys as $key) {
-            $val = get_post_meta($post->ID, $key, true);
-            if (is_array($val)) $val = implode(', ', $val);
-            $row[] = $val === '' ? '' : $val;
+        
+        // Họ và tên
+        $row[] = get_post_meta($post->ID, '_dang_ky_ho_ten', true);
+        
+        // Khu vực (Taxonomy)
+        $kv_terms = get_the_terms($post->ID, 'khu_vuc');
+        if ($kv_terms && !is_wp_error($kv_terms)) {
+            $kv_names = wp_list_pluck($kv_terms, 'name');
+            $row[] = implode(', ', $kv_names);
+        } else {
+            $row[] = '';
         }
+        
+        // Ngày sinh
+        $row[] = get_post_meta($post->ID, '_dang_ky_ngay_sinh', true);
+        
+        // Tên doanh nghiệp
+        $row[] = get_post_meta($post->ID, '_dang_ky_ten_dn', true);
+        
+        // Ngành nghề
+        $row[] = get_post_meta($post->ID, '_dang_ky_nganh_nghe', true);
+        
+        // Chức vụ
+        $row[] = get_post_meta($post->ID, '_dang_ky_chuc_vu', true);
+        
+        // SĐT / Zalo
+        $row[] = get_post_meta($post->ID, '_dang_ky_sdt', true);
+
+        // Địa chỉ
+        $row[] = get_post_meta($post->ID, '_dang_ky_dia_chi', true);
+
+        // Email
+        $row[] = get_post_meta($post->ID, '_dang_ky_email', true);
+        
+        // Ảnh chân dung (URL)
+        $portrait_id = get_post_meta($post->ID, '_dang_ky_portrait_id', true);
+        $portrait_url = '';
+        if ($portrait_id) {
+            $portrait_url = wp_get_attachment_url($portrait_id);
+        } else {
+            $portrait_url = get_the_post_thumbnail_url($post->ID, 'full');
+        }
+        $row[] = $portrait_url ? $portrait_url : '';
+        
+        // Tình trạng hôn nhân
+        $row[] = get_post_meta($post->ID, '_dang_ky_hon_nhan', true);
+        
+        // Số lượng con
+        $row[] = get_post_meta($post->ID, '_dang_ky_so_con', true);
+        
+        // Độ tuổi các con
+        $do_tuoi = get_post_meta($post->ID, '_dang_ky_do_tuoi_con', true);
+        if (is_array($do_tuoi)) {
+            $row[] = implode(', ', $do_tuoi);
+        } else {
+            $row[] = $do_tuoi === '' ? '' : $do_tuoi;
+        }
+        
+        // Mục tiêu gia nhập
+        $muc_tieu = get_post_meta($post->ID, '_dang_ky_muc_tieu', true);
+        if (is_array($muc_tieu)) {
+            $row[] = implode(', ', $muc_tieu);
+        } else {
+            $row[] = $muc_tieu === '' ? '' : $muc_tieu;
+        }
+
+        // Khóa học thầy Ngô Minh Tuấn
+        $row[] = get_post_meta($post->ID, '_dang_ky_khoa_hoc', true);
+
+        // Chi tiết khóa học
+        $row[] = get_post_meta($post->ID, '_dang_ky_khoa_hoc_ten', true);
+
+        // Biết đến cộng đồng qua đâu
+        $row[] = get_post_meta($post->ID, '_dang_ky_nguon_tin', true);
+
+        // Chi tiết nguồn khác
+        $row[] = get_post_meta($post->ID, '_dang_ky_nguon_tin_khac', true);
+        
+        // Xác nhận cam kết
+        $row[] = get_post_meta($post->ID, '_dang_ky_xac_nhan', true);
+        
+        // Trạng thái (Việt hóa)
+        $status = get_post_meta($post->ID, '_dang_ky_status', true);
+        if ($status === 'approved') {
+            $row[] = 'Đã duyệt';
+        } elseif ($status === 'rejected') {
+            $row[] = 'Từ chối';
+        } else {
+            $row[] = 'Chờ duyệt';
+        }
+        
+        // Lý do
+        $row[] = get_post_meta($post->ID, '_dang_ky_ly_do', true);
+        
         fputcsv($out, $row);
     }
     fclose($out);

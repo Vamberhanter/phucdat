@@ -4588,7 +4588,7 @@ function dnttvn_handle_dang_ky_form() {
     $muc_tieu = isset($_POST['dang_ky_muc_tieu']) ? $_POST['dang_ky_muc_tieu'] : array();
     $khoa_hoc = isset($_POST['dang_ky_khoa_hoc']) ? sanitize_text_field($_POST['dang_ky_khoa_hoc']) : '';
     $khoa_hoc_ten = isset($_POST['dang_ky_khoa_hoc_ten']) ? sanitize_text_field($_POST['dang_ky_khoa_hoc_ten']) : '';
-    $nguon_tin = isset($_POST['dang_ky_nguon_tin']) ? sanitize_text_field($_POST['dang_ky_nguon_tin']) : '';
+    $nguon_tin = isset($_POST['dang_ky_nguon_tin']) ? $_POST['dang_ky_nguon_tin'] : array();
     $nguon_tin_khac = isset($_POST['dang_ky_nguon_tin_khac']) ? sanitize_text_field($_POST['dang_ky_nguon_tin_khac']) : '';
     $xac_nhan = isset($_POST['dang_ky_xac_nhan']) ? sanitize_text_field($_POST['dang_ky_xac_nhan']) : '';
 
@@ -4618,7 +4618,7 @@ function dnttvn_handle_dang_ky_form() {
     }
 
     // Check conditional require for referral source
-    if ($nguon_tin === 'Khác' && empty($nguon_tin_khac)) {
+    if (is_array($nguon_tin) && in_array('Khác', $nguon_tin, true) && empty($nguon_tin_khac)) {
         return;
     }
 
@@ -4645,7 +4645,7 @@ function dnttvn_handle_dang_ky_form() {
         if ($nganh_raw === '__other__' && isset($_POST['dang_ky_nganh_nghe_khac'])) {
             $nganh_nghe_value = sanitize_text_field($_POST['dang_ky_nganh_nghe_khac']);
             if ($nganh_nghe_value !== '') {
-                $opts = function_exists('dnttvn_get_nganh_nghe_options') ? dnttvn_get_nganh_nghe_options() : array('Sản xuất', 'Dịch vụ', 'Thương mại', 'Công nghệ');
+                $opts = function_exists('dnttvn_get_nganh_nghe_options') ? dnttvn_get_nganh_nghe_options() : array('Sản xuất', 'Dịch vụ', 'Thương mại', 'Công nghệ', 'Bất động sản', 'Tài chính', 'Giáo dục - Đào tạo', 'F&B - Ẩm thực', 'Y tế - Dược', 'Xây dựng', 'Nông nghiệp', 'Logistics');
                 if (!in_array($nganh_nghe_value, $opts, true)) {
                     $opts[] = $nganh_nghe_value;
                     update_option('dnttvn_nganh_nghe_options', array_values(array_unique(array_filter(array_map('trim', $opts)))));
@@ -5037,7 +5037,7 @@ function dnttvn_get_huong_nghiep_chuong_trinh_options() {
  * Lưu tại option `dnttvn_nganh_nghe_options` (array), có migrate từ `dnttvn_nganh_nghe_custom` nếu còn.
  */
 function dnttvn_get_nganh_nghe_options() {
-    $default = array('Sản xuất', 'Dịch vụ', 'Thương mại', 'Công nghệ');
+    $default = array('Sản xuất', 'Dịch vụ', 'Thương mại', 'Công nghệ', 'Bất động sản', 'Tài chính', 'Giáo dục - Đào tạo', 'F&B - Ẩm thực', 'Y tế - Dược', 'Xây dựng', 'Nông nghiệp', 'Logistics');
     $opts = get_option('dnttvn_nganh_nghe_options', array());
     if (!is_array($opts)) $opts = array();
     $opts = array_values(array_filter(array_map('trim', $opts)));
@@ -5310,7 +5310,12 @@ function dnttvn_export_dang_ky_csv() {
         $row[] = get_post_meta($post->ID, '_dang_ky_khoa_hoc_ten', true);
 
         // Biết đến cộng đồng qua đâu
-        $row[] = get_post_meta($post->ID, '_dang_ky_nguon_tin', true);
+        $nguon_tin = get_post_meta($post->ID, '_dang_ky_nguon_tin', true);
+        if (is_array($nguon_tin)) {
+            $row[] = implode(', ', $nguon_tin);
+        } else {
+            $row[] = $nguon_tin === '' ? '' : $nguon_tin;
+        }
 
         // Chi tiết nguồn khác
         $row[] = get_post_meta($post->ID, '_dang_ky_nguon_tin_khac', true);
@@ -7059,7 +7064,7 @@ function dnttvn_nganh_nghe_dang_ky_page() {
     }
 
     $opts_full = function_exists('dnttvn_get_nganh_nghe_options') ? dnttvn_get_nganh_nghe_options() : array();
-    $default   = array('Sản xuất', 'Dịch vụ', 'Thương mại', 'Công nghệ');
+    $default   = array('Sản xuất', 'Dịch vụ', 'Thương mại', 'Công nghệ', 'Bất động sản', 'Tài chính', 'Giáo dục - Đào tạo', 'F&B - Ẩm thực', 'Y tế - Dược', 'Xây dựng', 'Nông nghiệp', 'Logistics');
     $custom_only = array_values(array_diff($opts_full, $default));
     ?>
     <div class="wrap">

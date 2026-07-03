@@ -4329,7 +4329,8 @@ a.business-card-image-link {
     flex-wrap: wrap;
     gap: 12px 24px;
 }
-.dang-ky-options.dang-ky-checkboxes {
+.dang-ky-options.dang-ky-checkboxes,
+.dang-ky-options.dang-ky-column {
     -webkit-box-orient: vertical;
     -webkit-box-direction: normal;
     -webkit-flex-direction: column;

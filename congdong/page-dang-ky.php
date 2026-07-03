@@ -218,7 +218,7 @@ $submitted = isset($_GET['submitted']) && $_GET['submitted'] === '1';
 
                             <div class="dang-ky-field">
                                 <span class="dang-ky-label">15. Bạn đã từng tham gia khóa học nào của thầy Ngô Minh Tuấn chưa? <span class="required">*</span></span>
-                                <div class="dang-ky-options">
+                                <div class="dang-ky-options dang-ky-column">
                                     <label class="dang-ky-option">
                                         <input type="radio" name="dang_ky_khoa_hoc" value="Tôi chưa từng tham gia." required <?php echo (isset($_POST['dang_ky_khoa_hoc']) && $_POST['dang_ky_khoa_hoc'] === 'Tôi chưa từng tham gia.') ? 'checked' : ''; ?>> Tôi chưa từng tham gia.
                                     </label>
@@ -237,22 +237,27 @@ $submitted = isset($_GET['submitted']) && $_GET['submitted'] === '1';
 
                             <div class="dang-ky-field">
                                 <span class="dang-ky-label">16. Bạn biết đến cộng đồng qua đâu? <span class="required">*</span></span>
-                                <div class="dang-ky-options">
+                                <div class="dang-ky-options dang-ky-column">
+                                    <?php
+                                    $saved_nt = isset($_POST['dang_ky_nguon_tin']) && is_array($_POST['dang_ky_nguon_tin']) ? $_POST['dang_ky_nguon_tin'] : array();
+                                    $nt_opts = array(
+                                        'Fanpage Facebook Cộng đồng Doanh nhân Trí tuệ Việt Nam',
+                                        'Tìm kiếm Google',
+                                        'Được bạn bè, đồng nghiệp giới thiệu',
+                                        'Sự kiện / Hội thảo / Webinar (Offline & Online)',
+                                        'Khác',
+                                    );
+                                    foreach ($nt_opts as $opt) :
+                                        $checked = in_array($opt, $saved_nt, true) ? ' checked' : '';
+                                        $label_text = $opt;
+                                        if ($opt === 'Khác') {
+                                            $label_text = 'Khác (Vui lòng điền thông tin bên dưới)';
+                                        }
+                                    ?>
                                     <label class="dang-ky-option">
-                                        <input type="radio" name="dang_ky_nguon_tin" value="Fanpage Facebook Cộng đồng Doanh nhân Trí tuệ Việt Nam" required <?php echo (isset($_POST['dang_ky_nguon_tin']) && $_POST['dang_ky_nguon_tin'] === 'Fanpage Facebook Cộng đồng Doanh nhân Trí tuệ Việt Nam') ? 'checked' : ''; ?>> Fanpage Facebook Cộng đồng Doanh nhân Trí tuệ Việt Nam
+                                        <input type="checkbox" name="dang_ky_nguon_tin[]" value="<?php echo esc_attr($opt); ?>"<?php echo $checked; ?>> <?php echo esc_html($label_text); ?>
                                     </label>
-                                    <label class="dang-ky-option">
-                                        <input type="radio" name="dang_ky_nguon_tin" value="Tìm kiếm Google" required <?php echo (isset($_POST['dang_ky_nguon_tin']) && $_POST['dang_ky_nguon_tin'] === 'Tìm kiếm Google') ? 'checked' : ''; ?>> Tìm kiếm Google
-                                    </label>
-                                    <label class="dang-ky-option">
-                                        <input type="radio" name="dang_ky_nguon_tin" value="Được bạn bè, đồng nghiệp giới thiệu" required <?php echo (isset($_POST['dang_ky_nguon_tin']) && $_POST['dang_ky_nguon_tin'] === 'Được bạn bè, đồng nghiệp giới thiệu') ? 'checked' : ''; ?>> Được bạn bè, đồng nghiệp giới thiệu
-                                    </label>
-                                    <label class="dang-ky-option">
-                                        <input type="radio" name="dang_ky_nguon_tin" value="Sự kiện / Hội thảo / Webinar (Offline & Online)" required <?php echo (isset($_POST['dang_ky_nguon_tin']) && $_POST['dang_ky_nguon_tin'] === 'Sự kiện / Hội thảo / Webinar (Offline & Online)') ? 'checked' : ''; ?>> Sự kiện / Hội thảo / Webinar (Offline & Online)
-                                    </label>
-                                    <label class="dang-ky-option">
-                                        <input type="radio" name="dang_ky_nguon_tin" value="Khác" required <?php echo (isset($_POST['dang_ky_nguon_tin']) && $_POST['dang_ky_nguon_tin'] === 'Khác') ? 'checked' : ''; ?>> Khác (Vui lòng điền thông tin bên dưới)
-                                    </label>
+                                    <?php endforeach; ?>
                                 </div>
                                 <div id="dang_ky_nguon_tin_khac_wrap" class="dang-ky-nganh-nghe-khac-wrap" style="display:none; margin-top: 8px;">
                                     <label for="dang_ky_nguon_tin_khac" class="dang-ky-inline-label">Thông tin chi tiết: <span class="required">*</span></label>
@@ -394,27 +399,37 @@ $submitted = isset($_GET['submitted']) && $_GET['submitted'] === '1';
         toggleKH();
     }
 
-    // 5. Toggle required field for Biết đến cộng đồng
-    var ntRadios = document.querySelectorAll('input[name="dang_ky_nguon_tin"]');
+    // 5. Validate Referral Source checkboxes (at least one must be checked) & Toggle required field
+    var ntCheckboxes = document.querySelectorAll('input[name="dang_ky_nguon_tin[]"]');
     var ntWrap = document.getElementById('dang_ky_nguon_tin_khac_wrap');
     var ntInput = document.getElementById('dang_ky_nguon_tin_khac');
     
-    function toggleNT() {
-        if (!ntWrap || !ntInput) return;
-        var checkedRadio = Array.from(ntRadios).find(function(r) { return r.checked; });
-        if (checkedRadio && checkedRadio.value === 'Khác') {
-            ntWrap.style.display = 'block';
-            ntInput.setAttribute('required', 'required');
+    function validateNguonTin() {
+        if (ntCheckboxes.length === 0) return;
+        var checkedCount = Array.from(ntCheckboxes).filter(function(cb) { return cb.checked; }).length;
+        if (checkedCount === 0) {
+            ntCheckboxes[0].setCustomValidity('Vui lòng chọn ít nhất một nguồn tin.');
         } else {
-            ntWrap.style.display = 'none';
-            ntInput.removeAttribute('required');
+            ntCheckboxes.forEach(function(cb) { cb.setCustomValidity(''); });
+        }
+        
+        // Toggle required for "Khác"
+        if (ntWrap && ntInput) {
+            var isKhacChecked = Array.from(ntCheckboxes).some(function(cb) { return cb.checked && cb.value === 'Khác'; });
+            if (isKhacChecked) {
+                ntWrap.style.display = 'block';
+                ntInput.setAttribute('required', 'required');
+            } else {
+                ntWrap.style.display = 'none';
+                ntInput.removeAttribute('required');
+            }
         }
     }
-    if (ntRadios.length > 0) {
-        ntRadios.forEach(function(r) {
-            r.addEventListener('change', toggleNT);
+    if (ntCheckboxes.length > 0) {
+        ntCheckboxes.forEach(function(cb) {
+            cb.addEventListener('change', validateNguonTin);
         });
-        toggleNT();
+        validateNguonTin();
     }
 })();
 </script>

@@ -181,7 +181,14 @@ $submitted = isset($_GET['submitted']) && $_GET['submitted'] === '1';
                                 <span class="dang-ky-label">13. Độ tuổi của các con <span class="required" id="dang_ky_do_tuoi_con_required_star" style="display:none;">*</span></span>
                                 <div class="dang-ky-options dang-ky-checkboxes">
                                     <?php
-                                    $do_tuoi_opts = array('Dưới THCS' => 'duoi_thcs', 'THCS' => 'thcs', 'THPT' => 'thpt', 'SV' => 'sv', 'Đã đi làm' => 'da_di_lam');
+                                    $do_tuoi_opts = array(
+                                        'Mẫu giáo' => 'Mẫu giáo',
+                                        'Tiểu học' => 'Tiểu học',
+                                        'THCS' => 'THCS',
+                                        'THPT' => 'THPT',
+                                        'Sinh viên' => 'Sinh viên',
+                                        'Đã đi làm' => 'Đã đi làm'
+                                    );
                                     $saved_con = isset($_POST['dang_ky_do_tuoi_con']) && is_array($_POST['dang_ky_do_tuoi_con']) ? $_POST['dang_ky_do_tuoi_con'] : array();
                                     foreach ($do_tuoi_opts as $label => $val) :
                                         $checked = in_array($val, $saved_con, true) ? ' checked' : '';

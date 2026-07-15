@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Phúc Đạt — Tủ Bếp Công Nghệ</title>
+  <meta name="description" content="Phúc Đạt — Kiến tạo không gian bếp thông minh bằng công nghệ hiện đại, vật liệu cao cấp và giải pháp thiết kế tối ưu.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- ========== HEADER ========== -->
+  <header class="site-header" id="siteHeader">
+    <div class="container header__inner">
+      <a href="#hero" class="brand" aria-label="Phúc Đạt — Tủ Bếp Công Nghệ">
+        <span class="brand__mark" aria-hidden="true">
+          <!-- Chữ P đặc biệt: khối mono + nét đôi + highlight -->
+          <svg class="brand__icon" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <defs>
+              <linearGradient id="pGrad" x1="8" y1="4" x2="56" y2="60" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#FFFFFF"/>
+                <stop offset="55%" stop-color="#E8F1FF"/>
+                <stop offset="100%" stop-color="#9CC2FF"/>
+              </linearGradient>
+              <linearGradient id="pGlow" x1="20" y1="8" x2="44" y2="36" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#2AA8FF" stop-opacity=".55"/>
+                <stop offset="100%" stop-color="#2AA8FF" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <!-- Soft glow behind mark -->
+            <circle cx="32" cy="30" r="22" fill="url(#pGlow)"/>
+            <!-- Outer rounded plate -->
+            <rect x="4" y="4" width="56" height="56" rx="16" fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.22)" stroke-width="1.2"/>
+            <!-- Custom double-stroke P -->
+            <path fill="url(#pGrad)" fill-rule="evenodd" d="M18 14h16.5c9.1 0 16.5 7.2 16.5 16.1S43.6 46.2 34.5 46.2H27.2V50c0 1.1-.9 2-2 2h-3.6c-1.1 0-2-.9-2-2V16c0-1.1.9-2 2-2H18zm9.2 7.2v17.8h7.3c5.1 0 9.3-4 9.3-8.9s-4.2-8.9-9.3-8.9h-7.3zm4.6 4.4v9h2.7c2.3 0 4.2-1.8 4.2-4.5s-1.9-4.5-4.2-4.5h-2.7z"/>
+            <!-- Accent notch — điểm nhấn công nghệ -->
+            <rect x="41.5" y="27" width="3.2" height="10" rx="1.6" fill="#2AA8FF"/>
+          </svg>
+        </span>
+        <span class="brand__text">
+          <span class="brand__name">PHÚC ĐẠT</span>
+          <span class="brand__tagline"><i></i>TỦ BẾP CÔNG NGHỆ<i></i></span>
+        </span>
+      </a>
+
+      <nav class="nav" id="mainNav" aria-label="Menu chính">
+        <a href="#products" class="nav__link">Đăng ký báo giá</a>
+        <a href="#video" class="nav__link">Video bàn giao</a>
+        <a href="#accessories" class="nav__link">Phụ kiện thông minh</a>
+        <a href="#glass" class="nav__link">Các mẫu tủ bếp</a>
+
+        <div class="nav__item nav__item--drop" id="doorsMenu">
+          <button
+            type="button"
+            class="nav__link nav__trigger"
+            id="doorsTrigger"
+            aria-expanded="false"
+            aria-controls="doorsPanel"
+            aria-haspopup="true"
+          >
+            Cửa
+            <svg class="nav__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path d="M6 9l6 6 6-6"/>
+            </svg>
+          </button>
+          <div class="nav-drop" id="doorsPanel" hidden>
+            <a href="#cua-di" class="nav-drop__link">Cửa đi</a>
+            <a href="#cua-so" class="nav-drop__link">Cửa sổ</a>
+            <a href="#cua-phong" class="nav-drop__link">Cửa phòng</a>
+          </div>
+        </div>
+      </nav>
+
+      <div class="header__actions">
+        <a href="#products" class="btn btn--header">Báo giá</a>
+      </div>
+
+      <button class="menu-toggle" id="menuToggle" aria-label="Mở menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- ========== HERO ========== -->
+    <section class="hero" id="hero">
+      <div class="hero__bg" aria-hidden="true">
+        <img
+          class="hero__bg-img"
+          src="assets/hero-banner.png"
+          alt=""
+          width="1920"
+          height="800"
+          fetchpriority="high"
+        >
+        <div class="hero__bg-shade"></div>
+      </div>
+      <div class="container hero__grid">
+        <div class="hero__content">
+          <p class="eyebrow">Công nghệ · Vật liệu · Thiết kế</p>
+          <h1 class="hero__title">TỦ BẾP NHÔM KÍNH<br><span>PHÚC ĐẠT</span></h1>
+          <p class="hero__desc">Kiến tạo không gian bếp thông minh bằng công nghệ hiện đại, vật liệu cao cấp và giải pháp thiết kế tối ưu.</p>
+          <p class="hero__promise">Chúng tôi không chỉ bán sản phẩm mà còn mang lại sự bình yên cho khách hàng</p>
+          <ul class="hero__features">
+            <li>
+              <span class="hero__feat-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 18V6h16v12"/><path d="M8 14l2.5-3 2 2L16.5 9"/><circle cx="9.5" cy="9.5" r="1"/></svg>
+              </span>
+              Thiết kế 3D
+            </li>
+            <li>
+              <span class="hero__feat-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 21h18"/><path d="M5 21V8l7-4 7 4v13"/><path d="M9 21v-6h6v6"/></svg>
+              </span>
+              Thi công trọn gói
+            </li>
+            <li>
+              <span class="hero__feat-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3l8 4v5c0 5-3.5 8.5-8 9.5C7.5 20.5 4 17 4 12V7l8-4z"/><path d="M9 12l2 2 4-4"/></svg>
+              </span>
+              Bảo hành dài hạn
+            </li>
+            <li>
+              <span class="hero__feat-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="3"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+              </span>
+              Công nghệ hiện đại
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== WHY ========== -->
+    <section class="section why" id="why">
+      <div class="why__atmosphere" aria-hidden="true">
+        <img src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1800&q=80" alt="" loading="lazy" width="1800" height="1000">
+      </div>
+      <div class="container why__inner">
+        <header class="section__head why__head">
+          <p class="eyebrow eyebrow--blue">Cam kết đồng hành</p>
+          <h2 class="section__title">Giá trị nhận được khi làm việc với chúng tôi</h2>
+        </header>
+
+        <div class="why__layout">
+          <div class="why__copy">
+            <div class="why__warranty">
+              <span class="why__badge" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                  <path d="M20 6L9 17l-5-5"/>
+                </svg>
+              </span>
+              <div class="why__warranty-text">
+                <span class="why__warranty-label">Bảo trì đến</span>
+                <strong class="why__warranty-years">10 năm</strong>
+              </div>
+            </div>
+
+            <p class="why__trust">Giá trị được hơn <strong>10.000</strong> khách hàng công nhận</p>
+
+            <ul class="why__list">
+              <li>
+                <span class="why__check" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 6L9 17l-5-5"/></svg>
+                </span>
+                Sản phẩm đúng cam kết
+              </li>
+              <li>
+                <span class="why__check" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 6L9 17l-5-5"/></svg>
+                </span>
+                Dịch vụ tận tâm
+              </li>
+              <li>
+                <span class="why__check" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 6L9 17l-5-5"/></svg>
+                </span>
+                Đội ngũ được đào tạo bài bản
+              </li>
+            </ul>
+
+            <p class="why__quote">Chúng tôi không chỉ bán sản phẩm mà còn mang lại sự bình yên cho khách hàng</p>
+          </div>
+
+          <figure class="why__media">
+            <div class="why__frame">
+              <iframe
+                src="https://www.youtube.com/embed/PVCCU5eX2Yg"
+                title="REVIEW MẪU TỦ BẾP NHÔM CÁNH KÍNH ĐẸP - HIỆN ĐẠI - TIỆN NGHI 2025"
+                loading="lazy"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                referrerpolicy="strict-origin-when-cross-origin"
+                allowfullscreen></iframe>
+            </div>
+            <figcaption class="why__caption">Tủ bếp nhôm kính · Showroom Phúc Đạt</figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ========== ƯU ĐIỂM TỦ BẾP NHÔM KÍNH ========== -->
+    <section class="section advantages" id="lines">
+      <div class="advantages__bg" aria-hidden="true"></div>
+      <div class="container advantages__inner">
+        <header class="advantages__head">
+          <p class="advantages__eyebrow">Tủ bếp nhôm kính</p>
+          <h2 class="advantages__title">
+            Là tủ bếp cao cấp nhất hiện nay
+          </h2>
+          <p class="advantages__lead">Và sở hữu những ưu điểm vượt trội:</p>
+        </header>
+
+        <ul class="advantages__grid">
+          <li class="advantages__item">
+            <span class="advantages__num" aria-hidden="true">1</span>
+            <p>Độ bền cao đến <strong>35 năm</strong></p>
+          </li>
+          <li class="advantages__item">
+            <span class="advantages__num" aria-hidden="true">2</span>
+            <p>Chống cháy, chống thấm nước</p>
+          </li>
+          <li class="advantages__item">
+            <span class="advantages__num" aria-hidden="true">3</span>
+            <p>Dễ lau chùi, không chứa formaldehyde — an toàn với sức khỏe</p>
+          </li>
+          <li class="advantages__item">
+            <span class="advantages__num" aria-hidden="true">4</span>
+            <p>Chống va đập, không bị cong vênh, biến dạng</p>
+          </li>
+          <li class="advantages__item">
+            <span class="advantages__num" aria-hidden="true">5</span>
+            <p>Thiết kế đẹp, hiện đại, màu sắc đa dạng</p>
+          </li>
+          <li class="advantages__item">
+            <span class="advantages__num" aria-hidden="true">6</span>
+            <p>Sáng bóng, tăng độ thẩm mỹ cao</p>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ========== ĐĂNG KÝ NHẬN BÁO GIÁ ========== -->
+    <section class="section quote" id="products">
+      <div class="container quote__layout">
+        <figure class="quote__media">
+          <div class="quote__photo">
+            <img
+              src="assets/images/quote-showroom.png"
+              alt="Tủ bếp nhôm kính chữ I có bàn đảo — Showroom Phúc Đạt"
+              loading="eager"
+              decoding="async"
+              width="935"
+              height="1024"
+            >
+          </div>
+          <figcaption class="quote__caption">Tủ bếp Nhôm Kính chữ I có bàn đảo</figcaption>
+        </figure>
+
+        <div class="quote__panel">
+          <header class="quote__head">
+            <h2 class="quote__title">Đăng ký nhận báo giá</h2>
+            <p class="quote__desc">Quý khách vui lòng để lại thông tin, Phúc Đạt sẽ liên hệ tư vấn và gửi báo giá phù hợp nhất.</p>
+          </header>
+
+          <form class="quote__form" id="quoteForm" novalidate>
+            <div class="quote-field">
+              <label class="visually-hidden" for="quoteName">Họ và tên</label>
+              <input type="text" id="quoteName" name="name" placeholder="Họ và tên" required autocomplete="name">
+            </div>
+            <div class="quote-field">
+              <label class="visually-hidden" for="quotePhone">Số điện thoại</label>
+              <input type="tel" id="quotePhone" name="phone" placeholder="Số điện thoại" required autocomplete="tel">
+            </div>
+            <div class="quote-field">
+              <label class="visually-hidden" for="quoteEmail">Email</label>
+              <input type="email" id="quoteEmail" name="email" placeholder="Email" autocomplete="email">
+            </div>
+            <div class="quote-field">
+              <label class="visually-hidden" for="quoteAddress">Địa chỉ</label>
+              <input type="text" id="quoteAddress" name="address" placeholder="Địa chỉ" autocomplete="street-address">
+            </div>
+            <div class="quote-field quote-field--select">
+              <label class="visually-hidden" for="quoteProduct">Chọn sản phẩm</label>
+              <select id="quoteProduct" name="product" required>
+                <option value="" selected disabled>Chọn sản phẩm</option>
+                <option value="kinh-son-tinh-dien">Tủ bếp kính màu sơn tĩnh điện</option>
+                <option value="hop-kim-canh-kinh">Tủ bếp hợp kim Nhôm cánh kính</option>
+                <option value="nhom-omega">Tủ bếp Nhôm Omega</option>
+                <option value="nhom-gia-go">Tủ bếp Nhôm giả gỗ</option>
+                <option value="nhom-canh-kinh">Tủ bếp Nhôm cánh kính</option>
+                <option value="nhom-dan-film">Tủ bếp bằng nhôm kính dán film</option>
+              </select>
+            </div>
+            <button type="submit" class="quote__submit">Gửi</button>
+            <p class="quote__note" id="quoteNote" hidden>Cảm ơn bạn! Chúng tôi sẽ liên hệ sớm nhất.</p>
+          </form>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ========== 6 DÒNG TỦ BẾP NHÔM ========== -->
+    <section class="section kitchen-lines" id="aluminum">
+      <div class="container">
+        <header class="kitchen-lines__head">
+          <h2 class="kitchen-lines__title">
+            Thiết kế theo nhu cầu, đa dạng màu sắc,<br>
+            kiểu dáng phù hợp với ngôi nhà của bạn
+          </h2>
+          <p class="kitchen-lines__lead">Với 6 dòng tủ bếp nhôm như sau:</p>
+        </header>
+
+        <div class="kitchen-lines__grid">
+          <article class="kline-card">
+            <div class="kline-card__copy">
+              <h3>Tủ bếp nhôm kính màu sơn tĩnh điện</h3>
+              <p>Sử dụng khung bếp bằng Nhôm cao cấp và cánh được làm bằng kính sơn có nhiều màu lựa chọn</p>
+            </div>
+            <div class="kline-card__media">
+              <img src="https://images.unsplash.com/photo-1556912173-46c336c7fd55?auto=format&fit=crop&w=900&q=80" alt="Tủ bếp nhôm kính màu sơn tĩnh điện" loading="lazy" width="600" height="400">
+            </div>
+          </article>
+
+          <article class="kline-card">
+            <div class="kline-card__copy">
+              <h3>Tủ bếp hợp kim Nhôm cánh kính</h3>
+              <p>Sản phẩm được lắp đặt từ các tấm hợp kim nhôm với 30 màu tủ từ giả gỗ đến xước kim loại…</p>
+            </div>
+            <div class="kline-card__media">
+              <img src="https://images.unsplash.com/photo-1556911220-bff31c812dba?auto=format&fit=crop&w=900&q=80" alt="Tủ bếp hợp kim Nhôm cánh kính" loading="lazy" width="600" height="400">
+            </div>
+          </article>
+
+          <article class="kline-card">
+            <div class="kline-card__copy">
+              <h3>Tủ bếp nhôm Omega cao cấp</h3>
+              <p>Đây là một dòng tủ bếp hot nhất những năm gần đây vì giống gỗ thật đến 95%</p>
+            </div>
+            <div class="kline-card__media">
+              <img src="https://images.unsplash.com/photo-1600489000022-c2086d79f9d4?auto=format&fit=crop&w=900&q=80" alt="Tủ bếp nhôm Omega cao cấp" loading="lazy" width="600" height="400">
+            </div>
+          </article>
+
+          <article class="kline-card">
+            <div class="kline-card__copy">
+              <h3>Tủ bếp bằng nhôm kính dán film</h3>
+              <p>Sử dụng khung bếp bằng Nhôm cao cấp và kính ốp cánh tủ sử dụng kính dán film cao cấp &amp; đảm bảo an toàn</p>
+            </div>
+            <div class="kline-card__media">
+              <img src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?auto=format&fit=crop&w=900&q=80" alt="Tủ bếp bằng nhôm kính dán film" loading="lazy" width="600" height="400">
+            </div>
+          </article>
+
+          <article class="kline-card">
+            <div class="kline-card__copy">
+              <h3>Tủ bếp nhôm kính giả gỗ</h3>
+              <p>Là dòng sản phẩm nổi bật nhất với chất lượng hoàn thiện gần như tuyệt đối, độ bền cao và ngoại hình giống tủ bếp gỗ tự nhiên</p>
+            </div>
+            <div class="kline-card__media">
+              <img src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=900&q=80" alt="Tủ bếp nhôm kính giả gỗ" loading="lazy" width="600" height="400">
+            </div>
+          </article>
+
+          <article class="kline-card">
+            <div class="kline-card__copy">
+              <h3>Tủ bếp nhôm cánh kính</h3>
+              <p>Sử dụng khung bếp bằng Nhôm cao cấp và cánh được làm bằng kính cường lực</p>
+            </div>
+            <div class="kline-card__media">
+              <img src="https://images.unsplash.com/photo-1565183928294-7063f23ce0f8?auto=format&fit=crop&w=900&q=80" alt="Tủ bếp nhôm cánh kính" loading="lazy" width="600" height="400">
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <span id="cua-di" class="visually-hidden" aria-hidden="true"></span>
+    <span id="cua-so" class="visually-hidden" aria-hidden="true"></span>
+    <span id="cua-phong" class="visually-hidden" aria-hidden="true"></span>
+
+    <!-- ========== CÁC MẪU TỦ BẾP TẠI PHÚC ĐẠT ========== -->
+    <section class="section kitchen-gallery" id="glass">
+      <div class="kitchen-gallery__bg" aria-hidden="true"></div>
+      <div class="container kitchen-gallery__inner">
+        <header class="kitchen-gallery__head">
+          <h2 class="kitchen-gallery__title">Các mẫu tủ bếp tại Phúc Đạt</h2>
+          <p class="kitchen-gallery__lead">Các mẫu tủ bếp được Phúc Đạt thiết kế, sản xuất, lắp đặt</p>
+        </header>
+
+        <div class="kitchen-gallery__grid">
+          <article class="kgallery-card">
+            <h3 class="kgallery-card__name">Tủ bếp có quầy bar và bàn đảo</h3>
+            <div
+              class="kgallery-card__slider"
+              data-slider
+              data-desktop="1"
+              data-tablet="1"
+              data-mobile="1"
+            >
+              <div class="kgallery-card__media">
+                <img src="https://images.unsplash.com/photo-1556912173-46c336c7fd55?auto=format&fit=crop&w=1000&q=80" alt="Tủ bếp có quầy bar và bàn đảo" loading="lazy" width="700" height="480">
+              </div>
+              <div class="kgallery-card__media">
+                <img src="https://images.unsplash.com/photo-1600489000022-c2086d79f9d4?auto=format&fit=crop&w=1000&q=80" alt="Tủ bếp có quầy bar và bàn đảo — mẫu 2" loading="lazy" width="700" height="480">
+              </div>
+            </div>
+          </article>
+
+          <article class="kgallery-card">
+            <h3 class="kgallery-card__name">Tủ bếp chữ L và chữ U</h3>
+            <div
+              class="kgallery-card__slider"
+              data-slider
+              data-desktop="1"
+              data-tablet="1"
+              data-mobile="1"
+            >
+              <div class="kgallery-card__media">
+                <img src="https://images.unsplash.com/photo-1556911220-bff31c812dba?auto=format&fit=crop&w=1000&q=80" alt="Tủ bếp chữ L và chữ U" loading="lazy" width="700" height="480">
+              </div>
+              <div class="kgallery-card__media">
+                <img src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?auto=format&fit=crop&w=1000&q=80" alt="Tủ bếp chữ L và chữ U — mẫu 2" loading="lazy" width="700" height="480">
+              </div>
+            </div>
+          </article>
+
+          <article class="kgallery-card">
+            <h3 class="kgallery-card__name">Tủ bếp chữ I cho không gian bếp nhỏ</h3>
+            <div
+              class="kgallery-card__slider"
+              data-slider
+              data-desktop="1"
+              data-tablet="1"
+              data-mobile="1"
+            >
+              <div class="kgallery-card__media">
+                <img src="assets/images/quote-showroom.png" alt="Tủ bếp chữ I cho không gian bếp nhỏ" loading="lazy" width="700" height="480">
+              </div>
+              <div class="kgallery-card__media">
+                <img src="https://images.unsplash.com/photo-1565183928294-7063f23ce0f8?auto=format&fit=crop&w=1000&q=80" alt="Tủ bếp chữ I — mẫu 2" loading="lazy" width="700" height="480">
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ========== SHOWROOM & LẮP ĐẶT ========== -->
+    <section class="section showroom" id="projects">
+      <div class="showroom__atmosphere" aria-hidden="true"></div>
+      <div class="container showroom__wrap">
+        <div class="showroom__grid">
+          <article class="showroom-card">
+            <header class="showroom-card__head">
+              <h2 class="showroom-card__title">Showroom TP. HCM</h2>
+              <p class="showroom-card__meta">Địa chỉ: 480/3 Tân Kỳ Tân Quý, P. Tân Sơn Nhì, Tp.HCM</p>
+            </header>
+            <div class="showroom-card__frame">
+              <iframe
+                src="https://www.youtube.com/embed/6M0VH05zV7I"
+                title="GIỚI THIỆU MẪU TỦ BẾP NHÔM THÔNG MINH TẠI SHOWROOM PHÚC ĐẠT"
+                loading="lazy"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                referrerpolicy="strict-origin-when-cross-origin"
+                allowfullscreen></iframe>
+            </div>
+          </article>
+
+          <article class="showroom-card">
+            <header class="showroom-card__head">
+              <h2 class="showroom-card__title">Dịch vụ lắp đặt tủ bếp nhôm kính Phúc Đạt</h2>
+              <p class="showroom-card__meta">Đội ngũ thi công - lắp đặt chuyên nghiệp, tay nghề cao</p>
+            </header>
+            <div class="showroom-card__frame">
+              <iframe
+                src="https://www.youtube.com/embed/YQCuz8WqzKc"
+                title="TRẢI NGHIỆM DỊCH VỤ LẮP ĐẶT TỦ BẾP NHÔM KÍNH PHÚC ĐẠT"
+                loading="lazy"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                referrerpolicy="strict-origin-when-cross-origin"
+                allowfullscreen></iframe>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== VIDEO BÀN GIAO ========== -->
+    <section class="section handover" id="video">
+      <div class="container handover__inner">
+        <header class="handover__head">
+          <h2 class="handover__title">Video bàn giao – phản hồi tủ bếp thực tế</h2>
+        </header>
+
+        <div class="handover__grid">
+          <article class="handover-card">
+            <div class="handover-card__media">
+              <iframe
+                src="https://www.youtube.com/embed/sAYv8TAEsKQ"
+                title="BÀN GIAO TỦ BẾP HỢP KIM NHÔM SANG TRỌNG - HIỆN ĐẠI CHO KHÁCH HÀNG TẠI QUẬN 7, HCM"
+                loading="lazy"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                referrerpolicy="strict-origin-when-cross-origin"
+                allowfullscreen></iframe>
+            </div>
+            <p class="handover-card__caption">Tủ bếp hợp kim nhôm sang trọng, cao cấp tại Q.7</p>
+          </article>
+
+          <article class="handover-card">
+            <div class="handover-card__media">
+              <iframe
+                src="https://www.youtube.com/embed/9fcFMBHFptI"
+                title="REVIEW TỦ BẾP NHÔM CỰC HOT TẠI NHÀ PHỐ TÂN PHÚ - TP.HCM"
+                loading="lazy"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                referrerpolicy="strict-origin-when-cross-origin"
+                allowfullscreen></iframe>
+            </div>
+            <p class="handover-card__caption">Tủ bếp nhôm hợp kim cao cấp cho khách hàng tại Tân Phú - Tp.HCM</p>
+          </article>
+
+          <article class="handover-card">
+            <div class="handover-card__media">
+              <iframe
+                src="https://www.youtube.com/embed/yqdfMdS6WaQ"
+                title="Tại sao khách hàng lại lựa chọn Tủ Bếp Nhôm Phúc Đạt?"
+                loading="lazy"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                referrerpolicy="strict-origin-when-cross-origin"
+                allowfullscreen></iframe>
+            </div>
+            <p class="handover-card__caption">Tại sao khách hàng lại lựa chọn Tủ Bếp Nhôm Phúc Đạt?</p>
+          </article>
+
+          <article class="handover-card">
+            <div class="handover-card__media">
+              <iframe
+                src="https://www.youtube.com/embed/N93MZP0j_fM"
+                title="Tủ bếp nhôm hợp kim và những lợi ích bạn không thể bỏ qua"
+                loading="lazy"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                referrerpolicy="strict-origin-when-cross-origin"
+                allowfullscreen></iframe>
+            </div>
+            <p class="handover-card__caption">Tủ bếp nhôm hợp kim – cánh kính cao cấp. Công trình: cô Phụng, quận Gò Vấp</p>
+          </article>
+
+          <article class="handover-card">
+            <a
+              class="handover-card__media"
+              href="https://www.youtube.com/watch?v=2BEZgCoDRgw"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Xem trên YouTube: 1 ngày lắp đặt tủ bếp tại Quận 11"
+            >
+              <img
+                src="https://img.youtube.com/vi/2BEZgCoDRgw/hqdefault.jpg"
+                alt="1 ngày lắp đặt tủ bếp nhôm tại Quận 11"
+                loading="lazy"
+                width="480"
+                height="270"
+              >
+              <span class="handover-card__play" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+              </span>
+            </a>
+            <p class="handover-card__caption">Trải nghiệm 1 ngày làm việc của đội ngũ lắp đặt Phúc Đạt - Quận 11</p>
+          </article>
+
+          <article class="handover-card">
+            <div class="handover-card__media">
+              <iframe
+                src="https://www.youtube.com/embed/Am0Jde-TRP8"
+                title="PHẢN HỒI CỦA KHÁCH HÀNG SAU KHI NHẬN BÀN GIAO TỦ BẾP PHÚC ĐẠT (Công trình chú Dũng –Tân Phú, TP.HCM)"
+                loading="lazy"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                referrerpolicy="strict-origin-when-cross-origin"
+                allowfullscreen></iframe>
+            </div>
+            <p class="handover-card__caption">Feedback của khách hàng sau khi nhận bàn giao tủ bếp</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== THIẾT BỊ TỦ BẾP THÔNG MINH ========== -->
+    <section class="section smart-gear" id="accessories">
+      <div class="container smart-gear__inner">
+        <header class="smart-gear__head">
+          <h2 class="smart-gear__title">Thiết bị tủ bếp thông minh</h2>
+          <p class="smart-gear__lead">Đem lại những tiện ích tối ưu cho căn bếp của bạn</p>
+        </header>
+
+        <div class="smart-gear__layout">
+          <ul class="smart-gear__list">
+            <li>
+              <span class="smart-gear__check" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6L9 17l-5-5"/></svg>
+              </span>
+              Giá bát nâng hạ tự động inox 304 chống gỉ
+            </li>
+            <li>
+              <span class="smart-gear__check" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6L9 17l-5-5"/></svg>
+              </span>
+              Máy hút mùi cảm ứng vân tay Häfele
+            </li>
+            <li>
+              <span class="smart-gear__check" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6L9 17l-5-5"/></svg>
+              </span>
+              Giá xoong nồi, chén, đũa, muỗng…
+            </li>
+            <li>
+              <span class="smart-gear__check" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6L9 17l-5-5"/></svg>
+              </span>
+              Giá dao thớt thiết kế đa năng tiện lợi
+            </li>
+            <li>
+              <span class="smart-gear__check" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6L9 17l-5-5"/></svg>
+              </span>
+              Thùng gạo thông minh, thùng rác…
+            </li>
+            <li>
+              <span class="smart-gear__check" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6L9 17l-5-5"/></svg>
+              </span>
+              Máy rửa chén Bosch
+            </li>
+            <li>
+              <span class="smart-gear__check" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6L9 17l-5-5"/></svg>
+              </span>
+              Lò nướng âm tủ, lò vi sóng…
+            </li>
+          </ul>
+
+          <figure class="smart-gear__media">
+            <div class="smart-gear__frame">
+              <iframe
+                src="https://www.youtube.com/embed/9fcFMBHFptI"
+                title="REVIEW TỦ BẾP NHÔM CỰC HOT TẠI NHÀ PHỐ TÂN PHÚ - TP.HCM"
+                loading="lazy"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                referrerpolicy="strict-origin-when-cross-origin"
+                allowfullscreen></iframe>
+            </div>
+            <figcaption class="smart-gear__caption">
+              Video Phúc Đạt ghé thăm công trình tủ bếp nhôm hợp kim sau 2 năm sử dụng của khách hàng
+            </figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== TẠI SAO CHỌN PHÚC ĐẠT ========== -->
+    <section class="section why-choose" id="partners">
+      <div class="why-choose__bg" aria-hidden="true"></div>
+      <div class="container why-choose__inner">
+        <header class="why-choose__head">
+          <h2 class="why-choose__title">Tại sao chọn Phúc Đạt thi công tủ bếp</h2>
+          <p class="why-choose__lead">Phúc Đạt là công ty chuyên sản xuất – thi công lắp đặt tủ bếp uy tín trên toàn quốc</p>
+        </header>
+
+        <div class="why-choose__grid">
+          <article class="why-choose-card">
+            <span class="why-choose-card__num" aria-hidden="true">1</span>
+            <p>Sở hữu xưởng sản xuất, máy móc công nghệ hiện đại, tiên tiến. <strong>KHÔNG</strong> qua trung gian.</p>
+          </article>
+          <article class="why-choose-card">
+            <span class="why-choose-card__num" aria-hidden="true">2</span>
+            <p>Các chi nhánh, nhà xưởng lắp đặt phủ sóng trên toàn quốc.</p>
+          </article>
+          <article class="why-choose-card">
+            <span class="why-choose-card__num" aria-hidden="true">3</span>
+            <p>Trên 10 năm kinh nghiệm trong thi công và lắp đặt tủ bếp nhôm kính.</p>
+          </article>
+          <article class="why-choose-card">
+            <span class="why-choose-card__num" aria-hidden="true">4</span>
+            <p>Cam kết hàng chính hãng, bảo trì nhanh chóng.</p>
+          </article>
+          <article class="why-choose-card">
+            <span class="why-choose-card__num" aria-hidden="true">5</span>
+            <p>Thiết kế và sản xuất tủ bếp theo từng yêu cầu của khách hàng. Chính vì thế, sản phẩm của Phúc Đạt luôn có sự khác biệt và mới lạ.</p>
+          </article>
+          <article class="why-choose-card">
+            <span class="why-choose-card__num" aria-hidden="true">6</span>
+            <p>Đội ngũ chuyên gia tư vấn, sản xuất, lắp đặt được đào tạo bài bản.</p>
+          </article>
+        </div>
+
+        <div class="why-choose__gallery">
+          <div class="why-choose__photos">
+            <img src="https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=600&q=80" alt="Đào tạo đội ngũ Phúc Đạt" loading="lazy" width="400" height="260">
+            <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=600&q=80" alt="Buổi đào tạo kỹ thuật tại Phúc Đạt" loading="lazy" width="400" height="260">
+            <img src="https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&w=600&q=80" alt="Nâng cao kiến thức đội ngũ nhân viên" loading="lazy" width="400" height="260">
+          </div>
+          <p class="why-choose__gallery-caption">Đội ngũ nhân viên tại Phúc Đạt được đào tạo bài bản và nâng cao kiến thức thường xuyên</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== TỦ BẾP HỢP KIM NHÔM CÁNH KÍNH ========== -->
+    <section class="section alloy-intro" id="certs">
+      <div class="alloy-intro__bg" aria-hidden="true"></div>
+      <div class="container alloy-intro__inner">
+        <header class="alloy-intro__head">
+          <h2 class="alloy-intro__title">Tủ bếp hợp kim nhôm cánh kính là gì</h2>
+        </header>
+
+        <div class="alloy-intro__layout">
+          <ul class="alloy-intro__list">
+            <li>
+              <span class="alloy-intro__check" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8"><path d="M20 6L9 17l-5-5"/></svg>
+              </span>
+              <span>Là sản phẩm tủ bếp có thành phần chính là các tấm hợp kim nhôm</span>
+            </li>
+            <li>
+              <span class="alloy-intro__check" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8"><path d="M20 6L9 17l-5-5"/></svg>
+              </span>
+              <span>Được sản xuất từ nguyên liệu chính là hợp kim nhôm</span>
+            </li>
+            <li>
+              <span class="alloy-intro__check" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8"><path d="M20 6L9 17l-5-5"/></svg>
+              </span>
+              <span>Cánh tủ có 2 lựa chọn: cánh kính khung nhôm hoặc tấm hợp kim bọc khung nhôm</span>
+            </li>
+          </ul>
+
+          <figure class="alloy-intro__media">
+            <div class="alloy-intro__showcase">
+              <iframe
+                src="https://www.youtube.com/embed/Pjq-6aJ9Z8o"
+                title="Mẫu tủ bếp nhôm hợp kim thực tế tại showroom Phúc Đạt!"
+                loading="lazy"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                referrerpolicy="strict-origin-when-cross-origin"
+                allowfullscreen></iframe>
+            </div>
+            <figcaption class="alloy-intro__caption">
+              Mẫu tủ bếp nhôm hợp kim thực tế tại Showroom Nhôm Kính Phúc Đạt
+            </figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== CẤU TẠO TỦ BẾP NHÔM ========== -->
+    <section class="section kitchen-build" id="faq">
+      <div class="container kitchen-build__inner">
+        <div class="kitchen-build__layout">
+          <div class="kitchen-build__copy">
+            <header class="kitchen-build__head">
+              <h2 class="kitchen-build__title">
+                Cấu tạo tủ bếp nhôm
+                <span>Bao gồm <strong>05</strong> thành phần</span>
+              </h2>
+            </header>
+
+            <ol class="kitchen-build__list">
+              <li>
+                <span class="kitchen-build__num" aria-hidden="true">1</span>
+                <div>
+                  <strong>Bộ khung tủ, thùng tủ:</strong>
+                  Được thiết kế bằng kim loại Nhôm không gỉ, Nhôm cao cấp, các tấm hợp kim Nhôm.
+                </div>
+              </li>
+              <li>
+                <span class="kitchen-build__num" aria-hidden="true">2</span>
+                <div>
+                  <strong>Kính ốp cánh:</strong>
+                  Được làm bằng kính cường lực, kính chống trầy, kính 2 lớp, kính an toàn, kính màu sơn tĩnh điện, ốp đá, giả gỗ…
+                </div>
+              </li>
+              <li>
+                <span class="kitchen-build__num" aria-hidden="true">3</span>
+                <div>
+                  <strong>Phụ kiện cố định:</strong>
+                  bản lề, phụ kiện liên kết, cố định.
+                </div>
+              </li>
+              <li>
+                <span class="kitchen-build__num" aria-hidden="true">4</span>
+                <div>
+                  <strong>Phụ kiện đi kèm:</strong>
+                  Chậu rửa; kệ đựng chén bát, dĩa, đũa, dao…
+                  <em>(Phúc Đạt sẽ dựa vào nhu cầu của Quý khách để thêm hoặc bớt phụ kiện kèm theo)</em>
+                </div>
+              </li>
+              <li>
+                <span class="kitchen-build__num" aria-hidden="true">5</span>
+                <div>
+                  <strong>Đá ốp bàn bếp</strong>
+                </div>
+              </li>
+            </ol>
+          </div>
+
+          <figure class="kitchen-build__media">
+            <div class="kitchen-build__frame">
+              <img
+                src="assets/images/kitchen-island-showroom.png"
+                alt="Tủ bếp hợp kim nhôm kết hợp bàn đảo đá marble cao cấp tại showroom Phúc Đạt"
+                loading="lazy"
+                width="800"
+                height="600"
+              >
+            </div>
+            <figcaption class="kitchen-build__caption">
+              Tủ bếp hợp kim nhôm kết hợp với bàn đảo cao cấp
+            </figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== HÀI LÒNG KHÁCH HÀNG ========== -->
+    <section class="section love" id="news">
+      <div class="love__bg" aria-hidden="true"></div>
+      <div class="container love__inner">
+        <header class="love__head">
+          <h2 class="love__title">Hài lòng của khách hàng là động lực của Phúc Đạt</h2>
+        </header>
+
+        <div
+          class="love__grid"
+          data-slider
+          data-desktop="4"
+          data-tablet="2"
+          data-mobile="1"
+          data-autoplay="5000"
+        >
+          <figure class="love-card">
+            <img src="assets/images/feedback-01.png?v=2" alt="Phản hồi khách hàng về tủ bếp nhôm kính Phúc Đạt" loading="lazy" width="832" height="1388" decoding="async">
+          </figure>
+          <figure class="love-card">
+            <img src="assets/images/feedback-02.png?v=2" alt="Đánh giá khách hàng sau khi thi công tủ bếp" loading="lazy" width="952" height="1388" decoding="async">
+          </figure>
+          <figure class="love-card">
+            <img src="assets/images/feedback-03.png?v=2" alt="Khách hàng gửi ảnh công trình và lời cảm ơn" loading="lazy" width="940" height="1402" decoding="async">
+          </figure>
+          <figure class="love-card">
+            <img src="assets/images/feedback-04.png?v=2" alt="Bình luận yêu thích về tủ bếp Phúc Đạt trên mạng xã hội" loading="lazy" width="942" height="1325" decoding="async">
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== UY TÍN & GIẢI THƯỞNG ========== -->
+    <section class="section prestige" id="careers">
+      <div class="container prestige__inner">
+        <header class="prestige__head">
+          <h2 class="prestige__title">Công ty Phúc Đạt được thành lập từ năm 2014</h2>
+          <p class="prestige__lead">
+            Chuyên sản xuất – thi công lắp đặt cửa nhôm kính, cửa cường lực, tủ bếp, cầu thang, lan can, tủ quần áo, kính cường lực, mặt dựng, vách ngăn… tại Tp.HCM &amp; trên toàn quốc.
+          </p>
+        </header>
+
+        <div class="prestige__layout">
+          <div class="prestige__copy">
+            <h3 class="prestige__subtitle">Các giải thưởng – chứng nhận mà Phúc Đạt đã đạt được:</h3>
+            <ol class="prestige__list">
+              <li>
+                <span class="prestige__num" aria-hidden="true">1</span>
+                <p>Top 50 Thương hiệu Tín nhiệm trao tặng bởi Trung tâm Chống hàng giả và Câu lạc bộ Doanh nhân Đất Việt.</p>
+              </li>
+              <li>
+                <span class="prestige__num" aria-hidden="true">2</span>
+                <p>Báo VNExpress đưa tin: <a href="https://vnexpress.net/phuc-dat-gia-cong-lap-dat-cua-nhom-xingfa-chinh-hang-3990519.html" target="_blank" rel="noopener noreferrer">Xem bài</a></p>
+              </li>
+              <li>
+                <span class="prestige__num" aria-hidden="true">3</span>
+                <p>Báo Dân Trí đưa tin: <a href="https://dantri.com.vn/doi-song/dia-chi-showroom-cua-nhom-xingfa-nhap-khau-uy-tin-tai-tp-hcm-20191218092407132.htm" target="_blank" rel="noopener noreferrer">Xem bài</a></p>
+              </li>
+              <li>
+                <span class="prestige__num" aria-hidden="true">4</span>
+                <p>Báo CafeF đưa tin: <a href="https://cafef.vn/dia-chi-showroom-cua-nhom-xingfa-nhap-khau-uy-tin-tai-tphcm-20191218174153951.chn" target="_blank" rel="noopener noreferrer">Xem bài</a></p>
+              </li>
+              <li>
+                <span class="prestige__num" aria-hidden="true">5</span>
+                <p>Báo Thanh Niên đưa tin: <a href="https://thanhnien.vn/phuc-dat-chia-se-3-luu-y-khi-chon-cua-nhom-kinh-cho-nha-moi-xay-185891290.htm" target="_blank" rel="noopener noreferrer">Xem bài</a></p>
+              </li>
+            </ol>
+          </div>
+
+          <figure class="prestige__media">
+            <p class="prestige__media-label">Công ty TNHH Nhôm Kính Phúc Đạt</p>
+            <div class="prestige__frame">
+              <img
+                src="assets/images/award-ceremony.png?v=2"
+                alt="CEO Nguyễn Phạm Hùng nhận giải Top 50 Thương hiệu Tín nhiệm"
+                loading="lazy"
+                width="1600"
+                height="1067"
+                decoding="async"
+              >
+            </div>
+            <figcaption class="prestige__caption">
+              CEO Nhôm Kính Phúc Đạt ông Nguyễn Phạm Hùng nhận giải thưởng Top 50 Thương hiệu Tín nhiệm trao tặng bởi Trung tâm Chống hàng giả và Câu lạc bộ Doanh nhân Đất Việt.
+            </figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+
+  </main>
+
+  <!-- ========== FOOTER ========== -->
+  <footer class="site-footer">
+    <div class="site-footer__bg" aria-hidden="true"></div>
+    <div class="container footer__inner">
+      <div class="footer__grid">
+        <div class="footer__col footer__col--brand">
+          <a href="#hero" class="brand brand--footer" aria-label="Phúc Đạt — Tủ Bếp Công Nghệ">
+            <span class="brand__mark" aria-hidden="true">
+              <svg class="brand__icon" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <defs>
+                  <linearGradient id="pGradFooter" x1="8" y1="4" x2="56" y2="60" gradientUnits="userSpaceOnUse">
+                    <stop offset="0%" stop-color="#FFFFFF"/>
+                    <stop offset="55%" stop-color="#E8F1FF"/>
+                    <stop offset="100%" stop-color="#9CC2FF"/>
+                  </linearGradient>
+                </defs>
+                <rect x="4" y="4" width="56" height="56" rx="16" fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.22)" stroke-width="1.2"/>
+                <path fill="url(#pGradFooter)" fill-rule="evenodd" d="M18 14h16.5c9.1 0 16.5 7.2 16.5 16.1S43.6 46.2 34.5 46.2H27.2V50c0 1.1-.9 2-2 2h-3.6c-1.1 0-2-.9-2-2V16c0-1.1.9-2 2-2H18zm9.2 7.2v17.8h7.3c5.1 0 9.3-4 9.3-8.9s-4.2-8.9-9.3-8.9h-7.3zm4.6 4.4v9h2.7c2.3 0 4.2-1.8 4.2-4.5s-1.9-4.5-4.2-4.5h-2.7z"/>
+                <rect x="41.5" y="27" width="3.2" height="10" rx="1.6" fill="#2AA8FF"/>
+              </svg>
+            </span>
+            <span class="brand__text">
+              <span class="brand__name">PHÚC ĐẠT</span>
+              <span class="brand__tagline"><i></i>KẾT NỐI KHÔNG GIAN<i></i></span>
+            </span>
+          </a>
+          <p class="footer__company">Công ty TNHH Nhôm Kính Phúc Đạt</p>
+          <ul class="footer__meta">
+            <li>Mã số thuế: <strong>0312974576</strong></li>
+            <li>Cấp ngày: <strong>16/10/2014</strong></li>
+            <li>Email: <a href="mailto:kinhdoanh@phucdatdoor.vn">kinhdoanh@phucdatdoor.vn</a></li>
+          </ul>
+        </div>
+
+        <div class="footer__col footer__col--places">
+          <div class="footer__place">
+            <h4 class="footer__label">Trụ sở &amp; Showroom Tp.HCM</h4>
+            <p>480/3 Tân Kỳ Tân Quý, P. Tân Sơn Nhì, Tp.HCM</p>
+          </div>
+          <div class="footer__place">
+            <h4 class="footer__label">Xưởng sản xuất nhôm</h4>
+            <p>411 đường Liên Ấp 1-2-3, Ấp 2, Xã Tân Vĩnh Lộc, Tp.HCM</p>
+          </div>
+        </div>
+
+        <div class="footer__col footer__col--hotline">
+          <p class="footer__hotline">
+            <span class="footer__hotline-label">Hotline:</span>
+            <a href="tel:0901116118" class="footer__hotline-num">0901 116 118</a>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer__bottom">
+      <div class="container footer__bottom-inner">
+        <p>© Phúc Đạt 2026. All rights reserved.</p>
+        <p class="footer__credit">Tủ Bếp Công Nghệ · Designed for excellence</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

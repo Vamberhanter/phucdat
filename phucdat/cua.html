@@ -3,19 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Phúc Đạt — Tủ Bếp Công Nghệ</title>
-  <meta name="description" content="Phúc Đạt — Kiến tạo không gian bếp thông minh bằng công nghệ hiện đại, vật liệu cao cấp và giải pháp thiết kế tối ưu.">
+  <title>Phúc Đạt — Cửa Nhôm Kính</title>
+  <meta name="description" content="Phúc Đạt — Cửa nhôm kính cao cấp, thi công trọn gói, bảo hành rõ ràng.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Vamberhanter/phucdat@main/phucdat/styles.css">
 </head>
-<body data-line="kitchen">
+<body data-line="doors">
 
   <!-- ========== HEADER ========== -->
   <header class="site-header" id="siteHeader">
     <div class="container header__inner">
-      <a href="#hero" class="brand" id="brandHome" data-switch="kitchen" aria-label="Phúc Đạt — Tủ Bếp Công Nghệ">
+      <a href="#d-hero" class="brand" id="brandHome" data-switch="doors" aria-label="Phúc Đạt — Cửa Nhôm Kính">
         <span class="brand__mark" aria-hidden="true">
           <!-- Chữ P đặc biệt: khối mono + nét đôi + highlight -->
           <svg class="brand__icon" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -42,24 +42,24 @@
         </span>
         <span class="brand__text">
           <span class="brand__name">PHÚC ĐẠT</span>
-          <span class="brand__tagline"><i></i>TỦ BẾP CÔNG NGHỆ<i></i></span>
+          <span class="brand__tagline"><i></i>CỬA NHÔM KÍNH<i></i></span>
         </span>
       </a>
 
       <nav class="nav" id="mainNav" aria-label="Menu chính">
-        <a href="#products" class="nav__link" data-line-link="kitchen">Đăng ký báo giá</a>
-        <a href="#video" class="nav__link" data-line-link="kitchen">Video bàn giao</a>
-        <a href="#accessories" class="nav__link" data-line-link="kitchen">Phụ kiện thông minh</a>
-        <a href="#glass" class="nav__link" data-line-link="kitchen">Các mẫu tủ bếp</a>
-        <a href="#d-products" class="nav__link" data-line-link="doors" hidden>Đăng ký báo giá</a>
-        <a href="#d-video" class="nav__link" data-line-link="doors" hidden>Video bàn giao</a>
-        <a href="#d-glass" class="nav__link" data-line-link="doors" hidden>Các mẫu cửa</a>
-        <a href="index.html" class="nav__link nav__switch" data-switch="kitchen" hidden>Tủ bếp</a>
-        <a href="cua.html" class="nav__link nav__switch" data-switch="doors">Cửa</a>
+        <a href="#products" class="nav__link" data-line-link="kitchen" hidden>Đăng ký báo giá</a>
+        <a href="#video" class="nav__link" data-line-link="kitchen" hidden>Video bàn giao</a>
+        <a href="#accessories" class="nav__link" data-line-link="kitchen" hidden>Phụ kiện thông minh</a>
+        <a href="#glass" class="nav__link" data-line-link="kitchen" hidden>Các mẫu tủ bếp</a>
+        <a href="#d-products" class="nav__link" data-line-link="doors">Đăng ký báo giá</a>
+        <a href="#d-video" class="nav__link" data-line-link="doors">Video bàn giao</a>
+        <a href="#d-glass" class="nav__link" data-line-link="doors">Các mẫu cửa</a>
+        <a href="index.html" class="nav__link nav__switch" data-switch="kitchen">Tủ bếp</a>
+        <a href="cua.html" class="nav__link nav__switch" data-switch="doors" hidden>Cửa</a>
       </nav>
 
       <div class="header__actions">
-        <a href="#products" class="btn btn--header" id="headerQuoteBtn">Báo giá</a>
+        <a href="#d-products" class="btn btn--header" id="headerQuoteBtn">Báo giá</a>
       </div>
 
       <button class="menu-toggle" id="menuToggle" aria-label="Mở menu" aria-expanded="false">
@@ -69,7 +69,7 @@
   </header>
 
   <main>
-    <div id="view-kitchen" class="page-view is-active" data-view="kitchen">
+    <div id="view-kitchen" class="page-view" data-view="kitchen" hidden>
 
     <!-- ========== HERO ========== -->
     <section class="hero" id="hero">
@@ -922,7 +922,7 @@
 
     </div>
 
-    <div id="view-doors" class="page-view" data-view="doors" hidden>
+    <div id="view-doors" class="page-view is-active" data-view="doors">
       <!-- ========== HERO CỬA ========== -->
       <section class="hero" id="d-hero">
         <div class="hero__bg" aria-hidden="true">

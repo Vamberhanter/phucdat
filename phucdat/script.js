@@ -486,11 +486,28 @@
     });
 
     if (updateHash) {
-      let url = window.location.pathname + window.location.search;
-      if (scrollTarget) url += `#${scrollTarget}`;
-      else if (LINE[line].hash) url += `#${LINE[line].hash}`;
-      if (replace) history.replaceState({ line }, "", url);
-      else history.pushState({ line }, "", url);
+      // Prefer stable hashes; avoid breaking hosts (e.g. Ladipage) that sandbox history
+      const hash =
+        scrollTarget && scrollTarget !== "hero" && scrollTarget !== "d-hero"
+          ? scrollTarget
+          : LINE[line].hash || (line === "doors" ? "cua" : "");
+      const url =
+        window.location.pathname +
+        window.location.search +
+        (hash ? `#${hash}` : "");
+      try {
+        if (replace) history.replaceState({ line }, "", url);
+        else history.pushState({ line }, "", url);
+      } catch (_) {
+        try {
+          if (hash) window.location.hash = hash;
+          else if (window.location.hash) {
+            history.replaceState(null, "", window.location.pathname + window.location.search);
+          }
+        } catch (__) {
+          /* ignore — view switch already applied */
+        }
+      }
     }
 
     requestAnimationFrame(() => {
@@ -520,10 +537,19 @@
   document.querySelectorAll("[data-switch]").forEach((el) => {
     el.addEventListener("click", (e) => {
       const line = el.dataset.switch;
-      if (!LINE[line]) return;
+      // If target view is missing, allow real navigation (cua.html / index.html)
+      if (!LINE[line]?.view) return;
+
+      const href = el.getAttribute("href") || "";
+      const isFileLink = /\.html(?:[?#]|$)/i.test(href);
+      // Cross-file links: let the browser open the dedicated page (Ladipage-safe)
+      if (isFileLink && !href.startsWith("#")) {
+        closeMobileNav();
+        return;
+      }
+
       e.preventDefault();
       closeMobileNav();
-      const href = el.getAttribute("href") || "";
       let target = href.startsWith("#") ? href.slice(1) : "";
       if (!target || target === "cua") {
         target = line === "doors" ? "d-hero" : "hero";
@@ -578,10 +604,12 @@
   };
   window.addEventListener("scroll", updateActiveNav, { passive: true });
 
-  /* Initial line from URL hash */
+  /* Initial line from URL hash (fallback: body data-line) */
   {
     const hash = window.location.hash;
-    const line = lineFromHash(hash);
+    const fromHash = hash ? lineFromHash(hash) : null;
+    const fromBody = document.body.dataset.line === "doors" ? "doors" : "kitchen";
+    const line = fromHash || fromBody;
     const id = hash.replace(/^#/, "");
     const scrollTarget =
       id && id !== "cua" && document.getElementById(id) ? id : undefined;

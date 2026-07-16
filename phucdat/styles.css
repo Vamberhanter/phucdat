@@ -50,6 +50,28 @@ body {
   text-rendering: optimizeLegibility;
 }
 
+/* ===== Dual landing views (tủ bếp / cửa) ===== */
+.page-view[hidden] {
+  display: none !important;
+}
+
+body[data-line="kitchen"] .nav__link[data-line-link="doors"],
+body[data-line="doors"] .nav__link[data-line-link="kitchen"],
+body[data-line="kitchen"] .nav__switch[data-switch="kitchen"],
+body[data-line="doors"] .nav__switch[data-switch="doors"] {
+  display: none !important;
+}
+
+.nav__switch {
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  opacity: 0.92;
+}
+
+.nav__switch:hover {
+  opacity: 1;
+}
+
 img {
   display: block;
   max-width: 100%;
@@ -353,82 +375,6 @@ textarea {
   gap: 12px;
   flex-shrink: 0;
   margin-left: auto;
-}
-
-/* ===== Nav dropdown (Cửa) ===== */
-.nav__item {
-  position: relative;
-}
-
-.nav__trigger {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  border: 0;
-  background: transparent;
-  cursor: pointer;
-  font-family: var(--font);
-}
-
-.nav__chevron {
-  width: 14px;
-  height: 14px;
-  opacity: 0.7;
-  transition: transform 0.2s ease;
-}
-
-.nav__item--drop.is-open .nav__chevron,
-.nav__trigger[aria-expanded="true"] .nav__chevron {
-  transform: rotate(180deg);
-}
-
-.nav__item--drop.is-open .nav__trigger {
-  color: #fff;
-}
-
-.nav-drop {
-  position: absolute;
-  top: calc(100% + 12px);
-  left: 50%;
-  transform: translateX(-50%);
-  min-width: 180px;
-  padding: 8px;
-  border-radius: 14px;
-  background: #fff;
-  border: 1px solid var(--line);
-  box-shadow: 0 16px 40px rgba(6, 45, 74, 0.16);
-  z-index: 1200;
-  animation: dropIn 0.16s ease;
-}
-
-.nav-drop[hidden] {
-  display: none;
-}
-
-@keyframes dropIn {
-  from {
-    opacity: 0;
-    transform: translateX(-50%) translateY(6px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
-  }
-}
-
-.nav-drop__link {
-  display: block;
-  padding: 10px 12px;
-  border-radius: 10px;
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--secondary);
-  transition: background 0.15s ease, color 0.15s ease;
-}
-
-.nav-drop__link:hover {
-  background: rgba(10, 78, 134, 0.08);
-  color: var(--primary);
 }
 
 .mega {
@@ -1000,7 +946,8 @@ textarea {
   align-items: center;
 }
 
-.quote__media {
+.quote__media,
+.quote__visual {
   margin: 0;
 }
 
@@ -1026,6 +973,25 @@ textarea {
   filter: contrast(1.04) saturate(1.06) brightness(1.02);
 }
 
+/* Fill frame, no letterbox bars */
+.quote__photo--cover {
+  background: transparent;
+}
+
+.quote__photo--cover img {
+  object-fit: cover;
+}
+
+.quote__photo--cover.quote__photo--portrait {
+  aspect-ratio: 4 / 5;
+  max-height: min(560px, 70vh);
+}
+
+.quote__photo--cover:not(.quote__photo--portrait) {
+  aspect-ratio: 1 / 1;
+  max-height: min(520px, 68vh);
+}
+
 .quote__caption {
   margin-top: 8px;
   text-align: center;
@@ -1040,15 +1006,21 @@ textarea {
   max-width: 420px;
   margin-inline: auto;
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 14px;
 }
 
 .quote__head {
-  margin-bottom: 12px;
+  margin: 0;
   text-align: center;
+  display: grid;
+  gap: 6px;
 }
 
 .quote__title {
-  margin-bottom: 4px;
+  margin: 0;
   font-size: clamp(20px, 2.2vw, 26px);
   font-weight: 800;
   letter-spacing: 0.02em;
@@ -1057,7 +1029,9 @@ textarea {
   line-height: 1.15;
 }
 
-.quote__desc {
+.quote__desc,
+.quote__lead {
+  margin: 0;
   font-size: 13px;
   font-weight: 500;
   font-style: italic;
@@ -1067,13 +1041,18 @@ textarea {
 
 .quote__form {
   display: grid;
-  gap: 8px;
+  gap: 10px;
+  margin: 0;
+}
+
+.quote-field {
+  margin: 0;
 }
 
 .quote-field input,
 .quote-field select {
   width: 100%;
-  min-height: 40px;
+  min-height: 42px;
   padding: 0 14px;
   border: 0;
   border-radius: 10px;
@@ -1134,7 +1113,7 @@ textarea {
   align-items: center;
   justify-content: center;
   min-height: 42px;
-  margin: 4px auto 0;
+  margin: 2px auto 0;
   padding: 0 40px;
   border: 0;
   border-radius: 10px;
@@ -1173,6 +1152,50 @@ textarea {
 .product-card__link:hover {
   color: var(--cta-from);
   letter-spacing: 0.02em;
+}
+
+/* ===== DOORS ===== */
+.section.doors {
+  background:
+    radial-gradient(ellipse 60% 50% at 100% 0%, rgba(10, 78, 134, 0.08), transparent 55%),
+    linear-gradient(180deg, #F4F8FC 0%, #EEF4FA 100%);
+  padding: 48px 0;
+}
+
+.doors__inner {
+  max-width: 720px;
+}
+
+.doors__head {
+  text-align: center;
+}
+
+.doors__title {
+  margin: 0 0 10px;
+  font-size: clamp(20px, 2.4vw, 28px);
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--secondary);
+}
+
+.doors__lead {
+  margin: 0 auto 20px;
+  max-width: 520px;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.55;
+  color: var(--muted);
+}
+
+.doors__head .btn {
+  display: inline-flex;
+}
+
+@media (max-width: 560px) {
+  .section.doors {
+    padding: 36px 0;
+  }
 }
 
 /* ===== SHOWROOM & INSTALL ========== */
@@ -1290,26 +1313,28 @@ textarea {
   position: absolute;
   inset: 0;
   margin: auto;
-  width: 48px;
-  height: 48px;
+  width: 44px;
+  height: 44px;
   z-index: 2;
   border-radius: 50%;
   display: grid;
   place-items: center;
-  color: #052B47;
-  background: rgba(255, 255, 255, 0.94);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.22);
-  transition: transform 0.2s ease;
+  color: #fff;
+  background: #052B47;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.28);
+  transition: transform 0.2s ease, background 0.2s ease;
 }
 
 .showroom-card__play svg {
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   margin-left: 2px;
 }
 
 .showroom-card__frame--link:hover .showroom-card__play {
-  transform: scale(1.06);
+  transform: scale(1.05);
+  background: #0A4E86;
 }
 
 .showroom-card__caption {
@@ -1415,26 +1440,25 @@ textarea {
 }
 
 .handover-card__media img {
-  transition: transform 0.4s ease;
-}
-
-.handover-card:hover .handover-card__media img {
-  transform: scale(1.04);
+  image-rendering: -webkit-optimize-contrast;
+  filter: contrast(1.05) saturate(1.03);
 }
 
 .handover-card__play {
   position: absolute;
   inset: 0;
   margin: auto;
-  width: 42px;
-  height: 42px;
+  width: 44px;
+  height: 44px;
+  z-index: 2;
   border-radius: 50%;
   display: grid;
   place-items: center;
-  color: #052B47;
-  background: rgba(255, 255, 255, 0.92);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.22);
-  transition: transform 0.2s ease;
+  color: #fff;
+  background: #052B47;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.28);
+  transition: transform 0.2s ease, background 0.2s ease;
 }
 
 .handover-card__play svg {
@@ -1444,7 +1468,8 @@ textarea {
 }
 
 .handover-card:hover .handover-card__play {
-  transform: scale(1.06);
+  transform: scale(1.05);
+  background: #0A4E86;
 }
 
 .handover-card__caption {
@@ -1636,6 +1661,81 @@ textarea {
   .advantages__grid {
     grid-template-columns: 1fr;
   }
+}
+
+/* Doors advantages — match showroom board */
+.advantages--doors .advantages__bg {
+  background: #052B47;
+}
+
+.advantages--doors .advantages__bg-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  opacity: 0.38;
+}
+
+.advantages--doors .advantages__bg::before {
+  opacity: 0.2;
+  background:
+    linear-gradient(180deg, rgba(5, 43, 71, 0.55) 0%, rgba(3, 31, 53, 0.82) 100%),
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: auto, 48px 48px, 48px 48px;
+  mask-image: none;
+}
+
+.advantages--doors .advantages__head {
+  max-width: 920px;
+  margin-bottom: 40px;
+}
+
+.advantages--doors .advantages__eyebrow {
+  font-size: clamp(18px, 2.4vw, 28px);
+  letter-spacing: 0.02em;
+}
+
+.advantages--doors .advantages__title {
+  color: #E8A54B;
+  font-size: clamp(20px, 2.8vw, 32px);
+  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.35);
+}
+
+.advantages--doors .advantages__lead {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 17px;
+}
+
+.advantages--doors .advantages__item {
+  align-items: center;
+  background: rgba(3, 24, 42, 0.42);
+  border-color: rgba(255, 255, 255, 0.14);
+}
+
+.advantages--doors .advantages__num {
+  width: 40px;
+  height: 40px;
+  font-size: 16px;
+  color: #052B47;
+  background: #fff;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.28);
+}
+
+.advantages--doors .advantages__item p {
+  padding-top: 0;
+  text-transform: none;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+.advantages--doors .advantages__item strong {
+  color: #fff;
+  font-weight: 800;
+  text-transform: uppercase;
 }
 
 /* ===== Shared card slider ===== */
@@ -1913,6 +2013,153 @@ textarea {
   }
 }
 
+/* Doors product lines — brand cards */
+.kitchen-lines--doors {
+  position: relative;
+  padding: 56px 0 48px;
+  background:
+    radial-gradient(ellipse 70% 50% at 50% 0%, rgba(10, 78, 134, 0.08), transparent 60%),
+    linear-gradient(180deg, #F4F8FC 0%, #E8F0F8 100%);
+}
+
+.kitchen-lines--doors .kitchen-lines__head {
+  max-width: 780px;
+  margin-bottom: 32px;
+}
+
+.kitchen-lines--doors .kitchen-lines__head .eyebrow {
+  margin-bottom: 8px;
+}
+
+.kitchen-lines--doors .kitchen-lines__title {
+  font-size: clamp(24px, 3vw, 34px);
+  letter-spacing: 0.02em;
+}
+
+.kitchen-lines--doors .kitchen-lines__lead {
+  margin-top: 10px;
+  font-size: 15px;
+  font-weight: 500;
+  font-style: italic;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.kitchen-lines--doors .kitchen-lines__grid {
+  gap: 18px;
+  max-width: 1120px;
+}
+
+.kitchen-lines--doors .kline-card {
+  border: 1px solid rgba(5, 43, 71, 0.14);
+  border-radius: 18px;
+  box-shadow:
+    0 4px 8px rgba(5, 43, 71, 0.06),
+    0 14px 32px rgba(5, 43, 71, 0.12);
+  background: #fff;
+}
+
+.kitchen-lines--doors .kline-card:nth-child(odd) .kline-card__copy {
+  background: linear-gradient(160deg, #052B47 0%, #0A4E86 100%);
+}
+
+.kitchen-lines--doors .kline-card:nth-child(even) .kline-card__copy {
+  background: linear-gradient(160deg, #0A4E86 0%, #1270B8 100%);
+}
+
+.kitchen-lines--doors .kline-card:hover {
+  transform: translateY(-6px);
+  border-color: rgba(5, 43, 71, 0.28);
+  box-shadow:
+    0 8px 16px rgba(5, 43, 71, 0.1),
+    0 22px 44px rgba(5, 43, 71, 0.18);
+}
+
+.kitchen-lines--doors .kline-card__media {
+  aspect-ratio: 16 / 10;
+  background: #031F35;
+}
+
+.kitchen-lines--doors .kline-card__media::after {
+  display: block;
+  background: linear-gradient(180deg, transparent 55%, rgba(3, 31, 53, 0.28));
+}
+
+.kitchen-lines--doors .kline-card__media img {
+  object-fit: cover;
+  object-position: center;
+  filter: contrast(1.04) saturate(1.05);
+}
+
+.kitchen-lines--doors .kline-card:hover .kline-card__media img {
+  transform: scale(1.04);
+}
+
+.kitchen-lines--doors .kline-card__copy {
+  padding: 16px 18px 18px;
+  gap: 6px;
+  min-height: 148px;
+}
+
+.kitchen-lines--doors .kline-card__tag {
+  display: inline-flex;
+  align-self: flex-start;
+  margin-bottom: 2px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #052B47;
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.kitchen-lines--doors .kline-card__copy h3 {
+  color: #fff;
+  font-size: 16px;
+  letter-spacing: 0.01em;
+}
+
+.kitchen-lines--doors .kline-card__copy p {
+  color: rgba(255, 255, 255, 0.88);
+  font-style: normal;
+  font-size: 13.5px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.kitchen-lines--doors .kitchen-lines__more {
+  max-width: 1120px;
+  margin: 28px auto 0;
+  padding: 16px 20px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(10, 78, 134, 0.12);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.55;
+  color: var(--muted);
+  text-align: center;
+}
+
+.kitchen-lines--doors .kitchen-lines__more strong {
+  color: var(--secondary);
+  font-weight: 700;
+}
+
+@media (max-width: 640px) {
+  .kitchen-lines--doors {
+    padding: 44px 0 36px;
+  }
+
+  .kitchen-lines--doors .kline-card__copy {
+    min-height: 0;
+  }
+}
+
 /* ===== KITCHEN GALLERY (Các mẫu tủ bếp tại Phúc Đạt) ===== */
 .section.kitchen-gallery {
   position: relative;
@@ -2071,6 +2318,476 @@ textarea {
 
   .kitchen-gallery__head {
     margin-bottom: 20px;
+  }
+}
+
+/* Doors gallery — light board layout */
+.kitchen-gallery--doors {
+  background: #F1F6FB;
+  color: var(--text);
+  padding: 52px 0 48px;
+}
+
+.kitchen-gallery--doors .kitchen-gallery__bg {
+  background:
+    radial-gradient(ellipse 55% 40% at 50% 0%, rgba(10, 78, 134, 0.08), transparent 65%),
+    linear-gradient(180deg, #F7FAFC 0%, #EAF2F9 100%);
+}
+
+.kitchen-gallery--doors .kitchen-gallery__head {
+  max-width: 820px;
+  margin-bottom: 28px;
+}
+
+.kitchen-gallery--doors .kitchen-gallery__title {
+  color: var(--secondary);
+  font-size: clamp(22px, 2.8vw, 32px);
+}
+
+.kitchen-gallery--doors .kitchen-gallery__lead {
+  margin: 0 auto;
+  max-width: 720px;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.kitchen-gallery--doors .kitchen-gallery__lead + .kitchen-gallery__lead {
+  margin-top: 8px;
+}
+
+.kitchen-gallery--doors .kitchen-gallery__lead--strong {
+  font-weight: 700;
+  color: var(--text);
+}
+
+.kitchen-gallery--doors .kitchen-gallery__grid {
+  gap: 20px;
+  max-width: 1100px;
+}
+
+.kitchen-gallery--doors .kgallery-card {
+  gap: 12px;
+}
+
+.kitchen-gallery--doors .kgallery-card__label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  min-height: 4.6em;
+}
+
+.kitchen-gallery--doors .kgallery-card__num {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--secondary);
+  background: linear-gradient(145deg, #D7EBFF 0%, #A9D0F5 100%);
+  box-shadow: 0 4px 12px rgba(10, 78, 134, 0.16);
+}
+
+.kitchen-gallery--doors .kgallery-card__name {
+  min-height: 0;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--secondary);
+}
+
+.kitchen-gallery--doors .kgallery-card .slider {
+  background: #fff;
+  border: 1px solid rgba(10, 78, 134, 0.12);
+  box-shadow: 0 10px 28px rgba(6, 45, 74, 0.1);
+}
+
+.kitchen-gallery--doors .kgallery-card .slider__btn {
+  background: rgba(255, 255, 255, 0.94);
+  color: var(--secondary);
+  border: 1px solid rgba(10, 78, 134, 0.18);
+}
+
+.kitchen-gallery--doors .kgallery-card .slider__dot {
+  background: rgba(10, 78, 134, 0.22);
+}
+
+.kitchen-gallery--doors .kgallery-card .slider__dot.is-active {
+  background: var(--primary);
+}
+
+.kitchen-gallery--doors.kitchen-gallery--stack-start {
+  padding-bottom: 28px;
+}
+
+.kitchen-gallery--doors.kitchen-gallery--stack {
+  padding: 28px 0;
+  background: #F7FAFC;
+}
+
+.kitchen-gallery--doors.kitchen-gallery--stack .kitchen-gallery__head {
+  margin-bottom: 22px;
+}
+
+.kitchen-gallery--doors.kitchen-gallery--stack::before {
+  content: "";
+  display: block;
+  width: min(100% - 64px, 1100px);
+  height: 3px;
+  margin: 0 auto 28px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, transparent, var(--secondary) 12%, var(--secondary) 88%, transparent);
+}
+
+.kitchen-gallery--doors.kitchen-gallery--stack-end {
+  padding: 28px 0 56px;
+  background: #F1F6FB;
+}
+
+.kitchen-gallery--doors.kitchen-gallery--stack-end::before {
+  content: "";
+  display: block;
+  width: min(100% - 64px, 1100px);
+  height: 3px;
+  margin: 0 auto 28px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, transparent, var(--secondary) 12%, var(--secondary) 88%, transparent);
+}
+
+.kitchen-gallery--doors .kgallery-card__label--row {
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  min-height: 0;
+  margin-bottom: 2px;
+}
+
+.kitchen-gallery--doors .kgallery-card__label--row .kgallery-card__name {
+  text-align: left;
+}
+
+.door-room-strip {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 14px;
+  max-width: 1100px;
+  margin-inline: auto;
+}
+
+.door-room-strip__item {
+  margin: 0;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid rgba(10, 78, 134, 0.12);
+  box-shadow: 0 10px 24px rgba(6, 45, 74, 0.08);
+  aspect-ratio: 3 / 4;
+}
+
+.door-room-strip__item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.45s ease;
+}
+
+.door-room-strip__item:hover img {
+  transform: scale(1.04);
+}
+
+.door-room-strip.slider__track {
+  display: flex;
+  gap: var(--slider-gap, 14px);
+}
+
+.door-room-strip.slider__track .door-room-strip__item {
+  flex: 0 0 calc((100% - (var(--slider-per-view, 5) - 1) * var(--slider-gap, 14px)) / var(--slider-per-view, 5));
+  width: auto;
+  min-width: 0;
+}
+
+.door-room-strip + .slider__nav,
+.slider:has(.door-room-strip) .slider__nav {
+  margin-top: 14px;
+}
+
+.slider:has(.door-room-strip) {
+  max-width: 1100px;
+  margin-inline: auto;
+  padding: 0;
+}
+
+.slider:has(.door-room-strip) .slider__btn {
+  background: rgba(255, 255, 255, 0.95);
+  color: var(--secondary);
+  border: 1px solid rgba(10, 78, 134, 0.18);
+}
+
+@media (max-width: 1024px) {
+  .door-room-strip:not(.slider__track) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .kitchen-gallery--doors.kitchen-gallery--stack-end {
+    padding-bottom: 44px;
+  }
+
+  .door-room-strip:not(.slider__track) {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .kitchen-gallery--doors .kgallery-card__label--row {
+    flex-wrap: wrap;
+  }
+}
+
+/* ===== Door compose: design + structure ===== */
+.section.door-compose {
+  position: relative;
+  overflow: hidden;
+  padding: 56px 0 60px;
+  color: #fff;
+  background: #052B47;
+}
+
+.door-compose__bg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.door-compose__bg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 70% center;
+  opacity: 0.42;
+}
+
+.door-compose__bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(105deg, rgba(3, 31, 53, 0.96) 0%, rgba(5, 43, 71, 0.88) 42%, rgba(5, 43, 71, 0.55) 72%, rgba(5, 43, 71, 0.35) 100%),
+    radial-gradient(ellipse 50% 60% at 15% 20%, rgba(47, 139, 198, 0.22), transparent 60%);
+}
+
+.door-compose__inner {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 36px;
+  max-width: 1120px;
+}
+
+.door-compose__head {
+  max-width: 640px;
+  margin-bottom: 22px;
+}
+
+.door-compose__title {
+  margin: 0 0 10px;
+  font-size: clamp(22px, 2.8vw, 32px);
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  line-height: 1.25;
+  color: #E8A54B;
+}
+
+.door-compose__subtitle {
+  margin: 0 0 6px;
+  font-size: 16px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: #fff;
+}
+
+.door-compose__colors {
+  margin: 0 0 16px;
+  font-size: 14.5px;
+  font-weight: 500;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.door-compose__glass-label {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: #E8A54B;
+}
+
+.door-compose__glasses {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.door-glass-card {
+  display: flex;
+  flex-direction: column;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.22);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.door-glass-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.28);
+}
+
+.door-glass-card__title {
+  margin: 0;
+  padding: 14px 14px 12px;
+  font-size: 13.5px;
+  font-weight: 800;
+  line-height: 1.4;
+  color: var(--secondary);
+  text-align: center;
+}
+
+.door-glass-card__media {
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: #dbe7f2;
+}
+
+.door-glass-card__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.45s ease;
+}
+
+.door-glass-card:hover .door-glass-card__media img {
+  transform: scale(1.04);
+}
+
+.door-compose__structure {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: 28px 40px;
+  align-items: start;
+  padding: 30px 30px 28px;
+  border-radius: 20px;
+  background:
+    linear-gradient(165deg, #E4EEF7 0%, #D5E4F2 55%, #C8DAEB 100%);
+  border: 1px solid rgba(10, 78, 134, 0.16);
+  box-shadow:
+    0 16px 36px rgba(0, 0, 0, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.45);
+}
+
+.door-compose__structure-title {
+  margin: 0 0 8px;
+  font-size: clamp(22px, 2.6vw, 30px);
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: #C4841F;
+}
+
+.door-compose__structure-lead {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: var(--secondary);
+}
+
+.door-compose__structure-lead strong {
+  font-size: 1.35em;
+  color: #0A4E86;
+}
+
+.door-compose__parts {
+  display: grid;
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.door-compose__parts > li {
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+  font-size: 14.5px;
+  font-weight: 500;
+  line-height: 1.55;
+  color: rgba(16, 34, 54, 0.86);
+}
+
+.door-compose__part-num {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 800;
+  color: #fff;
+  background: linear-gradient(145deg, #E9A84A 0%, #D4891A 55%, #C06E12 100%);
+  box-shadow: 0 5px 12px rgba(192, 110, 18, 0.32);
+}
+
+.door-compose__parts strong {
+  color: var(--secondary);
+  font-weight: 800;
+}
+
+.door-compose__parts ul {
+  margin: 8px 0 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 4px;
+  list-style: disc;
+}
+
+.door-compose__parts ul li {
+  color: rgba(16, 34, 54, 0.72);
+  font-size: 13.5px;
+}
+
+@media (max-width: 900px) {
+  .door-compose__glasses {
+    grid-template-columns: 1fr;
+    max-width: 420px;
+  }
+
+  .door-compose__structure {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    padding: 22px 18px;
+  }
+}
+
+@media (max-width: 640px) {
+  .section.door-compose {
+    padding: 44px 0 48px;
+  }
+
+  .door-compose__glasses {
+    max-width: none;
   }
 }
 
@@ -2524,9 +3241,114 @@ textarea {
   color: rgba(255, 255, 255, 0.78);
 }
 
+/* Doors why-choose — high contrast, not washed out */
+.why-choose--doors {
+  padding: 56px 0 52px;
+  background: #031F35;
+}
+
+.why-choose--doors .why-choose__bg {
+  opacity: 1;
+  background: #031F35;
+}
+
+.why-choose--doors .why-choose__bg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  opacity: 0.35;
+}
+
+.why-choose--doors .why-choose__bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(3, 31, 53, 0.55) 0%, rgba(5, 43, 71, 0.88) 45%, rgba(3, 31, 53, 0.96) 100%),
+    radial-gradient(ellipse 60% 45% at 50% 0%, rgba(232, 165, 75, 0.18), transparent 55%);
+}
+
+.why-choose--doors .why-choose__inner {
+  max-width: 1080px;
+}
+
+.why-choose--doors .why-choose__title {
+  font-size: clamp(22px, 3vw, 34px);
+  color: #F5B942;
+  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.35);
+}
+
+.why-choose--doors .why-choose__lead {
+  font-size: 15.5px;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.why-choose--doors .why-choose__grid {
+  gap: 26px 20px;
+  margin-bottom: 32px;
+}
+
+.why-choose--doors .why-choose-card {
+  padding: 32px 20px 20px;
+  border-radius: 16px;
+  background: #E8F1FA;
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  box-shadow:
+    0 12px 28px rgba(0, 0, 0, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.65);
+}
+
+.why-choose--doors .why-choose-card__num {
+  width: 38px;
+  height: 38px;
+  top: -18px;
+  font-size: 16px;
+  background: linear-gradient(145deg, #FFB020 0%, #F59E0B 45%, #EA7A0C 100%);
+  box-shadow:
+    0 0 0 5px rgba(245, 158, 11, 0.28),
+    0 8px 18px rgba(234, 122, 12, 0.45);
+}
+
+.why-choose--doors .why-choose-card p {
+  font-size: 14.5px;
+  font-weight: 600;
+  color: #102236;
+}
+
+.why-choose--doors .why-choose-card strong {
+  color: #0A4E86;
+}
+
+.why-choose--doors .why-choose__photos--4 {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.why-choose--doors .why-choose__photos img {
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.3);
+}
+
+.why-choose--doors .why-choose__gallery-caption {
+  margin-top: 14px;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+@media (max-width: 900px) {
+  .why-choose--doors .why-choose__photos--4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 @media (max-width: 700px) {
   .section.why-choose {
     padding: 36px 0 32px;
+  }
+
+  .why-choose--doors {
+    padding: 44px 0 40px;
   }
 
   .why-choose__grid {
@@ -3325,6 +4147,83 @@ textarea {
   color: rgba(255, 255, 255, 0.55);
 }
 
+/* ===== YouTube lite facade ===== */
+.yt-lite {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  cursor: pointer;
+  overflow: hidden;
+  background: #031F35;
+  color: inherit;
+  font: inherit;
+  appearance: none;
+  -webkit-appearance: none;
+  transform: translateZ(0);
+}
+
+.yt-lite__thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+  image-rendering: -webkit-optimize-contrast;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  filter: contrast(1.06) saturate(1.04);
+}
+
+.yt-lite__play {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 44px;
+  height: 44px;
+  z-index: 2;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  background: #052B47;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.28);
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.yt-lite__play svg {
+  width: 18px;
+  height: 18px;
+  margin-left: 2px;
+}
+
+.yt-lite:hover .yt-lite__play,
+.yt-lite:focus-visible .yt-lite__play {
+  transform: scale(1.05);
+  background: #0A4E86;
+}
+
+.yt-lite:focus-visible {
+  outline: 2px solid #F0C36A;
+  outline-offset: 3px;
+}
+
+@media (max-width: 560px) {
+  .yt-lite__play {
+    width: 40px;
+    height: 40px;
+  }
+
+  .yt-lite__play svg {
+    width: 16px;
+    height: 16px;
+  }
+}
+
 @media (max-width: 900px) {
   .footer__grid {
     grid-template-columns: 1fr;
@@ -3439,37 +4338,6 @@ textarea {
     padding: 14px 8px;
   }
 
-  .nav.is-open .nav__item--drop {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .nav.is-open .nav__trigger {
-    justify-content: space-between;
-    width: 100%;
-  }
-
-  .nav.is-open .nav-drop {
-    position: static;
-    transform: none;
-    width: 100%;
-    margin-top: 4px;
-    padding: 6px;
-    animation: none;
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    box-shadow: none;
-  }
-
-  .nav.is-open .nav-drop__link {
-    color: #fff;
-  }
-
-  .nav.is-open .nav-drop__link:hover {
-    background: rgba(255, 255, 255, 0.12);
-    color: #fff;
-  }
-
   .hero__grid {
     grid-template-columns: 1fr;
     gap: 0;
@@ -3510,12 +4378,9 @@ textarea {
     margin-top: 6px;
   }
 
-  .quote__head {
-    margin-bottom: 10px;
-  }
-
   .quote__panel {
     max-width: 520px;
+    gap: 12px;
   }
 }
 
@@ -3632,6 +4497,189 @@ textarea {
   .slider__btn {
     width: 38px;
     height: 38px;
+  }
+}
+
+/* ===== Lightbox (slider image viewer) ===== */
+body.lightbox-open {
+  overflow: hidden;
+}
+
+[data-slider] img,
+.slider__track img {
+  cursor: zoom-in;
+  pointer-events: auto;
+}
+
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+}
+
+.lightbox[hidden] {
+  display: none !important;
+}
+
+.lightbox.is-open {
+  display: grid;
+}
+
+.lightbox__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(5, 28, 48, 0.88);
+  backdrop-filter: blur(4px);
+}
+
+.lightbox__panel {
+  position: relative;
+  z-index: 1;
+  width: min(1100px, 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  animation: lightbox-in 0.22s ease;
+}
+
+@keyframes lightbox-in {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.lightbox__figure {
+  position: relative;
+  margin: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.lightbox__img {
+  display: block;
+  max-width: 100%;
+  max-height: min(78vh, 820px);
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: 6px;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.45);
+  background: #0a2236;
+}
+
+.lightbox__caption {
+  margin: 0;
+  max-width: 40rem;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+.lightbox__caption:empty,
+.lightbox__caption[hidden] {
+  display: none;
+}
+
+.lightbox__counter {
+  margin: 0;
+  text-align: center;
+  color: rgba(255, 214, 120, 0.95);
+  font-size: 0.85rem;
+  letter-spacing: 0.06em;
+}
+
+.lightbox__close,
+.lightbox__nav {
+  appearance: none;
+  border: none;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  color: #052b47;
+  background: rgba(255, 214, 120, 0.95);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.28);
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.lightbox__close:hover,
+.lightbox__nav:hover,
+.lightbox__close:focus-visible,
+.lightbox__nav:focus-visible {
+  background: #fff;
+  outline: none;
+}
+
+.lightbox__close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+  z-index: 3;
+}
+
+.lightbox__close svg,
+.lightbox__nav svg {
+  width: 22px;
+  height: 22px;
+}
+
+.lightbox__nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 46px;
+  height: 46px;
+  border-radius: 999px;
+  z-index: 2;
+}
+
+.lightbox__nav--prev {
+  left: 10px;
+}
+
+.lightbox__nav--next {
+  right: 10px;
+}
+
+.lightbox__nav[hidden] {
+  display: none !important;
+}
+
+@media (max-width: 768px) {
+  .lightbox {
+    padding: 12px;
+  }
+
+  .lightbox__img {
+    max-height: min(70vh, 640px);
+  }
+
+  .lightbox__nav {
+    width: 40px;
+    height: 40px;
+  }
+
+  .lightbox__nav--prev {
+    left: 6px;
+  }
+
+  .lightbox__nav--next {
+    right: 6px;
   }
 }
 

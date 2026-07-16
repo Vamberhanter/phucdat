@@ -537,31 +537,27 @@
   document.querySelectorAll("[data-switch]").forEach((el) => {
     el.addEventListener("click", (e) => {
       const line = el.dataset.switch;
-      // If target view is missing, allow real navigation (cua.html / index.html)
+      // Need both views in the same document (Ladipage = 1 page)
       if (!LINE[line]?.view) return;
-
-      const href = el.getAttribute("href") || "";
-      const isFileLink = /\.html(?:[?#]|$)/i.test(href);
-      // Cross-file links: let the browser open the dedicated page (Ladipage-safe)
-      if (isFileLink && !href.startsWith("#")) {
-        closeMobileNav();
-        return;
-      }
 
       e.preventDefault();
       closeMobileNav();
-      let target = href.startsWith("#") ? href.slice(1) : "";
-      if (!target || target === "cua") {
+
+      let target = "";
+      const href = el.getAttribute("href") || "";
+      if (href.startsWith("#")) target = href.slice(1);
+      if (!target || target === "cua" || /\.html/i.test(href)) {
         target = line === "doors" ? "d-hero" : "hero";
       }
-      // Same line: just scroll (brand / in-view links)
+
+      // Same line: just scroll
       if (line === currentLine) {
         const elTarget = document.getElementById(target);
         if (elTarget) elTarget.scrollIntoView({ behavior: "smooth", block: "start" });
         else window.scrollTo({ top: 0, behavior: "smooth" });
         return;
       }
-      setLine(line, { scrollTarget: target });
+      setLine(line, { scrollTarget: target, updateHash: false });
     });
   });
 

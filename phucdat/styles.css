@@ -51,14 +51,28 @@ body {
 }
 
 /* ===== Dual landing views (tủ bếp / cửa) ===== */
+.page-view {
+  display: none !important;
+}
+
+.page-view.is-active {
+  display: block !important;
+}
+
 .page-view[hidden] {
   display: none !important;
 }
 
+body.line-kitchen .js-nav-doors,
+body.line-doors .js-nav-kitchen,
+body.line-kitchen .js-line-kitchen,
+body.line-doors .js-line-doors,
 body[data-line="kitchen"] .nav__link[data-line-link="doors"],
 body[data-line="doors"] .nav__link[data-line-link="kitchen"],
 body[data-line="kitchen"] .nav__switch[data-switch="kitchen"],
-body[data-line="doors"] .nav__switch[data-switch="doors"] {
+body[data-line="doors"] .nav__switch[data-switch="doors"],
+body[data-line="kitchen"] #switchToKitchen,
+body[data-line="doors"] #switchToDoors {
   display: none !important;
 }
 

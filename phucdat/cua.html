@@ -10,7 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Vamberhanter/phucdat@e3a7fca/phucdat/styles.css">
 </head>
-<body data-line="doors">
+<body data-line="doors" class="line-doors">
 
   <!-- ========== HEADER ========== -->
   <header class="site-header" id="siteHeader">
@@ -47,15 +47,15 @@
       </a>
 
       <nav class="nav" id="mainNav" aria-label="Menu chính">
-        <a href="#products" class="nav__link" data-line-link="kitchen" hidden>Đăng ký báo giá</a>
-        <a href="#video" class="nav__link" data-line-link="kitchen" hidden>Video bàn giao</a>
-        <a href="#accessories" class="nav__link" data-line-link="kitchen" hidden>Phụ kiện thông minh</a>
-        <a href="#glass" class="nav__link" data-line-link="kitchen" hidden>Các mẫu tủ bếp</a>
-        <a href="#d-products" class="nav__link" data-line-link="doors">Đăng ký báo giá</a>
-        <a href="#d-video" class="nav__link" data-line-link="doors">Video bàn giao</a>
-        <a href="#d-glass" class="nav__link" data-line-link="doors">Các mẫu cửa</a>
-        <a href="#hero" class="nav__link nav__switch" data-switch="kitchen">Tủ bếp</a>
-        <a href="#cua" class="nav__link nav__switch" data-switch="doors" hidden>Cửa</a>
+        <a href="#products" class="nav__link js-nav-kitchen" data-line-link="kitchen" hidden>Đăng ký báo giá</a>
+        <a href="#video" class="nav__link js-nav-kitchen" data-line-link="kitchen" hidden>Video bàn giao</a>
+        <a href="#accessories" class="nav__link js-nav-kitchen" data-line-link="kitchen" hidden>Phụ kiện thông minh</a>
+        <a href="#glass" class="nav__link js-nav-kitchen" data-line-link="kitchen" hidden>Các mẫu tủ bếp</a>
+        <a href="#d-products" class="nav__link js-nav-doors" data-line-link="doors">Đăng ký báo giá</a>
+        <a href="#d-video" class="nav__link js-nav-doors" data-line-link="doors">Video bàn giao</a>
+        <a href="#d-glass" class="nav__link js-nav-doors" data-line-link="doors">Các mẫu cửa</a>
+        <a href="#hero" class="nav__link nav__switch js-line-kitchen" id="switchToKitchen" data-switch="kitchen">Tủ bếp</a>
+        <a href="#cua" class="nav__link nav__switch js-line-doors" id="switchToDoors" data-switch="doors" hidden>Cửa</a>
       </nav>
 
       <div class="header__actions">

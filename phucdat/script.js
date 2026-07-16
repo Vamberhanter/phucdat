@@ -452,19 +452,46 @@
     if (!LINE[line]?.view) return;
     currentLine = line;
     document.body.dataset.line = line;
+    document.body.classList.toggle("line-doors", line === "doors");
+    document.body.classList.toggle("line-kitchen", line === "kitchen");
 
     Object.entries(LINE).forEach(([key, cfg]) => {
       if (!cfg.view) return;
       const active = key === line;
       cfg.view.hidden = !active;
       cfg.view.classList.toggle("is-active", active);
+      cfg.view.style.display = active ? "" : "none";
+      if (active) cfg.view.removeAttribute("hidden");
+      else cfg.view.setAttribute("hidden", "");
     });
 
-    document.querySelectorAll("[data-line-link]").forEach((el) => {
-      el.hidden = el.dataset.lineLink !== line;
+    document.querySelectorAll("[data-line-link], .js-nav-kitchen, .js-nav-doors").forEach((el) => {
+      const linkLine =
+        el.dataset.lineLink ||
+        (el.classList.contains("js-nav-doors")
+          ? "doors"
+          : el.classList.contains("js-nav-kitchen")
+            ? "kitchen"
+            : "");
+      if (!linkLine) return;
+      el.hidden = linkLine !== line;
     });
-    document.querySelectorAll(".nav__switch[data-switch]").forEach((el) => {
-      el.hidden = el.dataset.switch === line;
+
+    const switchKitchen = document.getElementById("switchToKitchen");
+    const switchDoors = document.getElementById("switchToDoors");
+    if (switchKitchen) switchKitchen.hidden = line === "kitchen";
+    if (switchDoors) switchDoors.hidden = line === "doors";
+    document.querySelectorAll(".nav__switch[data-switch], .js-line-kitchen, .js-line-doors").forEach((el) => {
+      const switchLine =
+        el.dataset.switch ||
+        (el.classList.contains("js-line-doors")
+          ? "doors"
+          : el.classList.contains("js-line-kitchen")
+            ? "kitchen"
+            : "");
+      if (!switchLine) return;
+      if (el.id === "switchToKitchen" || el.id === "switchToDoors") return;
+      el.hidden = switchLine === line;
     });
 
     if (headerQuoteBtn) headerQuoteBtn.setAttribute("href", LINE[line].quoteHref);
@@ -480,13 +507,12 @@
       );
     }
 
-    document.querySelectorAll("a.brand[data-switch]").forEach((el) => {
+    document.querySelectorAll("a.brand").forEach((el) => {
       el.setAttribute("data-switch", line);
       el.setAttribute("href", line === "doors" ? "#d-hero" : "#hero");
     });
 
     if (updateHash) {
-      // Prefer stable hashes; avoid breaking hosts (e.g. Ladipage) that sandbox history
       const hash =
         scrollTarget && scrollTarget !== "hero" && scrollTarget !== "d-hero"
           ? scrollTarget
@@ -499,14 +525,7 @@
         if (replace) history.replaceState({ line }, "", url);
         else history.pushState({ line }, "", url);
       } catch (_) {
-        try {
-          if (hash) window.location.hash = hash;
-          else if (window.location.hash) {
-            history.replaceState(null, "", window.location.pathname + window.location.search);
-          }
-        } catch (__) {
-          /* ignore — view switch already applied */
-        }
+        /* ignore — view switch already applied */
       }
     }
 
@@ -534,31 +553,47 @@
     return "kitchen";
   };
 
-  document.querySelectorAll("[data-switch]").forEach((el) => {
-    el.addEventListener("click", (e) => {
-      const line = el.dataset.switch;
-      // Need both views in the same document (Ladipage = 1 page)
-      if (!LINE[line]?.view) return;
+  const resolveSwitchLine = (el) => {
+    if (!el) return "";
+    if (el.id === "switchToDoors" || el.classList.contains("js-line-doors")) return "doors";
+    if (el.id === "switchToKitchen" || el.classList.contains("js-line-kitchen")) return "kitchen";
+    if (el.dataset.switch) return el.dataset.switch;
+    const href = (el.getAttribute("href") || "").trim();
+    if (href === "#cua") return "doors";
+    return "";
+  };
 
+  document.addEventListener("click", (e) => {
+    const el = e.target.closest(
+      "a#switchToDoors, a#switchToKitchen, a.js-line-doors, a.js-line-kitchen, a[data-switch], a[href='#cua']"
+    );
+    if (!el) return;
+    // Brand logo: stay on current line / scroll — handled via data-switch on brand
+    if (el.classList.contains("brand") && !el.classList.contains("nav__switch")) {
+      const line = resolveSwitchLine(el) || currentLine;
+      if (!LINE[line]?.view) return;
       e.preventDefault();
       closeMobileNav();
-
-      let target = "";
-      const href = el.getAttribute("href") || "";
-      if (href.startsWith("#")) target = href.slice(1);
-      if (!target || target === "cua" || /\.html/i.test(href)) {
-        target = line === "doors" ? "d-hero" : "hero";
-      }
-
-      // Same line: just scroll
+      const target = line === "doors" ? "d-hero" : "hero";
       if (line === currentLine) {
-        const elTarget = document.getElementById(target);
-        if (elTarget) elTarget.scrollIntoView({ behavior: "smooth", block: "start" });
-        else window.scrollTo({ top: 0, behavior: "smooth" });
+        document.getElementById(target)?.scrollIntoView({ behavior: "smooth", block: "start" });
         return;
       }
       setLine(line, { scrollTarget: target, updateHash: false });
-    });
+      return;
+    }
+
+    const line = resolveSwitchLine(el);
+    if (!line || !LINE[line]?.view) return;
+
+    e.preventDefault();
+    closeMobileNav();
+    const target = line === "doors" ? "d-hero" : "hero";
+    if (line === currentLine) {
+      document.getElementById(target)?.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
+    setLine(line, { scrollTarget: target, updateHash: false });
   });
 
   window.addEventListener("popstate", () => {

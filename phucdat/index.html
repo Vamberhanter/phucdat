@@ -10,7 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Vamberhanter/phucdat@e3a7fca/phucdat/styles.css">
 </head>
-<body data-line="kitchen">
+<body data-line="kitchen" class="line-kitchen">
 
   <!-- ========== HEADER ========== -->
   <header class="site-header" id="siteHeader">
@@ -47,15 +47,15 @@
       </a>
 
       <nav class="nav" id="mainNav" aria-label="Menu chính">
-        <a href="#products" class="nav__link" data-line-link="kitchen">Đăng ký báo giá</a>
-        <a href="#video" class="nav__link" data-line-link="kitchen">Video bàn giao</a>
-        <a href="#accessories" class="nav__link" data-line-link="kitchen">Phụ kiện thông minh</a>
-        <a href="#glass" class="nav__link" data-line-link="kitchen">Các mẫu tủ bếp</a>
-        <a href="#d-products" class="nav__link" data-line-link="doors" hidden>Đăng ký báo giá</a>
-        <a href="#d-video" class="nav__link" data-line-link="doors" hidden>Video bàn giao</a>
-        <a href="#d-glass" class="nav__link" data-line-link="doors" hidden>Các mẫu cửa</a>
-        <a href="#hero" class="nav__link nav__switch" data-switch="kitchen" hidden>Tủ bếp</a>
-        <a href="#cua" class="nav__link nav__switch" data-switch="doors">Cửa</a>
+        <a href="#products" class="nav__link js-nav-kitchen" data-line-link="kitchen">Đăng ký báo giá</a>
+        <a href="#video" class="nav__link js-nav-kitchen" data-line-link="kitchen">Video bàn giao</a>
+        <a href="#accessories" class="nav__link js-nav-kitchen" data-line-link="kitchen">Phụ kiện thông minh</a>
+        <a href="#glass" class="nav__link js-nav-kitchen" data-line-link="kitchen">Các mẫu tủ bếp</a>
+        <a href="#d-products" class="nav__link js-nav-doors" data-line-link="doors" hidden>Đăng ký báo giá</a>
+        <a href="#d-video" class="nav__link js-nav-doors" data-line-link="doors" hidden>Video bàn giao</a>
+        <a href="#d-glass" class="nav__link js-nav-doors" data-line-link="doors" hidden>Các mẫu cửa</a>
+        <a href="#hero" class="nav__link nav__switch js-line-kitchen" id="switchToKitchen" data-switch="kitchen" hidden>Tủ bếp</a>
+        <a href="#cua" class="nav__link nav__switch js-line-doors" id="switchToDoors" data-switch="doors">Cửa</a>
       </nav>
 
       <div class="header__actions">
@@ -1711,6 +1711,74 @@
     </div>
   </footer>
 
+  <script>
+    /* Ladipage-safe: switch Tủ bếp / Cửa without relying on data-* or external JS cache */
+    (function () {
+      function showLine(line) {
+        var kitchen = document.getElementById("view-kitchen");
+        var doors = document.getElementById("view-doors");
+        if (!kitchen || !doors) return false;
+        var isDoors = line === "doors";
+        kitchen.classList.toggle("is-active", !isDoors);
+        doors.classList.toggle("is-active", isDoors);
+        kitchen.hidden = isDoors;
+        doors.hidden = !isDoors;
+        kitchen.style.display = isDoors ? "none" : "";
+        doors.style.display = isDoors ? "" : "none";
+        if (isDoors) {
+          kitchen.setAttribute("hidden", "");
+          doors.removeAttribute("hidden");
+        } else {
+          doors.setAttribute("hidden", "");
+          kitchen.removeAttribute("hidden");
+        }
+        document.body.setAttribute("data-line", isDoors ? "doors" : "kitchen");
+        document.body.classList.toggle("line-doors", isDoors);
+        document.body.classList.toggle("line-kitchen", !isDoors);
+        var sk = document.getElementById("switchToKitchen");
+        var sd = document.getElementById("switchToDoors");
+        if (sk) sk.hidden = !isDoors;
+        if (sd) sd.hidden = isDoors;
+        document.querySelectorAll(".js-nav-kitchen").forEach(function (el) {
+          el.hidden = isDoors;
+        });
+        document.querySelectorAll(".js-nav-doors").forEach(function (el) {
+          el.hidden = !isDoors;
+        });
+        var quote = document.getElementById("headerQuoteBtn");
+        if (quote) quote.setAttribute("href", isDoors ? "#d-products" : "#products");
+        var tag = document.querySelector("#brandHome .brand__tagline");
+        if (tag) {
+          tag.innerHTML = isDoors
+            ? "<i></i>CỬA NHÔM KÍNH<i></i>"
+            : "<i></i>TỦ BẾP CÔNG NGHỆ<i></i>";
+        }
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        return true;
+      }
+      window.__phucdatShowLine = showLine;
+      document.addEventListener(
+        "click",
+        function (e) {
+          var a = e.target.closest("a");
+          if (!a) return;
+          var href = (a.getAttribute("href") || "").trim();
+          if (a.id === "switchToDoors" || a.classList.contains("js-line-doors") || href === "#cua") {
+            e.preventDefault();
+            e.stopPropagation();
+            showLine("doors");
+            return;
+          }
+          if (a.id === "switchToKitchen" || a.classList.contains("js-line-kitchen")) {
+            e.preventDefault();
+            e.stopPropagation();
+            showLine("kitchen");
+          }
+        },
+        true
+      );
+    })();
+  </script>
   <script src="https://cdn.jsdelivr.net/gh/Vamberhanter/phucdat@e3a7fca/phucdat/script.js"></script>
 </body>
 </html>

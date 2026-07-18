@@ -17,8 +17,25 @@ function dnttvn_doanh_nghiep_gallery_card_max() {
 
 // Enqueue styles and scripts
 function dnttvn_enqueue_styles() {
-    wp_enqueue_style('dnttvn-main-style', get_template_directory_uri() . '/assets/style-gioi-thieu.css', array(), '1.0.17');
-    wp_enqueue_script('dnttvn-main-script', get_template_directory_uri() . '/assets/script.js', array('jquery'), '1.0.4', true);
+    wp_enqueue_style('dnttvn-main-style', get_template_directory_uri() . '/assets/style-gioi-thieu.css', array(), '1.0.28');
+    wp_enqueue_style('dnttvn-dn-redesign', get_template_directory_uri() . '/assets/style-dn-redesign.css', array('dnttvn-main-style'), '1.0.36');
+    wp_enqueue_script('dnttvn-main-script', get_template_directory_uri() . '/assets/script.js', array('jquery'), '1.0.8', true);
+    wp_enqueue_script(
+        'dnttvn-dn-list-infinite',
+        get_template_directory_uri() . '/assets/dn-list-infinite.js',
+        array('dnttvn-main-script'),
+        '1.0.1',
+        true
+    );
+    wp_localize_script(
+        'dnttvn-dn-list-infinite',
+        'dnttvnDnList',
+        array(
+            'ajaxUrl' => admin_url('admin-ajax.php'),
+            'nonce'   => wp_create_nonce('dnttvn_dn_list'),
+            'action'  => 'dnttvn_load_doanh_nghiep_page',
+        )
+    );
 }
 add_action('wp_enqueue_scripts', 'dnttvn_enqueue_styles');
 
@@ -3267,25 +3284,44 @@ add_filter('body_class', 'dnttvn_body_class_dn_reg_page');
 
 // Default menu fallback
 function dnttvn_default_menu() {
-    echo '<ul class="menu" id="mainMenu">';
-    echo '<li><a href="' . esc_url(home_url()) . '">Trang chủ</a></li>';
-    $page_doanh_nghiep = get_page_by_path('danh-sach-doanh-nghiep');
-    if (!$page_doanh_nghiep) {
-        // Fallback to old slug
-        $page_doanh_nghiep = get_page_by_path('page-doanh-nghiep');
+    $page_dn = get_page_by_path('danh-sach-doanh-nghiep');
+    if (!$page_dn) {
+        $page_dn = get_page_by_path('page-doanh-nghiep');
     }
-    if ($page_doanh_nghiep) {
-        echo '<li><a href="' . esc_url(get_permalink($page_doanh_nghiep->ID)) . '">Doanh nghiệp</a></li>';
-    }
+    $dn_current = ($page_dn && is_page((int) $page_dn->ID));
     $reg_url    = dnttvn_get_dn_registration_page_url();
     $reg_page   = get_page_by_path('dang-ky-doanh-nghiep');
     $is_current = ($reg_page && !empty($reg_page->ID) && is_page((int) $reg_page->ID));
     $li_cls     = 'menu-item menu-item-dang-ky-dn' . ($is_current ? ' current-menu-item current_page_item' : '');
     $aria       = $is_current ? ' aria-current="page"' : '';
+
+    echo '<ul class="dn-nav-menu menu" id="mainMenu">';
+    echo '<li class="menu-item' . (is_front_page() ? ' current-menu-item' : '') . '"><a href="' . esc_url(home_url('/')) . '">Trang chủ</a></li>';
+    if ($page_dn) {
+        echo '<li class="menu-item' . ($dn_current ? ' current-menu-item current_page_item' : '') . '"><a href="' . esc_url(get_permalink($page_dn->ID)) . '"' . ($dn_current ? ' aria-current="page"' : '') . '>Doanh nghiệp</a></li>';
+    }
     echo '<li class="' . esc_attr($li_cls) . '"><a href="' . esc_url($reg_url) . '"' . $aria . '>Đăng ký doanh nghiệp</a></li>';
-    echo '<li><a href="#">Liên hệ</a></li>';
+    echo '<li class="menu-item menu-item-lien-he"><a href="#" class="js-dang-cap-nhat" data-alert="Đang cập nhật">Liên hệ</a></li>';
     echo '</ul>';
 }
+
+/**
+ * Tab "Liên hệ" trong menu: thông báo Đang cập nhật (không mở trang).
+ */
+function dnttvn_nav_menu_lien_he_cap_nhat($atts, $item, $args) {
+    if (empty($args->theme_location) || $args->theme_location !== 'primary') {
+        return $atts;
+    }
+    $title = isset($item->title) ? trim(wp_strip_all_tags($item->title)) : '';
+    if (strcasecmp($title, 'Liên hệ') !== 0 && strcasecmp($title, 'Lien he') !== 0) {
+        return $atts;
+    }
+    $atts['href'] = '#';
+    $atts['class'] = trim((isset($atts['class']) ? $atts['class'] . ' ' : '') . 'js-dang-cap-nhat');
+    $atts['data-alert'] = 'Đang cập nhật';
+    return $atts;
+}
+add_filter('nav_menu_link_attributes', 'dnttvn_nav_menu_lien_he_cap_nhat', 10, 3);
 
 // ============================================
 // ADMIN MANAGEMENT FEATURES
@@ -3904,6 +3940,355 @@ function dnttvn_dashboard_stats_widget() {
     </div>
     <?php
 }
+
+/**
+ * Tham số lọc / sắp xếp danh sách doanh nghiệp (từ request hoặc mảng tùy chỉnh).
+ *
+ * @param array $source Nguồn dữ liệu (mặc định $_GET / $_REQUEST).
+ * @return array{ten_doanh_nghiep:string,khu_vuc:string,nganh_hang:string,sort_by:string,paged:int,posts_per_page:int}
+ */
+function dnttvn_parse_doanh_nghiep_list_filters($source = null) {
+    if ($source === null) {
+        $source = wp_unslash($_REQUEST);
+    }
+    if (!is_array($source)) {
+        $source = array();
+    }
+
+    $paged = 1;
+    if (!empty($source['paged']) && is_numeric($source['paged'])) {
+        $paged = absint($source['paged']);
+    } elseif (get_query_var('paged')) {
+        $paged = (int) get_query_var('paged');
+    } elseif (get_query_var('page')) {
+        $paged = (int) get_query_var('page');
+    }
+
+    return array(
+        'ten_doanh_nghiep' => isset($source['ten_doanh_nghiep']) ? sanitize_text_field($source['ten_doanh_nghiep']) : '',
+        'khu_vuc'          => isset($source['khu_vuc']) ? sanitize_text_field($source['khu_vuc']) : '',
+        'nganh_hang'       => isset($source['nganh_hang']) ? sanitize_text_field($source['nganh_hang']) : '',
+        'sort_by'          => isset($source['sort_by']) ? sanitize_text_field($source['sort_by']) : 'date_desc',
+        'paged'            => max(1, $paged),
+        'posts_per_page'   => 6,
+    );
+}
+
+/**
+ * WP_Query args cho danh sách doanh nghiệp.
+ *
+ * @param array $filters Kết quả dnttvn_parse_doanh_nghiep_list_filters().
+ * @return array
+ */
+function dnttvn_build_doanh_nghiep_list_query_args(array $filters) {
+    $args = array(
+        'post_type'      => 'doanh_nghiep',
+        'posts_per_page' => isset($filters['posts_per_page']) ? (int) $filters['posts_per_page'] : 6,
+        'post_status'    => 'publish',
+        'paged'          => isset($filters['paged']) ? max(1, (int) $filters['paged']) : 1,
+    );
+
+    $sort_by = isset($filters['sort_by']) ? $filters['sort_by'] : 'date_desc';
+    switch ($sort_by) {
+        case 'menu_order':
+            $args['orderby'] = 'menu_order date';
+            $args['order']   = 'ASC';
+            break;
+        case 'date_asc':
+            $args['orderby'] = 'date';
+            $args['order']   = 'ASC';
+            break;
+        case 'title_asc':
+            $args['orderby'] = 'title';
+            $args['order']   = 'ASC';
+            break;
+        case 'title_desc':
+            $args['orderby'] = 'title';
+            $args['order']   = 'DESC';
+            break;
+        case 'nganh_hang':
+            $args['orderby']  = 'meta_value';
+            $args['meta_key'] = '_nganh_hang';
+            $args['order']    = 'ASC';
+            break;
+        case 'khu_vuc':
+            $args['orderby']  = 'meta_value';
+            $args['meta_key'] = '_khu_vuc';
+            $args['order']    = 'ASC';
+            break;
+        case 'date_desc':
+        default:
+            $args['orderby'] = 'date';
+            $args['order']   = 'DESC';
+            break;
+    }
+
+    if (!empty($filters['ten_doanh_nghiep'])) {
+        $args['s'] = $filters['ten_doanh_nghiep'];
+    }
+
+    $tax_query = array();
+    if (!empty($filters['khu_vuc'])) {
+        $tax_query[] = array(
+            'taxonomy' => 'khu_vuc',
+            'field'    => 'slug',
+            'terms'    => $filters['khu_vuc'],
+        );
+    }
+    if (!empty($filters['nganh_hang'])) {
+        $tax_query[] = array(
+            'taxonomy' => 'nganh_hang',
+            'field'    => 'slug',
+            'terms'    => $filters['nganh_hang'],
+        );
+    }
+    if (!empty($tax_query)) {
+        $args['tax_query'] = $tax_query;
+    }
+
+    return $args;
+}
+
+/**
+ * HTML một thẻ doanh nghiệp trong danh sách (dùng trong loop hiện tại).
+ *
+ * @return string
+ */
+function dnttvn_render_doanh_nghiep_listing_card() {
+    $nganh_hang   = get_post_meta(get_the_ID(), '_nganh_hang', true);
+    $khu_vuc      = get_post_meta(get_the_ID(), '_khu_vuc', true);
+    $hinh_anh_phu = get_post_meta(get_the_ID(), '_hinh_anh_phu', true);
+    $dia_chi_dn   = get_post_meta(get_the_ID(), '_dia_chi', true);
+    $dien_thoai   = get_post_meta(get_the_ID(), '_dien_thoai', true);
+    $gallery_raw  = get_post_meta(get_the_ID(), '_gallery_images', true);
+    $gallery_ids  = array_filter(array_map('absint', explode(',', (string) $gallery_raw)));
+
+    $nganh_hang_terms = get_the_terms(get_the_ID(), 'nganh_hang');
+    $khu_vuc_terms    = get_the_terms(get_the_ID(), 'khu_vuc');
+
+    $featured_image_id  = get_post_thumbnail_id();
+    $featured_image_url = '';
+    $featured_image_alt = '';
+    if ($featured_image_id) {
+        $featured_image_url = wp_get_attachment_image_url($featured_image_id, 'medium');
+        $featured_image_alt = get_post_meta($featured_image_id, '_wp_attachment_image_alt', true);
+        if (empty($featured_image_alt)) {
+            $featured_image_alt = get_the_title() . ' - Logo';
+        }
+    }
+
+    $small_image_id = null;
+    $hinh_phu_url   = '';
+    if ($hinh_anh_phu) {
+        if (is_numeric($hinh_anh_phu)) {
+            $small_image_id = absint($hinh_anh_phu);
+        } else {
+            $small_image_id = attachment_url_to_postid($hinh_anh_phu);
+            if (!$small_image_id && is_string($hinh_anh_phu) && filter_var($hinh_anh_phu, FILTER_VALIDATE_URL)) {
+                $hinh_phu_url = $hinh_anh_phu;
+            }
+        }
+    }
+
+    $description = get_post_meta(get_the_ID(), '_doanh_nghiep_mo_ta_ngan', true);
+    if (!$description) {
+        if (has_excerpt()) {
+            $description = get_the_excerpt();
+        } else {
+            $content     = get_the_content();
+            $description = wp_trim_words(strip_shortcodes($content), 50, '...');
+        }
+    }
+
+    $detail_url = get_permalink();
+    $website_dn = get_post_meta(get_the_ID(), '_website_doanh_nghiep', true);
+    $website_dn = is_string($website_dn) ? trim($website_dn) : '';
+    $card_url   = $detail_url;
+    $card_extra = '';
+    $card_aria  = 'Xem thông tin doanh nghiệp ' . get_the_title();
+    if ($website_dn !== '') {
+        $website_href = $website_dn;
+        if (!preg_match('~^https?://~i', $website_href)) {
+            $website_href = '//' . $website_href;
+        }
+        $card_url_try = esc_url($website_href);
+        if ($card_url_try) {
+            $card_url   = $card_url_try;
+            $card_extra = ' target="_blank" rel="noopener noreferrer"';
+            $card_aria  = 'Truy cập website doanh nghiệp ' . get_the_title();
+        }
+    }
+    if (!$nganh_hang && $nganh_hang_terms && !is_wp_error($nganh_hang_terms)) {
+        $nganh_hang = implode(', ', wp_list_pluck($nganh_hang_terms, 'name'));
+    }
+    if (!$khu_vuc && $khu_vuc_terms && !is_wp_error($khu_vuc_terms)) {
+        $khu_vuc = implode(', ', wp_list_pluck($khu_vuc_terms, 'name'));
+    }
+
+    $thumb_ids = $gallery_ids;
+    if ($small_image_id && !in_array($small_image_id, $thumb_ids, true)) {
+        array_unshift($thumb_ids, $small_image_id);
+    }
+    if (empty($thumb_ids) && !$hinh_phu_url && $featured_image_id) {
+        $thumb_ids = array($featured_image_id);
+    }
+    $dn_card_thumb_max = function_exists('dnttvn_doanh_nghiep_gallery_card_max') ? dnttvn_doanh_nghiep_gallery_card_max() : 5;
+    $thumb_ids         = array_slice(array_unique(array_filter($thumb_ids)), 0, $dn_card_thumb_max);
+    if ($hinh_phu_url) {
+        $thumb_ids = array_slice($thumb_ids, 0, max(0, $dn_card_thumb_max - 1));
+    }
+
+    $description_show = $description;
+    if ($description_show && function_exists('dnttvn_dn_reg_trim_to_word_limit')) {
+        $mo_lim           = defined('DNTTVN_DN_REG_MAX_WORDS_MO_TA') ? (int) DNTTVN_DN_REG_MAX_WORDS_MO_TA : 200;
+        $description_show = dnttvn_dn_reg_trim_to_word_limit(trim(wp_strip_all_tags($description_show)), $mo_lim);
+    }
+
+    ob_start();
+    ?>
+    <div class="business-card-yp-wrap">
+    <div class="business-card business-card-layout business-card-layout--yp">
+        <div class="business-card-yp-header">
+            <span class="business-card-yp-title"><?php the_title(); ?></span>
+        </div>
+        <div class="business-card-body">
+            <div class="business-card-yp-row">
+                <div class="business-card-yp-logo-stack">
+                    <div class="business-card-yp-logo">
+                        <?php if ($featured_image_url) : ?>
+                            <img src="<?php echo esc_url($featured_image_url); ?>" alt="<?php echo esc_attr($featured_image_alt); ?>" class="business-main-image" loading="lazy">
+                        <?php else : ?>
+                            <img src="https://via.placeholder.com/160x160/667eea/ffffff?text=<?php echo esc_attr(urlencode(get_the_title())); ?>" alt="<?php echo esc_attr(get_the_title()); ?>" class="business-main-image" loading="lazy">
+                        <?php endif; ?>
+                    </div>
+                </div>
+                <div class="business-card-yp-info">
+                    <?php if ($nganh_hang) : ?>
+                        <div class="business-card-yp-info-line business-card-yp-info-line--nganh">
+                            <svg class="business-card-yp-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M20 6h-2.18c.07-.44.18-.86.18-1.3C18 2.55 15.87.85 13.5 1.24c-1.18.2-2.2.88-2.93 1.82L10 3.8l-.57-.74C8.7 2.12 7.68 1.44 6.5 1.24 4.13.85 2 2.55 2 4.7c0 .44.11.86.18 1.3H0v2h2v11a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8h2V6h-4zM11 4.56c.35-.6 1-.93 1.64-1.02C14 3.33 15.16 4.4 15.16 5.6c0 .14-.03.27-.05.4H11V4.56zm-5.5-.98C6.14 3.33 7.3 4.4 7.3 5.6c0 .14-.03.27-.05.4H4.89c-.02-.13-.05-.26-.05-.4 0-.9.66-1.73 1.66-1.62z" /></svg>
+                            <span><?php echo esc_html($nganh_hang); ?></span>
+                        </div>
+                    <?php endif; ?>
+                    <?php if ($khu_vuc) : ?>
+                        <div class="business-card-yp-info-line business-card-yp-info-line--khuvuc">
+                            <svg class="business-card-yp-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+                            <span><?php echo esc_html($khu_vuc); ?></span>
+                        </div>
+                    <?php endif; ?>
+                    <?php if ($dia_chi_dn) : ?>
+                        <div class="business-card-yp-info-line">
+                            <svg class="business-card-yp-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                            <span><?php echo esc_html($dia_chi_dn); ?></span>
+                        </div>
+                    <?php endif; ?>
+                    <?php if ($dien_thoai) : ?>
+                        <div class="business-card-yp-info-line">
+                            <svg class="business-card-yp-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.21z"/></svg>
+                            <span><?php echo esc_html($dien_thoai); ?></span>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            </div>
+            <div class="business-card-description business-card-description--listing-full business-card-description--yp">
+                <?php if ($description_show) : ?>
+                    <p style="margin:0 0 6px;font-size:13px;font-weight:600;color:#333;">Mô tả ngắn</p>
+                    <?php echo wp_kses_post(wpautop(esc_html($description_show))); ?>
+                <?php else : ?>
+                    <p><em>Chưa có mô tả.</em></p>
+                <?php endif; ?>
+            </div>
+            <?php if (!empty($thumb_ids) || $hinh_phu_url) : ?>
+            <div class="business-card-yp-thumbs" aria-hidden="true">
+                <?php
+                if ($hinh_phu_url) {
+                    echo '<span class="business-card-yp-thumb"><img src="' . esc_url($hinh_phu_url) . '" alt="' . esc_attr(get_the_title()) . '" loading="lazy" width="72" height="72" /></span>';
+                }
+                foreach ($thumb_ids as $tid) {
+                    $tu = wp_get_attachment_image_url($tid, 'thumbnail');
+                    if (!$tu) {
+                        $tu = wp_get_attachment_image_url($tid, 'medium');
+                    }
+                    if (!$tu) {
+                        continue;
+                    }
+                    $ta = get_post_meta($tid, '_wp_attachment_image_alt', true);
+                    echo '<span class="business-card-yp-thumb"><img src="' . esc_url($tu) . '" alt="' . esc_attr($ta) . '" loading="lazy" width="72" height="72" /></span>';
+                }
+                ?>
+            </div>
+            <?php endif; ?>
+        </div>
+        <div class="business-card-yp-footer">
+            <a href="<?php echo esc_url($detail_url . '#dn-noi-dung'); ?>" class="business-card-yp-detail-link">Xem chi tiết</a>
+        </div>
+    </div>
+    <a href="<?php echo esc_url($card_url); ?>" class="business-card-link business-card-link--yp business-card-link--yp-stretch" aria-label="<?php echo esc_attr($card_aria); ?>"<?php echo $card_extra; ?>></a>
+    </div>
+    <?php
+    return (string) ob_get_clean();
+}
+
+/**
+ * HTML một trang danh sách DN (cards + banner mobile xen kẽ).
+ *
+ * @param WP_Query $query
+ * @param array    $filters
+ * @return string
+ */
+function dnttvn_render_doanh_nghiep_list_page_html(WP_Query $query, array $filters) {
+    $query->rewind_posts();
+    if (!$query->have_posts()) {
+        return '';
+    }
+
+    $paged          = isset($filters['paged']) ? max(1, (int) $filters['paged']) : 1;
+    $posts_per_page = isset($filters['posts_per_page']) ? (int) $filters['posts_per_page'] : 6;
+    $post_count     = 0;
+    $html           = '';
+
+    while ($query->have_posts()) {
+        $query->the_post();
+        $post_count++;
+        $html .= dnttvn_render_doanh_nghiep_listing_card();
+
+        $global_index       = ($paged - 1) * $posts_per_page + ($post_count - 1);
+        $mobile_banner_html = function_exists('dnttvn_render_banner_blocks')
+            ? dnttvn_render_banner_blocks('ad-block-mobile', $global_index, 1)
+            : '';
+        if (!empty($mobile_banner_html)) {
+            $html .= '<div class="ad-section-mobile">' . $mobile_banner_html . '</div>';
+        }
+    }
+    wp_reset_postdata();
+
+    return $html;
+}
+
+/**
+ * AJAX: tải thêm một trang danh sách doanh nghiệp (infinite scroll).
+ */
+function dnttvn_ajax_load_doanh_nghiep_page() {
+    check_ajax_referer('dnttvn_dn_list', 'nonce');
+
+    $filters = dnttvn_parse_doanh_nghiep_list_filters($_POST);
+    $args    = dnttvn_build_doanh_nghiep_list_query_args($filters);
+    $query   = new WP_Query($args);
+    $html    = dnttvn_render_doanh_nghiep_list_page_html($query, $filters);
+    $max     = (int) $query->max_num_pages;
+    $paged   = (int) $filters['paged'];
+
+    wp_send_json_success(
+        array(
+            'html'      => $html,
+            'paged'     => $paged,
+            'max_pages' => $max,
+            'has_more'  => $paged < $max,
+            'found'     => (int) $query->found_posts,
+        )
+    );
+}
+add_action('wp_ajax_dnttvn_load_doanh_nghiep_page', 'dnttvn_ajax_load_doanh_nghiep_page');
+add_action('wp_ajax_nopriv_dnttvn_load_doanh_nghiep_page', 'dnttvn_ajax_load_doanh_nghiep_page');
 
 // Custom Pagination Function for Doanh nghiệp page
 function dnttvn_custom_pagination($query = null) {
@@ -6011,10 +6396,10 @@ function dnttvn_banner_settings_page_removed() {
  */
 function dnttvn_get_footer_info_defaults() {
     return array(
-        'site_title' => 'My websites',
-        'address'    => '',
-        'email'      => '',
-        'phone'      => '',
+        'site_title' => 'CỘNG ĐỒNG DOANH NGHIỆP TRÍ TUỆ VIỆT NAM',
+        'address'    => 'Trụ sở: Số 11-13, Đường Số 11, KĐT An Phú An Khánh, Phường Bình Trưng, TP.HCM',
+        'email'      => 'congdongdoanhnhantrituevietnam@gmail.com',
+        'phone'      => '0972.27.88.66',
     );
 }
 
@@ -6074,7 +6459,7 @@ function dnttvn_footer_info_settings_page() {
                     <td>
                         <input name="dnttvn_footer_site_title" id="dnttvn_footer_site_title" type="text" class="regular-text"
                                value="<?php echo esc_attr($f['site_title']); ?>" required>
-                        <p class="description">Ví dụ: <code>My websites</code></p>
+                        <p class="description">Ví dụ: <code>CỘNG ĐỒNG DOANH NGHIỆP TRÍ TUỆ VIỆT NAM</code></p>
                     </td>
                 </tr>
                 <tr>

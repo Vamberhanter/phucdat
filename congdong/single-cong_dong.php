@@ -4,64 +4,18 @@
  */
 
 get_header();
+
+$single_cd_id = get_queried_object_id();
+dnttvn_page_shell_start(get_the_title($single_cd_id), $single_cd_id);
 ?>
 
-<main class="main-content">
-    <!-- Left Sidebar -->
-    <div class="sidebar-column">
-        <div class="column-header mobile-toggle collapsed">Về Cộng đồng DNTTVN</div>
-        <div class="column-content mobile-collapsed">
-            <ul class="about-list">
-                <?php
-                // Query Cộng đồng posts for sidebar
-                $sidebar_args = array(
-                    'post_type'      => 'cong_dong',
-                    'posts_per_page' => -1,
-                    'post_status'    => 'publish',
-                    'orderby'        => 'menu_order date',
-                    'order'          => 'ASC',
-                );
-                $sidebar_query = new WP_Query($sidebar_args);
-                
-                // Get current post ID
-                $current_post_id = get_the_ID();
-                
-                if ($sidebar_query->have_posts()) :
-                    while ($sidebar_query->have_posts()) : $sidebar_query->the_post();
-                        $post_id = get_the_ID();
-                        $is_noi_bat = get_post_meta($post_id, '_cong_dong_noi_bat', true);
-                        $li_class = ($is_noi_bat == '1') ? 'highlight-item' : '';
-                        
-                        // Highlight current item
-                        if ($current_post_id == $post_id) {
-                            $li_class .= ' current-item';
-                        }
-                        ?>
-                        <li class="<?php echo esc_attr(trim($li_class)); ?>">
-                            <a href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
-                        </li>
-                        <?php
-                    endwhile;
-                    wp_reset_postdata();
-                else :
-                    ?>
-                    <li><a href="#">Chưa có bài viết Cộng đồng</a></li>
-                    <?php
-                endif;
-                ?>
-            </ul>
-        </div>
-        <?php if (function_exists('dnttvn_render_left_sidebar_thanh_vien_block')) dnttvn_render_left_sidebar_thanh_vien_block(); ?>
-    </div>
-
-    <!-- Center Content -->
-    <div class="main-center">
-        <div class="content-column">
             <?php while (have_posts()) : the_post(); ?>
-                <div class="column-header entry-title"><?php the_title(); ?></div>
+                <h1 class="cd-detail__title"><?php the_title(); ?></h1>
                 <div class="column-content column-content-ve-cong-dong-detail">
                     <div class="news-item">
                         <?php
+                        $skip_catalog = function_exists('dnttvn_is_tong_quan_cong_dong_post')
+                            && dnttvn_is_tong_quan_cong_dong_post(get_the_ID());
                         $catalog_raw = get_post_meta(get_the_ID(), '_cong_dong_catalog_links', true);
                         if (is_string($catalog_raw) && $catalog_raw !== '') {
                             $catalog_links = json_decode($catalog_raw, true);
@@ -72,7 +26,7 @@ get_header();
                         $catalog_links = array_values(array_filter($catalog_links, function ($item) {
                             return is_array($item) && isset($item['url']) && (string) $item['url'] !== '';
                         }));
-                        if (!empty($catalog_links)) :
+                        if (!$skip_catalog && !empty($catalog_links)) :
                             ?>
                         <section class="catalog-links-block catalog-links-block-first" aria-labelledby="catalog-heading-cong-dong">
                             
@@ -304,7 +258,6 @@ get_header();
                                 </div>
                                 <?php
                             }
-                        }
                         ?>
                         
                         <?php
@@ -384,29 +337,8 @@ get_header();
                     </div>
                 </div>
             <?php endwhile; ?>
-        </div>
-    </div>
 
-    <!-- Right Sidebar: chỉ Link Website liên kết (tối đa 9), không doanh nghiệp -->
-    <div class="sidebar-column">
-        <?php get_template_part('template-parts/sidebar-su-kien'); ?>
-
-        <div class="column-header mobile-toggle collapsed">Website liên kết</div>
-        <div class="column-content mobile-collapsed">
-            <ul class="linked-websites">
-                <?php
-                $community_links = function_exists('dnttvn_get_community_links') ? dnttvn_get_community_links() : array();
-                $community_links = array_slice($community_links, 0, 9);
-                foreach ($community_links as $link) {
-                    if (!empty($link['url'])) {
-                        echo '<li><a href="' . esc_url($link['url']) . '">' . esc_html($link['name']) . '</a></li>';
-                    }
-                }
-                ?>
-            </ul>
-        </div>
-    </div>
-</main>
+<?php dnttvn_page_shell_end(); ?>
 
 <style>
     /* .current-item dùng chung từ style-gioi-thieu.css (.about-list .current-item) */

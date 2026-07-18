@@ -14,51 +14,10 @@ $current_cong_dong_id = ($cong_dong_post && $cong_dong_post->post_type === 'cong
 // Trang danh sách Cộng đồng (dùng cho sidebar)
 $page_cong_dong = get_page_by_path('cong-dong');
 $cong_dong_list_url = $page_cong_dong ? get_permalink($page_cong_dong) : home_url('/cong-dong/');
+
+$crumb = $current_cong_dong_id ? get_the_title($current_cong_dong_id) : 'Về Cộng đồng';
+dnttvn_page_shell_start($crumb, $current_cong_dong_id);
 ?>
-
-<main class="main-content">
-    <!-- Left Sidebar -->
-    <div class="sidebar-column">
-        <div class="column-header mobile-toggle collapsed">Về Cộng đồng DNTTVN</div>
-        <div class="column-content mobile-collapsed">
-            <ul class="about-list">
-                <?php
-                $cong_dong_args = array(
-                    'post_type'      => 'cong_dong',
-                    'posts_per_page' => -1,
-                    'post_status'    => 'publish',
-                    'orderby'        => 'menu_order date',
-                    'order'          => 'ASC',
-                );
-                $cong_dong_query = new WP_Query($cong_dong_args);
-
-                if ($cong_dong_query->have_posts()) :
-                    while ($cong_dong_query->have_posts()) :
-                        $cong_dong_query->the_post();
-                        $post_id = get_the_ID();
-                        $is_noi_bat = get_post_meta($post_id, '_cong_dong_noi_bat', true);
-                        $li_class = ($is_noi_bat == '1') ? 'highlight-item' : '';
-                        if ((int) $current_cong_dong_id === (int) $post_id) {
-                            $li_class .= ' current-item';
-                        }
-                        <li class="<?php echo esc_attr(trim($li_class)); ?>">
-                            <a href="<?php echo esc_url(dnttvn_get_cong_dong_detail_url($post_id)); ?>"><?php the_title(); ?></a>
-                        </li>
-                        <?php
-                    endwhile;
-                    wp_reset_postdata();
-                else :
-                    ?>
-                    <li><a href="#">Chưa có bài viết Cộng đồng</a></li>
-                <?php endif; ?>
-            </ul>
-        </div>
-        <?php if (function_exists('dnttvn_render_left_sidebar_thanh_vien_block')) dnttvn_render_left_sidebar_thanh_vien_block(); ?>
-    </div>
-
-    <!-- Center Content -->
-    <div class="main-center">
-        <div class="content-column">
             <?php
             if ($current_cong_dong_id > 0 && $cong_dong_post) {
                 global $post;
@@ -66,7 +25,7 @@ $cong_dong_list_url = $page_cong_dong ? get_permalink($page_cong_dong) : home_ur
                 $post = $cong_dong_post;
                 setup_postdata($post);
                 ?>
-                <div class="column-header entry-title"><?php echo esc_html($post->post_title); ?></div>
+                <h1 class="cd-detail__title"><?php echo esc_html($post->post_title); ?></h1>
                 <div class="column-content column-content-ve-cong-dong-detail">
                     <div class="news-item">
                         <?php
@@ -337,7 +296,7 @@ $cong_dong_list_url = $page_cong_dong ? get_permalink($page_cong_dong) : home_ur
                 wp_reset_postdata();
             } elseif ($post_id_param > 0) {
                 ?>
-                <div class="column-header">Bài viết không tồn tại</div>
+                <h1 class="cd-detail__title">Bài viết không tồn tại</h1>
                 <div class="column-content">
                     <p>Bài viết Cộng đồng bạn tìm kiếm không tồn tại hoặc đã bị xóa.</p>
                     <div style="margin-top: 20px; text-align: center;">
@@ -347,7 +306,7 @@ $cong_dong_list_url = $page_cong_dong ? get_permalink($page_cong_dong) : home_ur
                 <?php
             } else {
                 ?>
-                <div class="column-header">Về Cộng đồng</div>
+                <h1 class="cd-detail__title">Về Cộng đồng</h1>
                 <div class="column-content">
                     <p>Vui lòng chọn một mục Cộng đồng từ danh sách bên trái.</p>
                     <div style="margin-top: 20px; text-align: center;">
@@ -357,28 +316,7 @@ $cong_dong_list_url = $page_cong_dong ? get_permalink($page_cong_dong) : home_ur
                 <?php
             }
             ?>
-        </div>
-    </div>
 
-    <!-- Right Sidebar: chỉ Link Website liên kết (tối đa 9), không doanh nghiệp -->
-    <div class="sidebar-column">
-        <?php get_template_part('template-parts/sidebar-su-kien'); ?>
-
-        <div class="column-header mobile-toggle collapsed">Website liên kết</div>
-        <div class="column-content mobile-collapsed">
-            <ul class="linked-websites">
-                <?php
-                $community_links = function_exists('dnttvn_get_community_links') ? dnttvn_get_community_links() : array();
-                $community_links = array_slice($community_links, 0, 9);
-                foreach ($community_links as $link) {
-                    if (!empty($link['url'])) {
-                        echo '<li><a href="' . esc_url($link['url']) . '">' . esc_html($link['name']) . '</a></li>';
-                    }
-                }
-                ?>
-            </ul>
-        </div>
-    </div>
-</main>
+<?php dnttvn_page_shell_end(); ?>
 
 <?php get_footer(); ?>

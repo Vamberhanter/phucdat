@@ -7,45 +7,11 @@
 get_header();
 
 $submitted = isset($_GET['submitted']) && $_GET['submitted'] === '1';
+
+dnttvn_page_shell_start('Đăng ký Hướng nghiệp');
 ?>
-
-<main class="main-content main-content-dang-ky">
-    <div class="sidebar-column">
-        <div class="column-header mobile-toggle collapsed">Về Cộng đồng DNTTVN</div>
-        <div class="column-content mobile-collapsed">
-            <ul class="about-list">
-                <?php
-                $cong_dong_args = array(
-                    'post_type'      => 'cong_dong',
-                    'posts_per_page' => -1,
-                    'post_status'    => 'publish',
-                    'orderby'        => 'menu_order date',
-                    'order'          => 'ASC',
-                );
-                $q = new WP_Query($cong_dong_args);
-                if ($q->have_posts()) :
-                    while ($q->have_posts()) :
-                        $q->the_post();
-                        $li_class = (get_post_meta(get_the_ID(), '_cong_dong_noi_bat', true) == '1') ? 'highlight-item' : '';
-                        ?>
-                        <li class="<?php echo esc_attr($li_class); ?>">
-                            <a href="<?php echo esc_url(function_exists('dnttvn_get_cong_dong_detail_url') ? dnttvn_get_cong_dong_detail_url(get_the_ID()) : get_permalink()); ?>"><?php the_title(); ?></a>
-                        </li>
-                        <?php
-                    endwhile;
-                    wp_reset_postdata();
-                else :
-                    ?><li><a href="#">Chưa có bài viết Cộng đồng</a></li><?php endif; ?>
-            </ul>
-        </div>
-        <?php if (function_exists('dnttvn_render_left_sidebar_thanh_vien_block')) dnttvn_render_left_sidebar_thanh_vien_block(); ?>
-    </div>
-
-    <div class="main-center">
-        <div class="content-column content-column-dang-ky">
-            <div class="column-header">Phiếu đăng ký Chương trình Hướng nghiệp & Khai mở Trí tuệ</div>
-            <div class="column-content">
-
+<h1 class="cd-detail__title">Phiếu đăng ký Chương trình Hướng nghiệp &amp; Khai mở Trí tuệ</h1>
+<div class="content-column-dang-ky">
                 <p class="dang-ky-huong-nghiep-intro">(Dành riêng cho con em Thành viên Cộng đồng Doanh nhân Trí tuệ Việt Nam)</p>
                 <p class="dang-ky-huong-nghiep-gui">Kính gửi: Ban Đào tạo - Trung ương Cộng đồng Doanh nhân Trí tuệ Việt Nam.</p>
 
@@ -203,29 +169,9 @@ $submitted = isset($_GET['submitted']) && $_GET['submitted'] === '1';
                         <button type="submit" class="dang-ky-submit">Gửi phiếu đăng ký</button>
                     </div>
                 </form>
-            </div>
-        </div>
-    </div>
+</div>
 
-    <div class="sidebar-column">
-        <?php get_template_part('template-parts/sidebar-su-kien'); ?>
-
-        <div class="column-header mobile-toggle collapsed">Website liên kết</div>
-        <div class="column-content mobile-collapsed">
-            <ul class="linked-websites">
-                <?php
-                $links = function_exists('dnttvn_get_community_links') ? dnttvn_get_community_links() : array();
-                $links = array_slice($links, 0, 9);
-                foreach ($links as $link) {
-                    if (!empty($link['url'])) {
-                        echo '<li><a href="' . esc_url($link['url']) . '">' . esc_html($link['name']) . '</a></li>';
-                    }
-                }
-                ?>
-            </ul>
-        </div>
-    </div>
-</main>
+<?php dnttvn_page_shell_end(); ?>
 
 <?php
 if ($submitted) :

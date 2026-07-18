@@ -14,48 +14,8 @@ $content = isset($option_map[$slug]) ? get_option($option_map[$slug], '') : '';
 $show_approved_members = ($slug === 'gia-tri-thanh-vien');
 ?>
 
-<main class="main-content">
-    <!-- Left Sidebar -->
-    <div class="sidebar-column">
-        <div class="column-header mobile-toggle collapsed">Về Cộng đồng DNTTVN</div>
-        <div class="column-content mobile-collapsed">
-            <ul class="about-list">
-                <?php
-                $cong_dong_args = array(
-                    'post_type'      => 'cong_dong',
-                    'posts_per_page' => -1,
-                    'post_status'    => 'publish',
-                    'orderby'        => 'menu_order date',
-                    'order'          => 'ASC',
-                );
-                $cong_dong_query = new WP_Query($cong_dong_args);
-                if ($cong_dong_query->have_posts()) :
-                    while ($cong_dong_query->have_posts()) :
-                        $cong_dong_query->the_post();
-                        $is_noi_bat = get_post_meta(get_the_ID(), '_cong_dong_noi_bat', true);
-                        $li_class   = ($is_noi_bat == '1') ? 'highlight-item' : '';
-                        ?>
-                        <li class="<?php echo esc_attr($li_class); ?>">
-                            <a href="<?php echo esc_url(function_exists('dnttvn_get_cong_dong_detail_url') ? dnttvn_get_cong_dong_detail_url(get_the_ID()) : get_permalink()); ?>"><?php the_title(); ?></a>
-                        </li>
-                        <?php
-                    endwhile;
-                    wp_reset_postdata();
-                else :
-                    ?>
-                    <li><a href="#">Chưa có bài viết Cộng đồng</a></li>
-                <?php endif; ?>
-            </ul>
-        </div>
-        <?php if (function_exists('dnttvn_render_left_sidebar_thanh_vien_block')) dnttvn_render_left_sidebar_thanh_vien_block(); ?>
-    </div>
-
-    <!-- Center Content -->
-    <div class="main-center">
-        <div class="content-column">
-            <div class="column-header"><?php the_title(); ?></div>
-            <div class="column-content">
-
+<?php dnttvn_page_shell_start(get_the_title()); ?>
+<h1 class="cd-detail__title"><?php the_title(); ?></h1>
                 <?php
                 // Danh sách bài "Giá trị thành viên" (CPT), quản lý giống Quy trình
                 $gia_tri_query = new WP_Query(array(
@@ -282,25 +242,26 @@ $show_approved_members = ($slug === 'gia-tri-thanh-vien');
                         ?>
                         <div class="thanh-vien-daduyet-section" style="margin-top: 32px;">
                             <h2 class="thanh-vien-daduyet-title" style="font-size: 20px; margin: 0 0 16px; color: #333;">Thành viên đã duyệt</h2>
-                            <div class="thanh-vien-daduyet-list" style="overflow-x: auto;">
-                                <table class="thanh-vien-table" style="width: 100%; border-collapse: collapse;">
+                            <div class="thanh-vien-daduyet-list dnttvn-table-scroll-wrapper">
+                                <div class="dnttvn-scroll-hint" aria-hidden="true">← Kéo ngang để xem thêm →</div>
+                                <table class="thanh-vien-table dnttvn-editor-table">
                                     <thead>
-                                        <tr style="background: #f5f5f5;">
-                                            <th style="padding: 10px 12px; text-align: left; border: 1px solid #ddd;">STT</th>
-                                            <th style="padding: 10px 12px; text-align: left; border: 1px solid #ddd;">Họ và tên</th>
-                                            <th style="padding: 10px 12px; text-align: left; border: 1px solid #ddd;">SĐT / Zalo</th>
-                                            <th style="padding: 10px 12px; text-align: left; border: 1px solid #ddd;">Tên doanh nghiệp</th>
-                                            <th style="padding: 10px 12px; text-align: left; border: 1px solid #ddd;">Ngành nghề</th>
+                                        <tr>
+                                            <th>STT</th>
+                                            <th>Họ và tên</th>
+                                            <th>SĐT / Zalo</th>
+                                            <th>Tên doanh nghiệp</th>
+                                            <th>Ngành nghề</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <?php $stt = 0; while ($approved->have_posts()) : $approved->the_post(); $stt++; ?>
                                         <tr>
-                                            <td style="padding: 10px 12px; border: 1px solid #ddd;"><?php echo (int) $stt; ?></td>
-                                            <td style="padding: 10px 12px; border: 1px solid #ddd;"><?php echo esc_html(get_post_meta(get_the_ID(), '_dang_ky_ho_ten', true)); ?></td>
-                                            <td style="padding: 10px 12px; border: 1px solid #ddd;"><?php echo esc_html(get_post_meta(get_the_ID(), '_dang_ky_sdt', true)); ?></td>
-                                            <td style="padding: 10px 12px; border: 1px solid #ddd;"><?php echo esc_html(get_post_meta(get_the_ID(), '_dang_ky_ten_dn', true)); ?></td>
-                                            <td style="padding: 10px 12px; border: 1px solid #ddd;"><?php echo esc_html(get_post_meta(get_the_ID(), '_dang_ky_nganh_nghe', true)); ?></td>
+                                            <td><?php echo (int) $stt; ?></td>
+                                            <td><?php echo esc_html(get_post_meta(get_the_ID(), '_dang_ky_ho_ten', true)); ?></td>
+                                            <td><?php echo esc_html(get_post_meta(get_the_ID(), '_dang_ky_sdt', true)); ?></td>
+                                            <td><?php echo esc_html(get_post_meta(get_the_ID(), '_dang_ky_ten_dn', true)); ?></td>
+                                            <td><?php echo esc_html(get_post_meta(get_the_ID(), '_dang_ky_nganh_nghe', true)); ?></td>
                                         </tr>
                                         <?php endwhile; ?>
                                     </tbody>
@@ -312,29 +273,6 @@ $show_approved_members = ($slug === 'gia-tri-thanh-vien');
                     endif;
                     ?>
                 <?php endif; ?>
-            </div>
-        </div>
-    </div>
-
-    <!-- Right Sidebar -->
-    <div class="sidebar-column">
-        <?php get_template_part('template-parts/sidebar-su-kien'); ?>
-
-        <div class="column-header mobile-toggle collapsed">Website liên kết</div>
-        <div class="column-content mobile-collapsed">
-            <ul class="linked-websites">
-                <?php
-                $community_links = function_exists('dnttvn_get_community_links') ? dnttvn_get_community_links() : array();
-                $community_links = array_slice($community_links, 0, 9);
-                foreach ($community_links as $link) {
-                    if (!empty($link['url'])) {
-                        echo '<li><a href="' . esc_url($link['url']) . '">' . esc_html($link['name']) . '</a></li>';
-                    }
-                }
-                ?>
-            </ul>
-        </div>
-    </div>
-</main>
+<?php dnttvn_page_shell_end(); ?>
 
 <?php get_footer(); ?>

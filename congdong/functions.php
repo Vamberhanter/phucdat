@@ -5,14 +5,21 @@
 
 // Enqueue styles and scripts
 function dnttvn_enqueue_styles() {
-    $css_file = get_template_directory() . '/assets/style-gioi-thieu.css';
-    $js_file  = get_template_directory() . '/assets/script.js';
+    $css_file     = get_template_directory() . '/assets/style-gioi-thieu.css';
+    $modern_file  = get_template_directory() . '/assets/style-modern.css';
+    $js_file      = get_template_directory() . '/assets/script.js';
 
     wp_enqueue_style(
         'dnttvn-main-style',
         get_template_directory_uri() . '/assets/style-gioi-thieu.css',
         array(),
         file_exists($css_file) ? filemtime($css_file) : '1.0.10'
+    );
+    wp_enqueue_style(
+        'dnttvn-modern-style',
+        get_template_directory_uri() . '/assets/style-modern.css',
+        array('dnttvn-main-style'),
+        file_exists($modern_file) ? filemtime($modern_file) : '1.0.0'
     );
     wp_enqueue_script(
         'dnttvn-main-script',
@@ -366,6 +373,15 @@ function dnttvn_create_necessary_pages() {
         update_post_meta($existing_dang_ky->ID, '_wp_page_template', 'page-dang-ky.php');
     }
 
+    // Alias cũ: dang-ky-doanh-nghiep → cùng form đăng ký (tránh layout cộng đồng cũ)
+    $dk_dn_old = get_page_by_path('dang-ky-doanh-nghiep');
+    if ($dk_dn_old) {
+        update_post_meta($dk_dn_old->ID, '_wp_page_template', 'page-dang-ky.php');
+    }
+
+    // Không tạo page slug "su-kien" (tránh xung đột với archive/single CPT).
+    // Danh sách sự kiện: /su-kien/ (archive). Chi tiết: /su-kien/{slug}/.
+
     // Trang Danh sách Doanh nhân
     $doanh_nhan_slug = 'doanh-nhan';
     $existing_doanh_nhan = get_page_by_path($doanh_nhan_slug);
@@ -438,25 +454,355 @@ add_action('init', 'dnttvn_create_necessary_pages');
 
 // Khối cột trái: Giá trị / Quy trình / Phụng Doanh nhân / Phụng sự Con Doanh nhân / Nghĩa vụ thành viên / Hỏi đáp
 function dnttvn_render_left_sidebar_thanh_vien_block() {
-    $pages = array(
-        'gia-tri-thanh-vien'        => 'Giá trị nhận được của thành viên',
-        'quy-trinh-gia-nhap'        => 'Quy trình gia nhập Cộng đồng',
-        'phung-doanh-nhan'          => 'Phụng sự Doanh nhân',
-        'phung-su-con-doanh-nhan'   => 'Phụng sự Con Doanh nhân',
-        'nghia-vu-thanh-vien-cong-dong' => 'Nghĩa vụ thành viên Cộng Đồng',
-        'hoi-dap-cong-dong'         => 'Hỏi đáp về Cộng đồng',
-    );
-    echo '<div class="sidebar-block-thanh-vien">';
-    echo '<div class="column-header mobile-toggle collapsed">Thành viên mới</div>';
-    echo '<div class="column-content mobile-collapsed">';
-    echo '<ul class="thanh-vien-moi-list">';
-    foreach ($pages as $slug => $label) {
-        $page = get_page_by_path($slug);
-        $url = $page ? get_permalink($page) : home_url('/' . $slug . '/');
-        echo '<li><a href="' . esc_url($url) . '">' . esc_html($label) . '</a></li>';
+    // Legacy helper — layout mới dùng template-parts/sidebar-left.php
+    get_template_part('template-parts/sidebar', 'left');
+}
+
+/**
+ * Mở khung trang nội dung hiện đại (breadcrumb + sidebar trái + vùng main).
+ */
+function dnttvn_page_shell_start($breadcrumb_title = '', $current_cong_dong_id = 0) {
+    if ($breadcrumb_title !== '') {
+        get_template_part('template-parts/breadcrumb', null, array('current' => $breadcrumb_title));
     }
-    echo '</ul></div></div>';
-} // Chạy ở init để đảm bảo khi lên host mới nó tự check và tạo
+    echo '<main class="cd-page"><div class="cd-page__inner">';
+    get_template_part('template-parts/sidebar', 'left', array('current_id' => (int) $current_cong_dong_id));
+    echo '<div class="cd-main"><div class="cd-main-card">';
+}
+
+/**
+ * Đóng khung trang nội dung hiện đại (sidebar phải).
+ */
+function dnttvn_page_shell_end() {
+    echo '</div></div>';
+    get_template_part('template-parts/sidebar', 'right');
+    echo '</div></main>';
+}
+
+/**
+ * Render 1 ảnh/video/pdf trong gallery nội dung cộng đồng.
+ *
+ * @param int    $attachment_id
+ * @param string $caption
+ * @param string $size
+ */
+function dnttvn_render_media_item($attachment_id, $caption = '', $size = 'large') {
+    $attachment_id = absint($attachment_id);
+    if ($attachment_id <= 0) {
+        return;
+    }
+    $mime = get_post_mime_type($attachment_id);
+    $url  = wp_get_attachment_url($attachment_id);
+    if (!$url) {
+        return;
+    }
+    $is_video = is_string($mime) && strpos($mime, 'video') === 0;
+    $is_pdf   = ((string) $mime) === 'application/pdf';
+    $thumb    = (!$is_video && !$is_pdf) ? (wp_get_attachment_image_url($attachment_id, $size) ?: $url) : $url;
+
+    echo '<div class="cd-media-item" role="button" tabindex="0" data-full="' . esc_url($url) . '">';
+    if ($is_video) {
+        echo '<video controls playsinline><source src="' . esc_url($url) . '" type="' . esc_attr($mime) . '"></video>';
+    } elseif ($is_pdf) {
+        echo '<a class="cd-media-pdf" href="' . esc_url($url) . '" target="_blank" rel="noopener">PDF</a>';
+    } else {
+        echo '<img src="' . esc_url($thumb) . '" alt="' . esc_attr($caption !== '' ? $caption : '') . '" loading="lazy" data-full-src="' . esc_url($url) . '">';
+    }
+    if ($caption !== '') {
+        echo '<p class="cd-media-caption">' . esc_html($caption) . '</p>';
+    }
+    echo '</div>';
+}
+
+/**
+ * Nội dung chi tiết bài Cộng đồng: gallery (ảnh đại diện + hình phụ) + structured content (có ảnh).
+ *
+ * @param int $post_id
+ */
+/**
+ * Lấy bài CPT “Tổng quan cộng đồng” (nếu có) để gắn menu sidebar / hub.
+ *
+ * @return WP_Post|null
+ */
+function dnttvn_get_tong_quan_cong_dong_post() {
+    $by_slug = get_page_by_path('tong-quan-cong-dong', OBJECT, 'cong_dong');
+    if ($by_slug instanceof WP_Post && $by_slug->post_status === 'publish') {
+        return $by_slug;
+    }
+
+    $candidates = get_posts(array(
+        'post_type'              => 'cong_dong',
+        'post_status'            => 'publish',
+        'numberposts'            => 50,
+        'suppress_filters'       => true,
+        'no_found_rows'          => true,
+        'update_post_meta_cache' => false,
+        'update_post_term_cache' => false,
+    ));
+    foreach ($candidates as $p) {
+        if (dnttvn_is_tong_quan_cong_dong_post($p->ID)) {
+            return $p;
+        }
+    }
+
+    return null;
+}
+
+/**
+ * @param int $post_id
+ * @return bool
+ */
+function dnttvn_is_tong_quan_cong_dong_post($post_id) {
+    $post_id = absint($post_id);
+    if ($post_id <= 0) {
+        return false;
+    }
+    $post = get_post($post_id);
+    if (!$post || $post->post_type !== 'cong_dong') {
+        return false;
+    }
+    $slug    = (string) $post->post_name;
+    $title   = trim(wp_strip_all_tags($post->post_title));
+    $title_l = function_exists('mb_strtolower') ? mb_strtolower($title, 'UTF-8') : strtolower($title);
+    return ($slug === 'tong-quan-cong-dong' || $title_l === 'tổng quan cộng đồng');
+}
+
+/**
+ * Nhúng catalog links + Flipbook Heyzine của bài Cộng đồng.
+ *
+ * @param int   $post_id
+ * @param array $args {
+ *   @type bool $catalog Có render catalog links không. Mặc định true; Tổng quan = false.
+ * }
+ */
+function dnttvn_render_cong_dong_flipbook_embeds($post_id, $args = array()) {
+    $post_id = absint($post_id);
+    if ($post_id <= 0) {
+        return;
+    }
+
+    $args = wp_parse_args($args, array(
+        'catalog' => !dnttvn_is_tong_quan_cong_dong_post($post_id),
+    ));
+
+    if (!empty($args['catalog'])) {
+        $catalog_raw = get_post_meta($post_id, '_cong_dong_catalog_links', true);
+        if (is_string($catalog_raw) && $catalog_raw !== '') {
+            $catalog_links = json_decode($catalog_raw, true);
+        } else {
+            $catalog_links = is_array($catalog_raw) ? $catalog_raw : array();
+        }
+        $catalog_links = is_array($catalog_links) ? $catalog_links : array();
+        $catalog_links = array_values(array_filter($catalog_links, function ($item) {
+            return is_array($item) && isset($item['url']) && (string) $item['url'] !== '';
+        }));
+
+        if (!empty($catalog_links)) {
+            echo '<section class="catalog-links-block catalog-links-block-first" aria-label="Catalog / Flipbook">';
+            foreach ($catalog_links as $idx => $item) {
+                $url = trim((string) $item['url']);
+                if ($url === '') {
+                    continue;
+                }
+                $label     = isset($item['label']) && trim((string) $item['label']) !== '' ? trim((string) $item['label']) : $url;
+                $iframe_id = 'catalog-iframe-cong-dong-' . $post_id . '-' . (int) $idx;
+                echo '<div class="catalog-link-item">';
+                echo '<p class="catalog-link-title"><a href="' . esc_url($url) . '" target="_blank" rel="noopener noreferrer">' . esc_html($label) . '</a></p>';
+                echo '<div class="flipbook-wrapper"><div class="flipbook-frame">';
+                echo '<iframe id="' . esc_attr($iframe_id) . '" src="' . esc_url($url) . '" loading="lazy" allowfullscreen="true" allow="clipboard-write" title="' . esc_attr($label) . '"></iframe>';
+                echo '</div>';
+                echo '<p class="flipbook-hint">Mẹo: Nhấn biểu tượng ô vuông ở góc để xem toàn màn hình</p>';
+                echo '</div></div>';
+            }
+            echo '</section>';
+        }
+    }
+
+    $flipbook_url = get_post_meta($post_id, '_cong_dong_flipbook_url', true);
+    if ($flipbook_url) {
+        $flipbook_title = get_the_title($post_id);
+        echo '<div class="flipbook-embed">';
+        echo '<div class="flipbook-wrapper"><div class="flipbook-frame">';
+        echo '<iframe src="' . esc_url($flipbook_url) . '" loading="lazy" allowfullscreen="true" allow="clipboard-write" title="' . esc_attr($flipbook_title) . '"></iframe>';
+        echo '</div>';
+        echo '<p class="flipbook-hint">Mẹo: Nhấn biểu tượng ô vuông ở góc để xem toàn màn hình</p>';
+        echo '</div></div>';
+    }
+}
+
+function dnttvn_render_cong_dong_detail_content($post_id) {
+    $post_id = absint($post_id);
+    if ($post_id <= 0) {
+        return;
+    }
+
+    // Tổng quan cộng đồng: chỉ Flipbook (không Catalogue / gallery / nội dung khác)
+    if (dnttvn_is_tong_quan_cong_dong_post($post_id)) {
+        dnttvn_render_cong_dong_flipbook_embeds($post_id, array('catalog' => false));
+        return;
+    }
+
+    // 0) Catalog / Flipbook (meta admin) — trước gallery để giống single cũ
+    dnttvn_render_cong_dong_flipbook_embeds($post_id);
+
+    // 1) Gallery: ảnh đại diện + ảnh/video phụ
+    $detail_gallery_items = array();
+    if (has_post_thumbnail($post_id)) {
+        $feat_id = get_post_thumbnail_id($post_id);
+        $url     = wp_get_attachment_image_url($feat_id, 'large');
+        if (!$url) {
+            $url = wp_get_attachment_url($feat_id);
+        }
+        if ($url) {
+            $mime = get_post_mime_type($feat_id);
+            $detail_gallery_items[] = array(
+                'id'       => $feat_id,
+                'url'      => $url,
+                'mime'     => $mime ?: 'image/jpeg',
+                'is_video' => is_string($mime) && strpos($mime, 'video') === 0,
+                'is_pdf'   => ((string) $mime) === 'application/pdf',
+            );
+        }
+    }
+
+    $hinh_phu_raw = get_post_meta($post_id, '_cong_dong_hinh_phu', true);
+    if (is_string($hinh_phu_raw)) {
+        $decoded        = json_decode($hinh_phu_raw, true);
+        $hinh_phu_array = is_array($decoded) ? $decoded : array();
+    } else {
+        $hinh_phu_array = is_array($hinh_phu_raw) ? $hinh_phu_raw : (!empty($hinh_phu_raw) ? array($hinh_phu_raw) : array());
+    }
+    $hinh_phu_array = array_values(array_filter(array_map('absint', (array) $hinh_phu_array)));
+    foreach ($hinh_phu_array as $aid) {
+        if ($aid <= 0) {
+            continue;
+        }
+        $mime = get_post_mime_type($aid);
+        $url  = wp_get_attachment_url($aid);
+        if (!$url) {
+            continue;
+        }
+        $detail_gallery_items[] = array(
+            'id'       => $aid,
+            'url'      => $url,
+            'mime'     => $mime ?: 'image/jpeg',
+            'is_video' => is_string($mime) && strpos($mime, 'video') === 0,
+            'is_pdf'   => ((string) $mime) === 'application/pdf',
+        );
+    }
+
+    if (!empty($detail_gallery_items)) {
+        $first     = $detail_gallery_items[0];
+        $has_multi = count($detail_gallery_items) > 1;
+        echo '<div class="detail-gallery-unified" data-detail-gallery-items="' . esc_attr(wp_json_encode($detail_gallery_items)) . '">';
+        echo '<script type="application/json" class="detail-gallery-json">' . str_replace('</script>', '<\/script>', wp_json_encode($detail_gallery_items)) . '</script>';
+        echo '<div class="detail-gallery-frame">';
+        if ($has_multi) {
+            echo '<button type="button" class="detail-gallery-prev" aria-label="Ảnh trước">&#8249;</button>';
+        }
+        echo '<div class="detail-gallery-main" role="button" tabindex="0" title="Bấm xem to hơn">';
+        if (!empty($first['is_video'])) {
+            echo '<video class="detail-gallery-media" controls><source src="' . esc_url($first['url']) . '" type="' . esc_attr($first['mime']) . '"></video>';
+        } elseif (!empty($first['is_pdf'])) {
+            echo '<iframe class="detail-gallery-media detail-gallery-pdf" src="' . esc_url($first['url']) . '" title="PDF" loading="lazy"></iframe>';
+        } else {
+            echo '<img class="detail-gallery-media" src="' . esc_url($first['url']) . '" alt="" />';
+        }
+        echo '</div>';
+        if ($has_multi) {
+            echo '<button type="button" class="detail-gallery-next" aria-label="Ảnh sau">&#8250;</button>';
+        }
+        echo '</div>';
+        echo '<div class="detail-gallery-thumbs">';
+        foreach ($detail_gallery_items as $idx => $item) {
+            $active = $idx === 0 ? ' active' : '';
+            $pdf    = !empty($item['is_pdf']) ? ' is-pdf' : '';
+            echo '<div class="detail-gallery-thumb' . $active . $pdf . '" data-index="' . (int) $idx . '" role="button" tabindex="0">';
+            if (!empty($item['is_video'])) {
+                echo '<video><source src="' . esc_url($item['url']) . '" type="' . esc_attr($item['mime']) . '"></video>';
+            } elseif (!empty($item['is_pdf'])) {
+                echo '<div class="detail-gallery-thumb-pdf">PDF</div>';
+            } else {
+                echo '<img src="' . esc_url($item['url']) . '" alt="" />';
+            }
+            echo '</div>';
+        }
+        echo '</div></div>';
+    }
+
+    // 2) Structured content (text + images)
+    $items = function_exists('dnttvn_get_structured_content_array') ? dnttvn_get_structured_content_array($post_id) : array();
+    if (!empty($items)) {
+        echo '<div class="structured-content-display">';
+        foreach ($items as $item) {
+            $has_heading = !empty($item['heading']);
+            $has_content = !empty($item['content']) || (!empty($item['content_items']) && is_array($item['content_items']));
+            $images      = isset($item['images']) && is_array($item['images']) ? $item['images'] : array();
+            $captions    = isset($item['image_captions']) && is_array($item['image_captions']) ? $item['image_captions'] : array();
+            if (!$has_heading && !$has_content && empty($images)) {
+                continue;
+            }
+
+            echo '<div class="structured-item-display">';
+            if ($has_heading) {
+                echo '<h2>' . esc_html($item['heading']) . '</h2>';
+            }
+
+            if (!empty($images)) {
+                echo '<div class="structured-images-gallery cd-media-gallery">';
+                foreach ($images as $img_index => $attachment_id) {
+                    $cap = isset($captions[$img_index]) ? (string) $captions[$img_index] : '';
+                    dnttvn_render_media_item($attachment_id, $cap, 'medium');
+                }
+                echo '</div>';
+            }
+
+            if (!empty($item['content_items']) && is_array($item['content_items'])) {
+                foreach ($item['content_items'] as $content_item) {
+                    if (is_string($content_item)) {
+                        $text        = $content_item;
+                        $ci_images   = array();
+                        $ci_captions = array();
+                    } else {
+                        $text        = isset($content_item['text']) ? $content_item['text'] : '';
+                        $ci_images   = isset($content_item['images']) ? (array) $content_item['images'] : array();
+                        $ci_captions = isset($content_item['image_captions']) ? (array) $content_item['image_captions'] : array();
+                    }
+                    echo '<div class="content-item-display">';
+                    if ($text !== '') {
+                        $c = apply_filters('dnttvn_display_content', $text);
+                        echo '<div class="structured-content-text">' . dnttvn_kses_structured_content(preg_match('/\s*</', $c) ? $c : wpautop($c)) . '</div>';
+                    }
+                    if (!empty($ci_images)) {
+                        echo '<div class="content-item-images-gallery cd-media-gallery">';
+                        foreach ($ci_images as $ci_idx => $ci_id) {
+                            $cap = isset($ci_captions[$ci_idx]) ? (string) $ci_captions[$ci_idx] : '';
+                            dnttvn_render_media_item($ci_id, $cap, 'medium');
+                        }
+                        echo '</div>';
+                    }
+                    echo '</div>';
+                }
+            } elseif (!empty($item['content'])) {
+                $c = apply_filters('dnttvn_display_content', $item['content']);
+                echo '<div class="structured-content-text">' . dnttvn_kses_structured_content(preg_match('/\s*</', $c) ? $c : wpautop($c)) . '</div>';
+            }
+            echo '</div>';
+        }
+        echo '</div>';
+    } else {
+        $post = get_post($post_id);
+        if ($post && !empty($post->post_content)) {
+            echo apply_filters('the_content', $post->post_content);
+        } else {
+            echo '<p><em>Nội dung đang được cập nhật...</em></p>';
+        }
+    }
+
+    if (function_exists('dnttvn_render_excel_tables')) {
+        dnttvn_render_excel_tables($post_id);
+    }
+}
 
 // Add custom meta boxes for Tin tức
 function dnttvn_add_tin_tuc_meta_boxes() {
@@ -2935,6 +3281,15 @@ function dnttvn_register_cong_dong_post_type() {
 }
 add_action('init', 'dnttvn_register_cong_dong_post_type', 0);
 
+/**
+ * @deprecated Seed bài Cộng đồng mặc định đã tắt — chỉ dùng dữ liệu từ admin/DB.
+ */
+function dnttvn_seed_default_cong_dong_posts() {
+    // Không tạo bài mẫu nữa.
+}
+// add_action('init', 'dnttvn_seed_default_cong_dong_posts', 25); — disabled
+
+
 // Taxonomy: Khu vực (Dùng cho Đăng ký / Doanh nhân)
 function dnttvn_register_khu_vuc_taxonomy() {
     register_taxonomy('khu_vuc', array('dang_ky', 'doanh_nhan'), array(
@@ -3810,9 +4165,10 @@ function dnttvn_register_su_kien_post_type() {
         'menu_position'       => 7,
         'menu_icon'           => 'dashicons-calendar-alt',
         'show_in_rest'        => true,
-        'has_archive'         => true,
+        'has_archive'         => 'su-kien',
         'publicly_queryable'  => true,
         'capability_type'     => 'post',
+        'rewrite'             => array('slug' => 'su-kien', 'with_front' => false),
     );
     register_post_type('su_kien', $args);
 }
@@ -5152,6 +5508,26 @@ function dnttvn_save_dang_ky_duyet($post_id) {
     }
 }
 add_action('save_post_dang_ky', 'dnttvn_save_dang_ky_duyet');
+
+/**
+ * Đếm số đơn đăng ký tham gia đã được duyệt (_dang_ky_status = approved).
+ */
+function dnttvn_count_approved_dang_ky() {
+    $q = new WP_Query(array(
+        'post_type'              => 'dang_ky',
+        'post_status'            => 'any',
+        'posts_per_page'         => 1,
+        'fields'                 => 'ids',
+        'no_found_rows'          => false,
+        'update_post_meta_cache' => false,
+        'update_post_term_cache' => false,
+        'meta_key'               => '_dang_ky_status',
+        'meta_value'             => 'approved',
+    ));
+    $count = (int) $q->found_posts;
+    wp_reset_postdata();
+    return max(0, $count);
+}
 add_action('add_meta_boxes', 'dnttvn_add_dang_ky_meta_box');
 
 // Cột danh sách Đơn đăng ký: Trạng thái
@@ -5464,55 +5840,95 @@ function dnttvn_theme_setup() {
 add_action('after_setup_theme', 'dnttvn_theme_setup');
 
 /**
- * Permalink trang form Đăng ký doanh nghiệp (slug dang-ky-doanh-nghiep).
+ * Permalink trang form Đăng ký doanh nghiệp.
+ * Ưu tiên trang slug `dang-ky` (template page-dang-ky.php).
  */
 function dnttvn_get_dn_registration_page_url() {
-    $p = get_page_by_path('dang-ky-doanh-nghiep');
-    if ($p && isset($p->post_status) && $p->post_status === 'publish') {
-        return get_permalink($p);
+    $candidates = array('dang-ky', 'dang-ky-doanh-nghiep');
+    foreach ($candidates as $slug) {
+        $p = get_page_by_path($slug);
+        if ($p && isset($p->post_status) && $p->post_status === 'publish') {
+            return get_permalink($p);
+        }
     }
-    return home_url('/dang-ky-doanh-nghiep/');
+    return home_url('/dang-ky/');
 }
 
 /**
- * Thêm mục "Đăng ký doanh nghiệp" vào cuối menu vị trí primary.
+ * Không gắn "Đăng ký doanh nghiệp" vào menu — dùng nút CTA riêng trên header.
+ * Loại bỏ mục Đăng nhập / Thành viên nếu có trong menu.
  */
 function dnttvn_append_dn_register_nav_link($items, $args) {
     if (empty($args->theme_location) || $args->theme_location !== 'primary') {
         return $items;
     }
-    if (strpos($items, 'menu-item-dang-ky-dn') !== false) {
-        return $items;
-    }
-    $url   = dnttvn_get_dn_registration_page_url();
-    $label = 'Đăng ký doanh nghiệp';
-    $items .= '<li class="menu-item menu-item-dang-ky-dn"><a href="' . esc_url($url) . '">' . esc_html($label) . '</a></li>';
+    // Loại bỏ nút/mục Đăng nhập khỏi menu
+    $items = preg_replace(
+        '/<li[^>]*>\s*<a[^>]*>\s*Đăng\s*nhập\s*<\/a>\s*<\/li>/iu',
+        '',
+        $items
+    );
+    // Loại bỏ tab Thành viên khỏi menu chính
+    $items = preg_replace(
+        '/<li[^>]*>\s*<a[^>]*>\s*Thành\s*viên\s*<\/a>\s*<\/li>/iu',
+        '',
+        $items
+    );
+    // Loại bỏ tab Sự kiện khỏi menu chính
+    $items = preg_replace(
+        '/<li[^>]*>\s*<a[^>]*>\s*Sự\s*kiện\s*<\/a>\s*<\/li>/iu',
+        '',
+        $items
+    );
     return $items;
 }
 add_filter('wp_nav_menu_items', 'dnttvn_append_dn_register_nav_link', 10, 2);
 
-// Default menu fallback
+// Default menu fallback (không có Đăng nhập / Đăng ký doanh nghiệp trong menu)
 function dnttvn_default_menu() {
-    echo '<ul class="menu" id="mainMenu">';
-    echo '<li><a href="' . esc_url(home_url()) . '">Trang chủ</a></li>';
-    $tin_tuc_page = get_page_by_path('tin-tuc');
-    if ($tin_tuc_page) {
-        $tin_tuc_link = get_permalink($tin_tuc_page);
-        echo '<li><a href="' . esc_url($tin_tuc_link) . '">Tin tức</a></li>';
-    }
+    $is_home = is_front_page() && !is_paged();
+
     $cong_dong_page = get_page_by_path('cong-dong');
-    if ($cong_dong_page) {
-        $cong_dong_link = get_permalink($cong_dong_page);
-        echo '<li><a href="' . esc_url($cong_dong_link) . '">Cộng đồng</a></li>';
-    }
-    $dang_ky_url = home_url('/dang-ky/');
+    $is_cong_dong   = is_page('cong-dong')
+        || is_page('ve-cong-dong')
+        || is_page('trang-ve-cong-dong')
+        || is_singular('cong_dong')
+        || (isset($_GET['post_id']) && get_post_type(absint($_GET['post_id'])) === 'cong_dong');
+
+    $tin_tuc_page = get_page_by_path('tin-tuc');
+    $is_tin_tuc   = is_page('tin-tuc')
+        || is_page('trang-tin-tuc-chi-tiet')
+        || is_singular('tin_tuc');
+
     $dang_ky_page = get_page_by_path('dang-ky');
-    if ($dang_ky_page) {
-        $dang_ky_url = get_permalink($dang_ky_page);
+    $is_dang_ky   = is_page('dang-ky') || is_page('dang-ky-doanh-nghiep');
+
+    $li = function ($url, $label, $active, $extra = '') {
+        $cls = trim('menu-item' . ($active ? ' current-menu-item current_page_item' : '') . ($extra ? ' ' . $extra : ''));
+        $aria = $active ? ' aria-current="page"' : '';
+        echo '<li class="' . esc_attr($cls) . '"><a href="' . esc_url($url) . '"' . $aria . '>' . esc_html($label) . '</a></li>';
+    };
+
+    echo '<ul class="nav-menu" id="mainMenu">';
+    $li(home_url('/'), 'Trang chủ', $is_home);
+
+    $ve_cd = get_page_by_path('ve-cong-dong');
+    if ($ve_cd) {
+        $li(get_permalink($ve_cd), 'Giới thiệu', is_page('ve-cong-dong'));
     }
-    echo '<li><a href="' . esc_url($dang_ky_url) . '">Đăng ký</a></li>';
-    echo '<li class="menu-item menu-item-dang-ky-dn"><a href="' . esc_url(dnttvn_get_dn_registration_page_url()) . '">Đăng ký doanh nghiệp</a></li>';
-    echo '<li><a href="#">Liên hệ</a></li>';
+
+    if ($cong_dong_page) {
+        $li(get_permalink($cong_dong_page), 'Cộng đồng', $is_cong_dong && !$is_home);
+    }
+
+    if ($tin_tuc_page) {
+        $li(get_permalink($tin_tuc_page), 'Tin tức', $is_tin_tuc);
+    }
+
+    $dang_ky_url = $dang_ky_page ? get_permalink($dang_ky_page) : home_url('/dang-ky/');
+    $li($dang_ky_url, 'Đăng ký', $is_dang_ky);
+
+    echo '<li class="menu-item menu-item-lien-he"><a href="#" class="js-dang-cap-nhat" data-alert="Đang cập nhật">Liên hệ</a></li>';
     echo '</ul>';
 }
 
@@ -6139,20 +6555,32 @@ function dnttvn_customize_register($wp_customize) {
     ));
 
     $social_networks = array(
-        'facebook' => 'Facebook',
-        'tiktok'   => 'TikTok',
-        'zalo'     => 'Zalo',
-        'youtube'  => 'YouTube',
+        'facebook' => array(
+            'label'   => 'Facebook',
+            'default' => 'https://www.facebook.com/profile.php?id=61587839805007',
+        ),
+        'tiktok'   => array(
+            'label'   => 'TikTok',
+            'default' => '',
+        ),
+        'zalo'     => array(
+            'label'   => 'Zalo',
+            'default' => 'https://zalo.me/g/qdamqricrs06yepvwayl',
+        ),
+        'youtube'  => array(
+            'label'   => 'YouTube',
+            'default' => '',
+        ),
     );
 
-    foreach ($social_networks as $key => $label) {
+    foreach ($social_networks as $key => $network) {
         $setting_id = 'dnttvn_social_' . $key . '_url';
         $wp_customize->add_setting($setting_id, array(
-            'default'           => '',
+            'default'           => $network['default'],
             'sanitize_callback' => 'esc_url_raw',
         ));
         $wp_customize->add_control($setting_id, array(
-            'label'       => $label . ' URL',
+            'label'       => $network['label'] . ' URL',
             'section'     => 'dnttvn_social_links',
             'type'        => 'url',
             'input_attrs' => array(
@@ -7711,21 +8139,15 @@ function dnttvn_banner_settings_page_removed() {
     <?php
 }
 
-// Get community links for sidebar display
+// Get community links for sidebar display (chỉ lấy từ option admin, không fallback giả)
 function dnttvn_get_community_links() {
     $links = get_option('dnttvn_community_links', array());
-
-    // Fallback to default if empty
-    if (empty($links)) {
-        $links = array(
-            array('name' => 'Trang Cộng đồng', 'url' => ''),
-            array('name' => 'Cộng đồng Doanh nhân Trẻ', 'url' => ''),
-            array('name' => 'Cộng đồng Khởi nghiệp', 'url' => ''),
-            array('name' => 'Cộng đồng Đầu tư', 'url' => '')
-        );
+    if (!is_array($links)) {
+        return array();
     }
-
-    return $links;
+    return array_values(array_filter($links, function ($link) {
+        return is_array($link) && !empty($link['name']) && !empty($link['url']);
+    }));
 }
 
 // Community Links Settings Page - Enhanced
@@ -7755,17 +8177,10 @@ function dnttvn_community_links_page() {
         echo '<div class="notice notice-success"><p>Đã lưu tất cả các liên kết cộng đồng!</p></div>';
     }
 
-    // Lấy dữ liệu hiện tại
+    // Lấy dữ liệu hiện tại (không tạo sẵn link giả)
     $community_links = get_option('dnttvn_community_links', array());
-
-    // Mặc định nếu chưa có dữ liệu
-    if (empty($community_links)) {
-        $community_links = array(
-            array('name' => 'Trang Cộng đồng', 'url' => ''),
-            array('name' => 'Cộng đồng Doanh nhân Trẻ', 'url' => ''),
-            array('name' => 'Cộng đồng Khởi nghiệp', 'url' => ''),
-            array('name' => 'Cộng đồng Đầu tư', 'url' => '')
-        );
+    if (!is_array($community_links)) {
+        $community_links = array();
     }
 
     ?>
@@ -7776,6 +8191,9 @@ function dnttvn_community_links_page() {
         <div id="messages-container"></div>
 
         <div id="community-links-container">
+            <?php if (empty($community_links)) : ?>
+                <p class="description" style="margin-bottom: 16px;">Chưa có liên kết. Nhấn nút bên dưới để thêm.</p>
+            <?php endif; ?>
             <?php foreach ($community_links as $index => $link) : ?>
             <div class="community-link-item" data-index="<?php echo $index; ?>" style="background: #f9f9f9; padding: 20px; margin-bottom: 20px; border: 1px solid #ddd; border-radius: 6px; position: relative;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
@@ -8025,15 +8443,8 @@ function dnttvn_save_individual_community_link() {
     }
 
     $links = get_option('dnttvn_community_links', array());
-
-    // Nếu chưa có dữ liệu, tạo mặc định
-    if (empty($links)) {
-        $links = array(
-            array('name' => 'Trang Cộng đồng', 'url' => ''),
-            array('name' => 'Cộng đồng Doanh nhân Trẻ', 'url' => ''),
-            array('name' => 'Cộng đồng Khởi nghiệp', 'url' => ''),
-            array('name' => 'Cộng đồng Đầu tư', 'url' => '')
-        );
+    if (!is_array($links)) {
+        $links = array();
     }
 
     // Cập nhật hoặc thêm link
@@ -8479,7 +8890,7 @@ function dnttvn_render_excel_tables($post_id) {
         $display = ($has_multiple && $idx > 0) ? '' : $active;
         echo '<div class="dnttvn-excel-sheet-content' . $display . '" data-sheet="' . esc_attr($idx) . '">';
         echo '<div class="dnttvn-table-scroll-wrapper">';
-        echo '<div class="dnttvn-scroll-hint">← Kéo ngang để xem thêm →</div>';
+        echo '<div class="dnttvn-scroll-hint" aria-hidden="true">← Kéo ngang để xem thêm →</div>';
         echo '<table class="dnttvn-editor-table">';
 
         foreach ($rows as $rIdx => $row) {
@@ -8501,16 +8912,46 @@ function dnttvn_render_excel_tables($post_id) {
     echo '</div>';
 }
 
+/**
+ * Bọc bảng bằng khung cuộn ngang dùng chung.
+ * Bỏ qua bảng đã nằm trong .dnttvn-table-scroll-wrapper.
+ */
 function dnttvn_wrap_tables_in_scroll($content) {
     if (is_admin() || !is_string($content) || stripos($content, '<table') === false) {
         return $content;
     }
-    $content = preg_replace(
-        '/(<table(?:\s[^>]*)?>[\s\S]*?<\/table>)/i',
-        '<div class="dnttvn-table-scroll-wrapper"><div class="dnttvn-scroll-hint">← Kéo ngang để xem thêm →</div>$1</div>',
-        $content
-    );
-    return $content;
+
+    $offset = 0;
+    $out    = '';
+    $len    = strlen($content);
+
+    while (preg_match('/<table\b[^>]*>[\s\S]*?<\/table>/i', $content, $m, PREG_OFFSET_CAPTURE, $offset)) {
+        $start = (int) $m[0][1];
+        $table = $m[0][0];
+        $out  .= substr($content, $offset, $start - $offset);
+
+        $lookback = substr($content, max(0, $start - 400), min(400, $start));
+        $last_close = strrpos($lookback, '</div>');
+        $region = ($last_close === false) ? $lookback : substr($lookback, $last_close + 6);
+        $already = (stripos($region, 'dnttvn-table-scroll-wrapper') !== false);
+
+        if ($already) {
+            $out .= $table;
+        } else {
+            $out .= '<div class="dnttvn-table-scroll-wrapper">'
+                . '<div class="dnttvn-scroll-hint" aria-hidden="true">← Kéo ngang để xem thêm →</div>'
+                . $table
+                . '</div>';
+        }
+
+        $offset = $start + strlen($table);
+    }
+
+    if ($offset < $len) {
+        $out .= substr($content, $offset);
+    }
+
+    return $out !== '' ? $out : $content;
 }
 add_filter('the_content', 'dnttvn_wrap_tables_in_scroll', 99);
 add_filter('dnttvn_display_content', 'dnttvn_wrap_tables_in_scroll', 99);

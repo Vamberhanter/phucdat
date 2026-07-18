@@ -7,50 +7,11 @@
 get_header();
 
 $submitted = isset($_GET['submitted']) && $_GET['submitted'] === '1';
+
+dnttvn_page_shell_start('Đăng ký gia nhập Cộng đồng');
 ?>
-
-<main class="main-content main-content-dang-ky">
-    <!-- Left Sidebar: Về Cộng đồng DNTTVN -->
-    <div class="sidebar-column">
-        <div class="column-header mobile-toggle collapsed">Về Cộng đồng DNTTVN</div>
-        <div class="column-content mobile-collapsed">
-            <ul class="about-list">
-                <?php
-                $cong_dong_args = array(
-                    'post_type'      => 'cong_dong',
-                    'posts_per_page' => -1,
-                    'post_status'    => 'publish',
-                    'orderby'        => 'menu_order date',
-                    'order'          => 'ASC',
-                );
-                $cong_dong_query = new WP_Query($cong_dong_args);
-                if ($cong_dong_query->have_posts()) :
-                    while ($cong_dong_query->have_posts()) :
-                        $cong_dong_query->the_post();
-                        $is_noi_bat = get_post_meta(get_the_ID(), '_cong_dong_noi_bat', true);
-                        $li_class   = ($is_noi_bat == '1') ? 'highlight-item' : '';
-                        ?>
-                        <li class="<?php echo esc_attr($li_class); ?>">
-                            <a href="<?php echo esc_url(function_exists('dnttvn_get_cong_dong_detail_url') ? dnttvn_get_cong_dong_detail_url(get_the_ID()) : get_permalink()); ?>"><?php the_title(); ?></a>
-                        </li>
-                        <?php
-                    endwhile;
-                    wp_reset_postdata();
-                else :
-                    ?>
-                    <li><a href="#">Chưa có bài viết Cộng đồng</a></li>
-                <?php endif; ?>
-            </ul>
-        </div>
-        <?php if (function_exists('dnttvn_render_left_sidebar_thanh_vien_block')) dnttvn_render_left_sidebar_thanh_vien_block(); ?>
-    </div>
-
-    <!-- Center Content: Form đăng ký -->
-    <div class="main-center">
-        <div class="content-column content-column-dang-ky">
-            <div class="column-header">Đăng ký gia nhập Cộng đồng</div>
-            <div class="column-content">
-
+<h1 class="cd-detail__title">Đăng ký gia nhập Cộng đồng</h1>
+<div class="content-column-dang-ky">
                 <?php if ($submitted) : ?>
                     <div class="dang-ky-message dang-ky-success dang-ky-success--card" id="dang-ky-success-anchor" role="status" aria-live="polite" tabindex="-1">
                         <span class="dang-ky-success__icon" aria-hidden="true">✓</span>
@@ -299,30 +260,9 @@ $submitted = isset($_GET['submitted']) && $_GET['submitted'] === '1';
                         <button type="submit" class="dang-ky-submit">Gửi đăng ký</button>
                     </div>
                 </form>
-            </div>
-        </div>
-    </div>
+</div>
 
-    <!-- Right Sidebar: Website liên kết -->
-    <div class="sidebar-column">
-        <?php get_template_part('template-parts/sidebar-su-kien'); ?>
-
-        <div class="column-header mobile-toggle collapsed">Website liên kết</div>
-        <div class="column-content mobile-collapsed">
-            <ul class="linked-websites">
-                <?php
-                $community_links = function_exists('dnttvn_get_community_links') ? dnttvn_get_community_links() : array();
-                $community_links = array_slice($community_links, 0, 9);
-                foreach ($community_links as $link) {
-                    if (!empty($link['url'])) {
-                        echo '<li><a href="' . esc_url($link['url']) . '">' . esc_html($link['name']) . '</a></li>';
-                    }
-                }
-                ?>
-            </ul>
-        </div>
-    </div>
-</main>
+<?php dnttvn_page_shell_end(); ?>
 
 <script>
 (function () {

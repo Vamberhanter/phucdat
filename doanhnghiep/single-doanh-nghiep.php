@@ -17,7 +17,7 @@ get_header();
     ?>
     <div class="sidebar-column">
         <div class="dn-sidebar-dn-list">
-            <div class="column-header mobile-toggle collapsed">Danh sách Doanh nghiệp</div>
+            <div class="column-header mobile-toggle collapsed">Danh Mục Hàng</div>
             <div class="column-content mobile-collapsed">
                 <ul class="linked-websites">
                     <li><a href="<?php echo esc_url($dn_list_url); ?>">Danh sách Doanh nghiệp</a></li>

@@ -5,87 +5,30 @@
  */
 
 get_header();
+
+$single_tt_id = get_queried_object_id();
+dnttvn_page_shell_start(get_the_title($single_tt_id));
 ?>
 
-<main class="main-content">
-    <!-- Left Sidebar -->
-    <div class="sidebar-column">
-        <div class="column-header mobile-toggle collapsed">Về Cộng đồng DNTTVN</div>
-        <div class="column-content mobile-collapsed">
-            <ul class="about-list">
-                <?php
-                $cong_dong_args = array(
-                    'post_type'      => 'cong_dong',
-                    'posts_per_page' => -1,
-                    'post_status'    => 'publish',
-                    'orderby'        => 'menu_order date',
-                    'order'          => 'ASC',
-                );
-                $cong_dong_query = new WP_Query($cong_dong_args);
-
-                if ($cong_dong_query->have_posts()) :
-                    while ($cong_dong_query->have_posts()) :
-                        $cong_dong_query->the_post();
-                        $is_noi_bat = get_post_meta(get_the_ID(), '_cong_dong_noi_bat', true);
-                        $li_class   = ($is_noi_bat == '1') ? 'highlight-item' : '';
-                        ?>
-                        <li class="<?php echo esc_attr($li_class); ?>">
-                            <a href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
-                        </li>
-                        <?php
-                    endwhile;
-                    wp_reset_postdata();
-                else :
-                    ?>
-                    <li><a href="#">Chưa có bài viết Cộng đồng</a></li>
-                <?php endif; ?>
-            </ul>
-        </div>
-        <?php if (function_exists('dnttvn_render_left_sidebar_thanh_vien_block')) dnttvn_render_left_sidebar_thanh_vien_block(); ?>
-    </div>
-
-    <!-- Center Content -->
-    <div class="main-center">
-        <div class="content-column">
             <?php while (have_posts()) : the_post(); ?>
-                <div class="column-header entry-title"><?php the_title(); ?></div>
-                <div class="column-content column-content-tin-tuc-detail">
-                    <div class="news-item">
-                        <?php
-                        $is_noi_bat = get_post_meta(get_the_ID(), '_tin_tuc_noi_bat', true);
-                        if ($is_noi_bat === '1') {
-                            echo '<div style="margin-bottom: 15px;"><span style="display: inline-block; background: #667eea; color: #fff; padding: 6px 14px; border-radius: 4px; font-size: 14px; font-weight: 600;">Tin nổi bật</span></div>';
-                        }
+                <article class="cd-detail">
+                <h1 class="cd-detail__title"><?php the_title(); ?></h1>
+                <div class="cd-detail__meta">
+                    <span><?php echo esc_html(get_the_date('d/m/Y')); ?></span>
+                    <?php
+                    $tac_gia = get_post_meta(get_the_ID(), '_tin_tuc_tac_gia', true);
+                    if ($tac_gia) :
                         ?>
-                        <div class="news-date" style="margin-bottom: 15px;">
-                            <?php
-                            $thoi_gian_dang = get_post_meta(get_the_ID(), '_tin_tuc_thoi_gian_dang', true);
-                            $ngay_dang = get_post_meta(get_the_ID(), '_tin_tuc_ngay_dang', true);
-                            if ($thoi_gian_dang) {
-                                $dt = date_create_from_format('Y-m-d\TH:i', $thoi_gian_dang);
-                                if (!$dt) $dt = date_create_from_format('Y-m-d H:i:s', $thoi_gian_dang);
-                                echo '<span class="news-date-line" style="display: block;"><strong>Ngày đăng:</strong> ' . ($dt ? $dt->format('d/m/Y') : esc_html($thoi_gian_dang)) . '</span>';
-                                if ($dt) {
-                                    echo '<span class="news-date-line" style="display: block;"><strong>Giờ đăng:</strong> ' . esc_html($dt->format('H:i')) . '</span>';
-                                }
-                            } elseif ($ngay_dang) {
-                                $d = date_create_from_format('Y-m-d', $ngay_dang);
-                                echo '<span class="news-date-line" style="display: block;"><strong>Ngày đăng:</strong> ' . ($d ? $d->format('d/m/Y') : esc_html($ngay_dang)) . '</span>';
-                            } else {
-                                echo '<span class="news-date-line" style="display: block;"><strong>Ngày đăng:</strong> ' . esc_html(get_the_date('d/m/Y')) . '</span>';
-                            }
-                            $tac_gia = get_post_meta(get_the_ID(), '_tin_tuc_tac_gia', true);
-                            if ($tac_gia) {
-                                echo '<span class="news-date-line" style="display: block;"><strong>Tác giả:</strong> ' . esc_html($tac_gia) . '</span>';
-                            }
-                            $nguon = get_post_meta(get_the_ID(), '_tin_tuc_nguon', true);
-                            if ($nguon) {
-                                echo '<span class="news-date-line" style="display: block;"><strong>Nguồn:</strong> <a href="' . esc_url($nguon) . '" target="_blank">Xem nguồn</a></span>';
-                            }
-                            ?>
-                        </div>
+                        <span><?php echo esc_html($tac_gia); ?></span>
+                    <?php endif; ?>
+                    <?php if (get_post_meta(get_the_ID(), '_tin_tuc_noi_bat', true) === '1') : ?>
+                        <span class="cd-badge">Nổi bật</span>
+                    <?php endif; ?>
+                </div>
+                <div class="cd-detail__body entry-content column-content-tin-tuc-detail">
+                    <div class="news-item">
                         <?php if (has_excerpt()) : ?>
-                        <div class="news-excerpt" style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-left: 4px solid #667eea; color: #444;">
+                        <div class="cd-detail__excerpt">
                             <?php the_excerpt(); ?>
                         </div>
                         <?php endif; ?>
@@ -250,20 +193,6 @@ get_header();
                                 </div>
                                 <?php
                             }
-                        } else {
-                            // No structured content, show regular content
-                            ?>
-                            <div style="line-height: 1.8; font-size: 20px;">
-                                <?php
-                                if (!empty(get_the_content())) {
-                                    the_content();
-                                } else {
-                                    echo '<p style="color: #666; font-style: italic;">Nội dung bài viết đang được cập nhật...</p>';
-                                }
-                                ?>
-                            </div>
-                            <?php
-                        }
                         ?>
                         
                         <?php
@@ -302,54 +231,18 @@ get_header();
                             </div>
                         <?php endif; ?>
                         
-                        <!-- Navigation to previous/next post -->
-                        <div style="margin-top: 40px; padding-top: 20px; border-top: 2px solid #667eea; display: flex; justify-content: space-between;">
-                            <div>
-                                <?php
-                                $prev_post = get_previous_post();
-                                if ($prev_post) :
-                                    ?>
-                                    <a href="<?php echo esc_url(get_permalink($prev_post->ID)); ?>" style="color: #667eea; text-decoration: none;">
-                                        ← <?php echo esc_html($prev_post->post_title); ?>
-                                    </a>
-                                <?php endif; ?>
-                            </div>
-                            <div>
-                                <?php
-                                $next_post = get_next_post();
-                                if ($next_post) :
-                                    ?>
-                                    <a href="<?php echo esc_url(get_permalink($next_post->ID)); ?>" style="color: #667eea; text-decoration: none;">
-                                        <?php echo esc_html($next_post->post_title); ?> →
-                                    </a>
-                                <?php endif; ?>
-                            </div>
+                        <div class="cd-detail__nav" style="margin-top: 28px;">
+                            <?php
+                            $tin_tuc_list_page = get_page_by_path('tin-tuc');
+                            $back_url = $tin_tuc_list_page ? get_permalink($tin_tuc_list_page) : home_url('/tin-tuc/');
+                            ?>
+                            <a class="cd-btn-outline" href="<?php echo esc_url($back_url); ?>">← Quay lại danh sách</a>
                         </div>
                     </div>
                 </div>
+                </article>
             <?php endwhile; ?>
-        </div>
-    </div>
 
-    <!-- Right Sidebar: chỉ Link Website liên kết (tối đa 9), không doanh nghiệp -->
-    <div class="sidebar-column">
-        <?php get_template_part('template-parts/sidebar-su-kien'); ?>
-
-        <div class="column-header mobile-toggle collapsed">Website liên kết</div>
-        <div class="column-content mobile-collapsed">
-            <ul class="linked-websites">
-                <?php
-                $community_links = function_exists('dnttvn_get_community_links') ? dnttvn_get_community_links() : array();
-                $community_links = array_slice($community_links, 0, 9);
-                foreach ($community_links as $link) {
-                    if (!empty($link['url'])) {
-                        echo '<li><a href="' . esc_url($link['url']) . '">' . esc_html($link['name']) . '</a></li>';
-                    }
-                }
-                ?>
-            </ul>
-        </div>
-    </div>
-</main>
+<?php dnttvn_page_shell_end(); ?>
 
 <?php get_footer(); ?>

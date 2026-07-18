@@ -1,66 +1,68 @@
 <?php
 /**
  * Template Name: Chi Tiết Tin Tức
- * Description: Template hiển thị chi tiết tin tức
+ * Layout hiện đại 3 cột — đồng bộ danh sách Tin tức / Cộng đồng.
  */
 
 get_header();
 
-// Get post ID from URL parameter
 $post_id_param = isset($_GET['post_id']) ? intval($_GET['post_id']) : 0;
 $tin_tuc_post = ($post_id_param > 0) ? get_post($post_id_param) : null;
 $current_tin_tuc_id = ($tin_tuc_post && $tin_tuc_post->post_type === 'tin_tuc') ? $tin_tuc_post->ID : 0;
-?>
 
-<main class="main-content">
-    <div class="sidebar-column">
-        <div class="column-header mobile-toggle collapsed">Về Cộng đồng DNTTVN</div>
-        <div class="column-content mobile-collapsed">
-            <ul class="about-list">
-                <?php
-                $cong_dong_args = array(
-                    'post_type'      => 'cong_dong',
-                    'posts_per_page' => -1,
-                    'post_status'    => 'publish',
-                    'orderby'        => 'menu_order date',
-                    'order'          => 'ASC',
-                );
-                $cong_dong_query = new WP_Query($cong_dong_args);
+$crumb = ($current_tin_tuc_id && $tin_tuc_post) ? $tin_tuc_post->post_title : 'Tin tức';
+dnttvn_page_shell_start($crumb);
 
-                if ($cong_dong_query->have_posts()) :
-                    while ($cong_dong_query->have_posts()) :
-                        $cong_dong_query->the_post();
-                        $is_noi_bat = get_post_meta(get_the_ID(), '_cong_dong_noi_bat', true);
-                        $li_class   = ($is_noi_bat == '1') ? 'highlight-item' : '';
-                        ?>
-                        <li class="<?php echo esc_attr($li_class); ?>">
-                            <a href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
-                        </li>
-                        <?php
-                    endwhile;
-                    wp_reset_postdata();
-                else :
-                    ?>
-                    <li><a href="#">Chưa có bài viết Cộng đồng</a></li>
-                <?php endif; ?>
-            </ul>
+$tin_tuc_list_page = get_page_by_path('tin-tuc');
+$back_url = $tin_tuc_list_page ? get_permalink($tin_tuc_list_page) : home_url('/tin-tuc/');
+
+if ($current_tin_tuc_id > 0 && $tin_tuc_post) {
+    global $post;
+    $original_post = $post;
+    $post = $tin_tuc_post;
+    setup_postdata($post);
+
+    $thoi_gian_dang = get_post_meta($post->ID, '_tin_tuc_thoi_gian_dang', true);
+    $ngay_dang      = get_post_meta($post->ID, '_tin_tuc_ngay_dang', true);
+    $date_label     = get_the_date('d/m/Y', $post->ID);
+    if ($thoi_gian_dang) {
+        $dt = date_create_from_format('Y-m-d\TH:i', $thoi_gian_dang);
+        if (!$dt) {
+            $dt = date_create_from_format('Y-m-d H:i:s', $thoi_gian_dang);
+        }
+        if ($dt) {
+            $date_label = $dt->format('d/m/Y');
+        }
+    } elseif ($ngay_dang) {
+        $d = date_create_from_format('Y-m-d', $ngay_dang);
+        if ($d) {
+            $date_label = $d->format('d/m/Y');
+        }
+    }
+    $tac_gia  = get_post_meta($post->ID, '_tin_tuc_tac_gia', true);
+    $nguon    = get_post_meta($post->ID, '_tin_tuc_nguon', true);
+    $is_noi_bat = get_post_meta($post->ID, '_tin_tuc_noi_bat', true) === '1';
+    ?>
+    <article class="cd-detail">
+        <h1 class="cd-detail__title"><?php echo esc_html($post->post_title); ?></h1>
+        <div class="cd-detail__meta">
+            <span><?php echo esc_html($date_label); ?></span>
+            <?php if ($tac_gia) : ?>
+                <span><?php echo esc_html($tac_gia); ?></span>
+            <?php endif; ?>
+            <?php if ($is_noi_bat) : ?>
+                <span class="cd-badge">Nổi bật</span>
+            <?php endif; ?>
         </div>
-        <?php if (function_exists('dnttvn_render_left_sidebar_thanh_vien_block')) dnttvn_render_left_sidebar_thanh_vien_block(); ?>
-    </div>
+        <?php if ($nguon) : ?>
+            <p class="cd-detail__source"><strong>Nguồn:</strong> <a href="<?php echo esc_url($nguon); ?>" target="_blank" rel="noopener">Xem nguồn</a></p>
+        <?php endif; ?>
+        <?php if (get_the_excerpt($post->ID)) : ?>
+            <div class="cd-detail__excerpt"><?php echo wp_kses_post(get_the_excerpt($post->ID)); ?></div>
+        <?php endif; ?>
 
-    <div class="main-center">
-        <div class="content-column">
-            <?php
-            if ($current_tin_tuc_id > 0 && $tin_tuc_post) {
-                // Lưu global $post hiện tại, set $post = tin tức để template tags hoạt động
-                global $post;
-                $original_post = $post;
-                $post = $tin_tuc_post;
-                setup_postdata($post);
-                ?>
-                <div class="column-header entry-title"><?php echo esc_html($post->post_title); ?></div>
-                <div class="column-content column-content-tin-tuc-detail">
-                    <div class="news-item">
+        <div class="cd-detail__body entry-content column-content-tin-tuc-detail">
+            <div class="news-item">
                         <?php
                         $catalog_raw = get_post_meta($post->ID, '_tin_tuc_catalog_links', true);
                         if (is_string($catalog_raw) && $catalog_raw !== '') {
@@ -98,44 +100,6 @@ $current_tin_tuc_id = ($tin_tuc_post && $tin_tuc_post->post_type === 'tin_tuc') 
                         </section>
                         <?php endif; ?>
 
-                        <?php
-                        $is_noi_bat = get_post_meta($post->ID, '_tin_tuc_noi_bat', true);
-                        if ($is_noi_bat === '1') {
-                            echo '<div style="margin-bottom: 15px;"><span style="display: inline-block; background: #667eea; color: #fff; padding: 6px 14px; border-radius: 4px; font-size: 14px; font-weight: 600;">Tin nổi bật</span></div>';
-                        }
-                        ?>
-                        <div class="news-date" style="margin-bottom: 15px;">
-                            <?php
-                            $thoi_gian_dang = get_post_meta($post->ID, '_tin_tuc_thoi_gian_dang', true);
-                            $ngay_dang = get_post_meta($post->ID, '_tin_tuc_ngay_dang', true);
-                            if ($thoi_gian_dang) {
-                                $dt = date_create_from_format('Y-m-d\TH:i', $thoi_gian_dang);
-                                if (!$dt) $dt = date_create_from_format('Y-m-d H:i:s', $thoi_gian_dang);
-                                echo '<span class="news-date-line" style="display: block;"><strong>Ngày đăng:</strong> ' . ($dt ? $dt->format('d/m/Y') : esc_html($thoi_gian_dang)) . '</span>';
-                                if ($dt) {
-                                    echo '<span class="news-date-line" style="display: block;"><strong>Giờ đăng:</strong> ' . esc_html($dt->format('H:i')) . '</span>';
-                                }
-                            } elseif ($ngay_dang) {
-                                $d = date_create_from_format('Y-m-d', $ngay_dang);
-                                echo '<span class="news-date-line" style="display: block;"><strong>Ngày đăng:</strong> ' . ($d ? $d->format('d/m/Y') : esc_html($ngay_dang)) . '</span>';
-                            } else {
-                                echo '<span class="news-date-line" style="display: block;"><strong>Ngày đăng:</strong> ' . esc_html(get_the_date('d/m/Y', $post->ID)) . '</span>';
-                            }
-                            $tac_gia = get_post_meta($post->ID, '_tin_tuc_tac_gia', true);
-                            if ($tac_gia) {
-                                echo '<span class="news-date-line" style="display: block;"><strong>Tác giả:</strong> ' . esc_html($tac_gia) . '</span>';
-                            }
-                            $nguon = get_post_meta($post->ID, '_tin_tuc_nguon', true);
-                            if ($nguon) {
-                                echo '<span class="news-date-line" style="display: block;"><strong>Nguồn:</strong> <a href="' . esc_url($nguon) . '" target="_blank">Xem nguồn</a></span>';
-                            }
-                            ?>
-                        </div>
-                        <?php if (get_the_excerpt($post->ID)) : ?>
-                        <div class="news-excerpt" style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-left: 4px solid #667eea; color: #444;">
-                            <?php echo wp_kses_post(get_the_excerpt($post->ID)); ?>
-                        </div>
-                        <?php endif; ?>
 
                         <?php
                         // Gộp hình chính + hình phụ vào chung 1 khung
@@ -549,49 +513,24 @@ $current_tin_tuc_id = ($tin_tuc_post && $tin_tuc_post->post_type === 'tin_tuc') 
                             </div>
                         </div>
                         <?php endif; ?>
-
-                        <div class="back-to-news-list" style="margin-top: 40px; padding-top: 20px; text-align: center; border-top: 1px solid #eee;">
-                            <?php
-                            $tin_tuc_list_page = get_page_by_path('tin-tuc');
-                            $back_url = $tin_tuc_list_page ? get_permalink($tin_tuc_list_page) : home_url('/tin-tuc/');
-                            ?>
-                            <a href="<?php echo esc_url($back_url); ?>" class="button" style="background: #007cba; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px;">← Quay lại danh sách</a>
-                        </div>
-                    </div>
-                </div>
-                <?php
-                $post = $original_post;
-                wp_reset_postdata();
-            } else {
-                echo '<div class="column-header">Không tìm thấy bài viết</div>';
-                echo '<div class="column-content"><p>Bài viết không tồn tại hoặc đã bị xóa.</p></div>';
-            }
-            ?>
+            </div>
         </div>
-    </div>
-
-    <div class="sidebar-column">
-        <?php get_template_part('template-parts/sidebar-su-kien'); ?>
-
-        <div class="column-header mobile-toggle collapsed">Website liên kết</div>
-        <div class="column-content mobile-collapsed">
-            <ul class="linked-websites">
-                <?php
-                $community_links = function_exists('dnttvn_get_community_links') ? dnttvn_get_community_links() : array();
-                $community_links = array_slice($community_links, 0, 9);
-                foreach ($community_links as $link) {
-                    if (!empty($link['url'])) {
-                        echo '<li><a href="' . esc_url($link['url']) . '">' . esc_html($link['name']) . '</a></li>';
-                    }
-                }
-                ?>
-            </ul>
+        <div class="cd-detail__nav">
+            <a class="cd-btn-outline" href="<?php echo esc_url($back_url); ?>">← Quay lại danh sách</a>
         </div>
-    </div>
-</main>
+    </article>
+    <?php
+    $post = $original_post;
+    wp_reset_postdata();
+} else {
+    echo '<h1 class="cd-detail__title">Không tìm thấy bài viết</h1>';
+    echo '<p class="cd-empty">Bài viết không tồn tại hoặc đã bị xóa.</p>';
+    echo '<div class="cd-detail__nav"><a class="cd-btn-outline" href="' . esc_url($back_url) . '">← Quay lại danh sách</a></div>';
+}
 
-<?php get_footer(); ?>
-
+dnttvn_page_shell_end();
+get_footer();
+?>
 <!-- Lightbox overlay for Photo Grid & Multi-photo layouts -->
 <div id="tintuc-lightbox" class="tintuc-lightbox-overlay" role="dialog" aria-modal="true" aria-label="Xem ảnh lớn">
     <span class="tintuc-lightbox-close" id="tintuc-lightbox-close" aria-label="Đóng">&times;</span>

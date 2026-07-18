@@ -4,6 +4,48 @@ function toggleMenu() {
     if (menu) {
         menu.classList.toggle('active');
     }
+    const nav = document.getElementById('dnMainNav');
+    const btn = document.getElementById('dnHamburger');
+    if (nav) {
+        nav.classList.toggle('is-open');
+    }
+    if (btn) {
+        var open = nav && nav.classList.contains('is-open');
+        btn.classList.toggle('is-open', !!open);
+        btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    }
+}
+
+function initDnHeroNav() {
+    var btn = document.getElementById('dnHamburger');
+    var nav = document.getElementById('dnMainNav');
+    if (!btn || !nav) return;
+    btn.addEventListener('click', function () {
+        var open = !nav.classList.contains('is-open');
+        nav.classList.toggle('is-open', open);
+        btn.classList.toggle('is-open', open);
+        btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+}
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initDnHeroNav);
+} else {
+    initDnHeroNav();
+}
+
+function initDangCapNhatNotice() {
+    document.addEventListener('click', function (event) {
+        var link = event.target.closest('.js-dang-cap-nhat');
+        if (!link) return;
+        event.preventDefault();
+        var msg = link.getAttribute('data-alert') || '\u0110ang c\u1eadp nh\u1eadt';
+        window.alert(msg);
+    });
+}
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initDangCapNhatNotice);
+} else {
+    initDangCapNhatNotice();
 }
 
 // Banner responsive logic removed as it's now handled by CSS classes .banner-img-desktop and .banner-img-mobile

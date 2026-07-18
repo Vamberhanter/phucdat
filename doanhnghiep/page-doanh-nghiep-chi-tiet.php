@@ -23,7 +23,7 @@ $doanh_nghiep_list_url = $page_doanh_nghiep ? get_permalink($page_doanh_nghiep->
     <!-- Left Sidebar: chỉ Danh sách Doanh nghiệp (không Cộng đồng / Tin tức) -->
     <div class="sidebar-column">
         <div class="dn-sidebar-dn-list">
-            <div class="column-header mobile-toggle collapsed">Danh sách Doanh nghiệp</div>
+            <div class="column-header mobile-toggle collapsed">Danh Mục Hàng</div>
             <div class="column-content mobile-collapsed">
                 <ul class="linked-websites">
                     <li><a href="<?php echo esc_url($doanh_nghiep_list_url); ?>">Danh sách Doanh nghiệp</a></li>

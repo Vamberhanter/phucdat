@@ -1,9 +1,127 @@
-// Toggle Menu Function
+// Toggle Menu Function (legacy + modern header)
 function toggleMenu() {
+    var nav = document.getElementById('mainNav');
+    var btn = document.getElementById('hamburgerBtn');
+    if (nav) {
+        nav.classList.toggle('nav--open');
+        if (btn) {
+            var open = nav.classList.contains('nav--open');
+            btn.classList.toggle('hamburger--open', open);
+            btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+        }
+        return;
+    }
     var menu = document.getElementById('mainMenu') || document.querySelector('.main-navigation .menu');
     if (menu) {
         menu.classList.toggle('active');
     }
+}
+
+/** Toast thông báo ngắn (thay alert khi có thể) */
+function showCdToast(message) {
+    var text = (message || '').toString().trim();
+    if (!text) return;
+    var el = document.querySelector('.cd-toast');
+    if (!el) {
+        el = document.createElement('div');
+        el.className = 'cd-toast';
+        el.setAttribute('role', 'status');
+        el.setAttribute('aria-live', 'polite');
+        document.body.appendChild(el);
+    }
+    el.textContent = text;
+    el.classList.add('cd-toast--show');
+    clearTimeout(el._cdToastTimer);
+    el._cdToastTimer = setTimeout(function () {
+        el.classList.remove('cd-toast--show');
+    }, 3400);
+}
+
+/** Alert "Đang cập nhật" — dùng chung cho Liên hệ, Xem video giới thiệu, ... */
+function initDangCapNhatAlert() {
+    document.addEventListener('click', function (e) {
+        var link = e.target.closest('a, button');
+        if (!link) return;
+
+        var href = (link.getAttribute('href') || '').trim().toLowerCase();
+        var text = (link.textContent || '').replace(/\s+/g, ' ').trim().toLowerCase();
+        var isUpdating =
+            link.classList.contains('js-dang-cap-nhat') ||
+            link.classList.contains('js-lien-he-updating') ||
+            href === '#lien-he' ||
+            href === '#lienhe' ||
+            text === 'liên hệ' ||
+            text.indexOf('xem video giới thiệu') !== -1;
+
+        if (!isUpdating) return;
+
+        e.preventDefault();
+        e.stopPropagation();
+        showCdToast(link.getAttribute('data-alert') || 'Đang cập nhật');
+
+        var nav = document.getElementById('mainNav');
+        var btn = document.getElementById('hamburgerBtn');
+        if (nav && nav.classList.contains('nav--open')) {
+            nav.classList.remove('nav--open');
+            if (btn) {
+                btn.classList.remove('hamburger--open');
+                btn.setAttribute('aria-expanded', 'false');
+            }
+        }
+    });
+}
+
+/**
+ * Cuộn ngang bảng dùng chung:
+ * - Bọc bảng trong nội dung nếu chưa có .dnttvn-table-scroll-wrapper
+ * - Hiện hint khi bảng rộng hơn khung
+ */
+function initTableHorizontalScroll() {
+    var roots = document.querySelectorAll(
+        '.cd-main, .cd-detail__body, .content-column, .content-column-dang-ky, ' +
+        '.entry-content, .structured-content-text, .accordion-section-content, ' +
+        '.section-content, .content-item-display, .dang-ky-luat-choi-content'
+    );
+
+    roots.forEach(function (root) {
+        root.querySelectorAll('table').forEach(function (table) {
+            if (table.closest('.dnttvn-table-scroll-wrapper')) return;
+            if (table.closest('.form-table, .widefat, .admin-table')) return;
+
+            var wrap = document.createElement('div');
+            wrap.className = 'dnttvn-table-scroll-wrapper';
+            var hint = document.createElement('div');
+            hint.className = 'dnttvn-scroll-hint';
+            hint.setAttribute('aria-hidden', 'true');
+            hint.textContent = '← Kéo ngang để xem thêm →';
+            table.parentNode.insertBefore(wrap, table);
+            wrap.appendChild(hint);
+            wrap.appendChild(table);
+        });
+    });
+
+    function updateScrollHints() {
+        document.querySelectorAll('.dnttvn-table-scroll-wrapper').forEach(function (wrapper) {
+            var table = wrapper.querySelector('table');
+            if (!table) return;
+            if (table.scrollWidth > wrapper.clientWidth + 8) {
+                wrapper.classList.add('has-scroll');
+            } else {
+                wrapper.classList.remove('has-scroll');
+            }
+        });
+    }
+
+    updateScrollHints();
+    window.addEventListener('resize', updateScrollHints);
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initDangCapNhatAlert);
+    document.addEventListener('DOMContentLoaded', initTableHorizontalScroll);
+} else {
+    initDangCapNhatAlert();
+    initTableHorizontalScroll();
 }
 
 // Responsive Banner Images

@@ -84,42 +84,10 @@ switch ($sort_by) {
 }
 
 $query = new WP_Query($args);
+
+dnttvn_page_shell_start('Doanh nhân');
 ?>
-
-<main class="main-content">
-    <div class="sidebar-column">
-        <div class="column-header mobile-toggle collapsed">Danh sách Doanh nhân</div>
-        <div class="column-content mobile-collapsed">
-            <ul class="linked-websites">
-                <li><a href="<?php echo esc_url($dn_list_url); ?>">Tất cả Doanh nhân (đã duyệt)</a></li>
-                <?php
-                $side_q = new WP_Query(array(
-                    'post_type'      => 'doanh_nhan',
-                    'post_status'    => 'publish',
-                    'posts_per_page' => -1,
-                    'orderby'        => 'title',
-                    'order'          => 'ASC',
-                ));
-                if ($side_q->have_posts()) :
-                    while ($side_q->have_posts()) :
-                        $side_q->the_post();
-                        ?>
-                        <li><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></li>
-                        <?php
-                    endwhile;
-                    wp_reset_postdata();
-                endif;
-                ?>
-            </ul>
-        </div>
-        <?php
-        if (function_exists('dnttvn_render_left_sidebar_thanh_vien_block')) {
-            dnttvn_render_left_sidebar_thanh_vien_block();
-        }
-        ?>
-    </div>
-
-    <div class="main-center">
+<h1 class="cd-detail__title">Danh sách Doanh nhân</h1>
         <div class="top-search-section">
             <h3>Tìm kiếm Doanh nhân</h3>
             <form method="get" action="<?php echo esc_url(get_permalink()); ?>">
@@ -225,24 +193,8 @@ $query = new WP_Query($args);
             endif;
             ?>
         </div>
-    </div>
 
-    <div class="sidebar-column">
-        <?php get_template_part('template-parts/sidebar-su-kien'); ?>
-
-        <div class="column-header mobile-toggle collapsed">Thông tin thêm</div>
-        <div class="column-content mobile-collapsed">
-            <?php
-            if (function_exists('dnttvn_render_banner_blocks')) {
-                $right_banner_html = dnttvn_render_banner_blocks('ad-block');
-                if (!empty($right_banner_html)) {
-                    echo '<div class="ad-section">' . $right_banner_html . '</div>';
-                }
-            }
-            ?>
-        </div>
-    </div>
-</main>
+<?php dnttvn_page_shell_end(); ?>
 
 <?php
 get_footer();
